@@ -8,7 +8,9 @@
     "cross-walkri": "dist/index.js"
   },
   "main": "dist/index.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
@@ -20,6 +22,7 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
+    "esbuild": "^0.28.0",
     "typescript": "^5.4.0"
   }
 }
