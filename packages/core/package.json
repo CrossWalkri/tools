@@ -1,0 +1,19 @@
+{
+  "name": "@cross-walkri/core",
+  "version": "0.1.0",
+  "description": "TypeScript types, schemas, and utilities for CROSS+WALKRI grant standards",
+  "license": "CC0-1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "zod": "^3.22.0"
+  }
+}
