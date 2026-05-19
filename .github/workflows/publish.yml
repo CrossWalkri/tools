@@ -1,0 +1,39 @@
+name: Publish to JSR
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Publish @cross-walkri/core
+        working-directory: packages/core
+        run: npx jsr publish --allow-slow-types
+        env:
+          JSR_TOKEN: ${{ secrets.JSR_TOKEN }}
+
+      - name: Publish @cross-walkri/mcp-server
+        working-directory: packages/mcp-server
+        run: npx jsr publish --allow-slow-types
+        env:
+          JSR_TOKEN: ${{ secrets.JSR_TOKEN }}
