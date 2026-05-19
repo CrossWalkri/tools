@@ -1,6 +1,7 @@
 {
   "name": "@cross-walkri/mcp-server",
   "version": "0.1.0",
+  "license": "CC0-1.0",
   "exports": {
     ".": "./src/index.ts"
   },
