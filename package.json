@@ -6,7 +6,8 @@
   "license": "CC0-1.0",
   "scripts": {
     "build": "pnpm -r build",
-    "bundle": "packages/mcp-server/node_modules/.bin/esbuild packages/mcp-server/src/index.ts --bundle --platform=node --format=esm --outfile=server.mjs",
+    "bundle": "packages/mcp-server/node_modules/.bin/esbuild packages/mcp-server/src/index.ts --bundle --platform=node --format=esm --outfile=server.mjs && packages/mcp-server/node_modules/.bin/esbuild packages/mcp-server/src/http.ts --bundle --platform=node --format=esm --outfile=server-http.mjs",
+    "start": "node server-http.mjs",
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r --parallel exec rm -rf dist"
   },

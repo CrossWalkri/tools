@@ -1,0 +1,9 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm install -g pnpm && pnpm install && pnpm bundle"
+
+[deploy]
+startCommand = "node server-http.mjs"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
