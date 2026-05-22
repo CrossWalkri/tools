@@ -1,6 +1,6 @@
 # CROSS+WALKRI Tools
 
-CROSS (Common Reporting Outcome Standards Schema) and WALKRI (Working Architecture for Legible, Knowledge-Ready Intake) are two companion grant standards that fix the root cause of bad grants data before any application is submitted. CROSS specifies the obligation architecture of a funding round: what grantees must demonstrate at each payment gate, in one of three obligation modes (build a deliverable, produce a measurable change, or recognize past contribution). WALKRI specifies the quality of the intake fields that collect that demonstration, requiring that every field carry a written criterion intent, an operational definition with qualifying and non-qualifying examples, a justified response type, a specified evidence artifact and access path, and a compliance threshold where external standards are referenced. Together they are published CC0 under the CROSS+WALKRI project at github.com/cross-walkri.
+CROSS (Common Reporting Outcome Standards Schema) and WALKRI (Working Architecture for Legible, Knowledge-Ready Intake) are two companion grant standards that fix the root cause of bad grants data before any application is submitted. CROSS specifies the obligation architecture of a funding round: what grantees must demonstrate at each payment gate, in one of three obligation modes (build a deliverable, produce a measurable change, or recognize past contribution). WALKRI specifies the quality of the intake fields that collect that demonstration, requiring that every field carry a written criterion intent, an operational definition with qualifying and non-qualifying examples, a justified response type, a specified evidence artifact and access path, and a compliance threshold where external standards are referenced. Together they are published CC0 under the CROSS+WALKRI project at github.com/CrossWalkri.
 
 This repository contains the TypeScript tooling infrastructure for CROSS+WALKRI: a core library with types, schemas, audit logic, and prompt templates, and an MCP server that exposes CROSS+WALKRI as AI tools in Claude Code, Cursor, and any MCP-compatible client. Both packages are published on JSR at jsr.io/@cross-walkri.
 
@@ -139,6 +139,6 @@ pnpm typecheck
 
 ## License
 
-Both packages are dedicated to the public domain under Creative Commons Zero v1.0 Universal (CC0). See github.com/cross-walkri for the canonical standard documents and compatibility statement corpus.
+Both packages are dedicated to the public domain under Creative Commons Zero v1.0 Universal (CC0). See github.com/CrossWalkri for the canonical standard documents and compatibility statement corpus.
 
 Any grants ecosystem can adopt CROSS+WALKRI without licensing, attribution, or arrangements.
