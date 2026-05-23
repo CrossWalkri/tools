@@ -10,7 +10,7 @@ This repository contains the TypeScript tooling infrastructure for CROSS+WALKRI:
 
 **packages/core** (@cross-walkri/core)
 
-TypeScript types and Zod schemas for every CROSS+WALKRI data structure. The WALKRI audit engine (`auditField`) that checks a field definition against all five criterion specification elements and returns a binary instrument/label verdict with per-criterion gap analysis. The CROSS gate logic (`getGateRequirements`, `validateRoundConfig`, `classifyObligationMode`) for checking round configurations. All 43 CROSS+WALKRI primitives as a typed constant array, searchable by name, layer, or keyword. Prompt templates as functions that return fully-formed prompts for language model use.
+TypeScript types and Zod schemas for every CROSS+WALKRI data structure. The WALKRI audit engine (`auditField`) that checks a field definition against all five criterion specification elements and returns a binary instrument/label verdict with per-criterion gap analysis. The CROSS gate logic (`getGateRequirements`, `validateRoundConfig`, `classifyObligationMode`) for checking round configurations. All 50 CROSS+WALKRI primitives as a typed constant array (Primitives Foundation v0.1.7), searchable by name, layer, or keyword. Prompt templates as functions that return fully-formed prompts for language model use.
 
 Zero runtime dependencies. Pure TypeScript.
 
@@ -94,7 +94,7 @@ Accepts a plain-language program description and infers an obligation mode, then
 
 **cross_classify_framework**
 
-Accepts a description of an external framework and classifies it against the 36 CROSS+WALKRI primitives across seven layers. Returns which layers the framework addresses, which primitives it exemplifies, which are absent, and a prompt template for generating a formal compatibility statement.
+Accepts a description of an external framework and classifies it against the 50 CROSS+WALKRI primitives across seven layers. Returns which layers the framework addresses, which primitives it exemplifies, which are absent, and a prompt template for generating a formal compatibility statement.
 
 **cross_audit_round**
 
@@ -114,7 +114,7 @@ The `@cross-walkri/core` package exports:
 
 **CROSS gate logic**: `getGateRequirements(gateType, obligationMode): string[]`, `validateRoundConfig(round: CrossRound): { valid: boolean; gaps: string[] }`, `classifyObligationMode(description: string): CrossObligationMode`
 
-**Primitives**: `PRIMITIVES` (typed const array of all 43), `getPrimitiveByName(name: string)`, `getPrimitivesByLayer(layer: PrimitiveLayer)`, `searchPrimitives(keyword: string)`
+**Primitives**: `PRIMITIVES` (typed const array of all 50), `getPrimitiveByName(name: string)`, `getPrimitivesByLayer(layer: PrimitiveLayer)`, `searchPrimitives(keyword: string)`
 
 **Prompt templates**: `auditFieldPrompt(field)`, `configureRoundPrompt(description, programType)`, `classifyFrameworkPrompt(description)`, `evaluateRoundPrompt(description)`
 

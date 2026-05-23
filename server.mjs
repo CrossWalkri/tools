@@ -11654,6 +11654,43 @@ var require_primitives = __commonJS({
           "Evaluation of applicant specification language"
         ]
       },
+      {
+        name: "Format Agnosticism",
+        layer: "methodological",
+        description: "A methodological commitment that conformance is content-based rather than format-based. Any infrastructure meeting the content requirements specified by the relevant primitives satisfies conformance, regardless of the format the infrastructure uses. Format prescription is excluded from the standards except where format is itself a primitive requirement (SPDX identifier in Access Condition; published-URL requirement in Attestation Corpus). Different methodologies producing the same content are equivalent.",
+        relationships: [
+          "Foundational methodological primitive alongside Bidirectional Precision and Transclusion",
+          "Generates CROSS Part I content-vs-format separation",
+          "Constrains every Layer 4 Evidence primitive (evidence requirement specifies what must be evidenced, not the format)",
+          "Cross-references Modularity Preservation: format agnosticism allows drop-in adoption across heterogeneous infrastructure"
+        ],
+        applications: [
+          "CROSS Part I content-vs-format separation",
+          "Every compatibility statement that maps a source framework specific format onto CROSS content requirements",
+          "Te Puni Kokiri Effectiveness for Maori (tikanga methodologies satisfy content requirements)",
+          "AAOIFI Islamic finance standards (jurisprudential reporting formats satisfy content requirements)",
+          "Hypercerts integration (on-chain attestation format satisfies attestation content requirements)"
+        ]
+      },
+      {
+        name: "Independent Verifiability from Sources Outside the Applicant's Control",
+        layer: "methodological",
+        description: "A methodological commitment that every checkable claim in the standards must be verifiable from a source outside the claimant control. The applicant cannot serve as the sole verifier of their own claims. The verifying source must be independently queryable (Attestation Corpus, published registries, regulatory filings, independent reviewers, third-party data sources, affected-population participation under Affected Population Verification Gate). Structural counterpart to Falsifiability: falsifiability says claims must be checkable; independent verifiability says the checking source must lie outside the claimant.",
+        relationships: [
+          "Foundational methodological primitive alongside Bidirectional Precision, Transclusion, Format Agnosticism, and the Frame Language primitives",
+          "Constrains every Layer 4 Evidence primitive: evidence form must specify the source of verification outside the applicant",
+          "Connects to Falsifiability (Commitment 1 in Evolution Rules)"
+        ],
+        applications: [
+          `Every appearance of "independently verifiable" or "from a source outside the applicant's control" across the Primitives Foundation and the CROSS schema`,
+          "Development Stage state declarations",
+          "Sufficiency declarations",
+          "Obligation Fulfillment Record",
+          "Attestation Corpus by definition",
+          "Public Benefit Mechanism access condition verification",
+          "Every Evidence Strength level above self-report"
+        ]
+      },
       // ---------------------------------------------------------------------------
       // Layer 2: Identity Primitives
       // ---------------------------------------------------------------------------
@@ -11740,16 +11777,16 @@ var require_primitives = __commonJS({
         ]
       },
       {
-        name: "Governance Resilience",
+        name: "Continuity Capacity",
         layer: "identity",
-        description: "The declared capacity of the applying entity to continue operating in its stated form if the primary contributor or key personnel become unavailable. Three states: single, partial, and resilient.",
+        description: "The declared capacity of the applying entity to continue operating in its stated form if the primary contributor or key personnel become unavailable. Three states: single, partial, and resilient. Renamed at Primitives Foundation v0.1.7 from Governance Resilience per Frame Language audit; the rename specifies the structural capacity the primitive measures without importing Frame 1 vocabulary.",
         relationships: [
           "Derived from entity boundary and scope",
           "Constrains what sustainability stance is credible at the continuation gate",
-          "Single-point-of-failure governance is a disclosure, not a disqualifier"
+          "Single-point-of-failure continuity is a disclosure, not a disqualifier"
         ],
         applications: [
-          "CROSS Part II governance resilience dimension",
+          "CROSS Part II continuity capacity dimension",
           "CROSS Part IV continuation specification gate assessment",
           "Sustainability stance constraint at continuation"
         ]
@@ -11892,6 +11929,48 @@ var require_primitives = __commonJS({
           "WALKRI output license declaration, access provision declaration"
         ]
       },
+      {
+        name: "Pre-Award Indicator Confirmation Stage",
+        layer: "obligation",
+        description: "A structured stage between funder selection of an applicant and the start of disbursement, during which the funder and the selected applicant finalize the indicator definitions, milestone bindings, and evidence form specifications that will govern subsequent gate assessments. The written confirmation produced at the close of this stage is the operative specification for the round; subsequent gate determinations are made against the confirmed specification, not against the applicant's original entry-gate submission. Distinguished from the Entry Specification Gate (which selects among applicants) and from the Progress Verification Gate (which assesses delivery against a specification already in force).",
+        relationships: [
+          "Configured at Layer 3 alongside Gate Type and Gate Character",
+          "References Criterion Specification Elements (Layer 5) for the substantive content of the confirmation",
+          "Output binds subsequent gate assessments under the Attestation Corpus and the Obligation Fulfillment Record"
+        ],
+        applications: [
+          "CROSS Part XII (OTF program-manager negotiation; Sovereign Tech Fund scoping phase; What Works Cities Rigorous Evaluations criterion; CDC Program Evaluation Framework Step 3)",
+          "Any program where the entry gate selects on competitive criteria that differ from the operative measurement specification at completion"
+        ]
+      },
+      {
+        name: "Downstream-Use Restriction",
+        layer: "obligation",
+        description: "A funder-published declared restriction on the intended use or downstream application of grant outputs, operationalized as a categorical eligibility condition at the entry gate. The restriction names a class of uses, applications, or deployment contexts that disqualify an otherwise license-conformant output from being supported by the program. Distinct from Access Condition (which specifies how the output is made available) by constraining what the output may be built for. Three configuration elements: restriction predicate, verification mechanism, disclosure obligation.",
+        relationships: [
+          "Layer 3 primitive sitting alongside Access Condition and Public Benefit Mechanism",
+          "Declared in CROSS Part IV round configuration",
+          "WALKRI Section 3 criterion specification applies to the disclosure obligation field"
+        ],
+        applications: [
+          "CROSS Part XII (NLnet Foundation peaceful-and-humane-use clause; OTF statutory open-source-and-audit mandate per 22 U.S.C. \xA7 6208a; IPAF Free Prior and Informed Consent requirement; Wikimedia Universal Code of Conduct compliance condition)",
+          "Any program whose mandate restricts downstream use of funded outputs by named conditions"
+        ]
+      },
+      {
+        name: "Beneficiary Validation Mechanism",
+        layer: "obligation",
+        description: "A structural mechanism by which the claimed FROM state, population definition, or need claim of an applying entity is independently validated by parties drawn from or bound by obligation directions to the affected population at the entry specification gate. Distinct from the Affected Population Verification Gate (Layer 4), which operates at completion to verify what was delivered. Beneficiary Validation Mechanism operates at entry, before disbursement, to confirm that the applying entity's characterization of the population, the need, and the FROM state is grounded in the affected population's own assessment rather than imposed from outside. Three configuration elements: validating parties, validation procedure, disqualification condition.",
+        relationships: [
+          "Layer 3 primitive operating alongside Public Benefit Mechanism and Affected Population Verification Gate as a three-part architecture for population-anchored programs (validation at entry, mechanism declaration at entry, verification at completion)",
+          "Connects to Independent Verifiability (Layer 1): validating parties must be structurally outside the applicant",
+          "Cross-references the Te Puni Kokiri Treaty partnership pattern and the IPAF co-management structure"
+        ],
+        applications: [
+          "CROSS Part XII (Te Puni Kokiri Effectiveness for Maori framework; IPAF FIMI/Samburu Women Trust/Tebtebba co-management; CRS ProPack baseline community validation; Hopkins Opioid Litigation Principles Principle 5 affected-community input; Core Humanitarian Standard Commitments 1-4 community engagement requirements)",
+          "Any program claiming a condition change or access provision public benefit mechanism in a named population"
+        ]
+      },
       // ---------------------------------------------------------------------------
       // Layer 4: Evidence Primitives
       // ---------------------------------------------------------------------------
@@ -11967,17 +12046,18 @@ var require_primitives = __commonJS({
         ]
       },
       {
-        name: "Beneficiary Accountability Gate",
+        name: "Affected Population Verification Gate",
         layer: "evidence",
-        description: "A gate element requiring that the people or communities served by a funded program participate in verifying what was delivered, not merely that independent third parties confirm delivery. Three configuration elements: beneficiary population, participation mechanism, and minimum participation threshold.",
+        description: "A gate element requiring that the people or communities served by a funded program participate in verifying what was delivered, not merely that independent third parties confirm delivery. Three configuration elements: affected population, participation mechanism, and minimum participation threshold. Renamed at Primitives Foundation v0.1.7 from Beneficiary Accountability Gate per Frame Language audit; the rename aligns with relational triad terminology (affected population) and names the structural mechanism (verification) rather than Frame 1 framing.",
         relationships: [
-          "Extension of Evidence Strength: independent review where the reviewer must be or include the beneficiaries",
-          "Connects to Public Benefit Mechanism: most applicable to condition change and access provision types"
+          "Extension of Evidence Strength: independent review where the reviewer must be or include the affected population",
+          "Connects to Public Benefit Mechanism: most applicable to condition change and access provision types",
+          "Cross-references Beneficiary Validation Mechanism (Layer 3, entry-stage primitive) by temporal distinction (validation at entry; verification at completion)"
         ],
         applications: [
           "Humanitarian and community-development grant programs",
-          "Any program claiming condition change with a named beneficiary population",
-          "CROSS Part XII (CRS ProPack, World Vision LEAP)"
+          "Any program claiming condition change with a named affected population",
+          "CROSS Part XII (CRS ProPack, World Vision LEAP; citation use of source frameworks' beneficiary terminology)"
         ]
       },
       {
@@ -11993,6 +12073,19 @@ var require_primitives = __commonJS({
           "CROSS Part IV funder-side Attestation Corpus query procedure",
           "Cross-program track record assessment",
           "Adverse signal detection in returning applicant review"
+        ]
+      },
+      {
+        name: "Determination Body Separation",
+        layer: "evidence",
+        description: "A funder-side architectural condition requiring that completion-gate determinations be made by a named body structurally outside program management, with a named charter or policy document specifying the body composition, scope, authority, and removal mechanism. The body must be named; charter must be publicly accessible at a stable URL; document must specify how members are appointed and removed, what determination scope the body has authority over, and what relationship the body has to the funder program management chain.",
+        relationships: [
+          "Extension of Evidence Strength (Layer 4) for the institutional-layer separation that per-gate independent review cannot guarantee on its own",
+          "Connects to Conflict of Interest (Layer 3): governs reviewer-applicant relationships at the individual reviewer level; Determination Body Separation governs the structural independence of the evaluation function itself from program operations",
+          "Cross-references Part XI funder obligations and redress"
+        ],
+        applications: [
+          "CROSS Part XII (IFAD Independent Office of Evaluation per IFAD Evaluation Policy; OGP Independent Reporting Mechanism per Procedures Manual 2025; TWCF Research Assessment Policy with DORA-aligned external assessment; CDC Program Evaluation Framework Standard 3 on independence and objectivity; Innovate UK Level 2 and Level 3 externally commissioned evaluations; AEA Program Evaluation Standards E1 through E3 on evaluation accountability)"
         ]
       },
       // ---------------------------------------------------------------------------
@@ -12063,6 +12156,20 @@ var require_primitives = __commonJS({
         applications: [
           "WALKRI applicant identity field specification",
           "Self-reference consistency check across application"
+        ]
+      },
+      {
+        name: "Disaggregation Floor",
+        layer: "specification",
+        description: "A constraint that disaggregation categories declared at the entry gate are carried forward unchanged to every subsequent gate within the same program; the set may be added to at later gates, but established categories cannot be dropped, collapsed, or replaced. Disaggregation floors ratchet only upward. Addresses the recurring pattern where disaggregation categories established to satisfy entry-gate equity, inclusion, or population-scope commitments quietly disappear at progress and completion gates. Two configuration elements: floor categories, addition protocol.",
+        relationships: [
+          "Layer 5 primitive operating in conjunction with Criterion Specification Elements (each field bound by the floor must satisfy operational definition requirements for each declared category)",
+          "Connects to Public Benefit Mechanism (Layer 3): floor categories typically derive from the population scope declared with the public benefit mechanism",
+          "Connects to Obligation Fulfillment Record: drift below the floor at any gate is an adverse signal recorded against the funder program"
+        ],
+        applications: [
+          "CROSS Part XII (NCRP Criteria for Philanthropy at Its Best disaggregation requirements; IPAF Indigenous well-being indicators disaggregation; CDC framework rigor standard on disaggregated reporting)",
+          "Any program declaring equity, inclusion, or population-targeted public benefit mechanisms with named disaggregation categories"
         ]
       },
       // ---------------------------------------------------------------------------
