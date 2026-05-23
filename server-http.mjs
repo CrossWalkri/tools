@@ -12349,6 +12349,346 @@ var require_primitives = __commonJS({
   }
 });
 
+// packages/core/dist/lenses.js
+var require_lenses = __commonJS({
+  "packages/core/dist/lenses.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.LENSES = void 0;
+    exports.getLens = getLens2;
+    exports.getLensValue = getLensValue2;
+    exports.getAllLensIds = getAllLensIds2;
+    exports.LENSES = [
+      {
+        id: "calibration-tier",
+        name: "Calibration Tier",
+        what_it_organizes: "The depth of measurement rigor a framework imposes on grantee evidence. Five values, ordered as a graduation. An organization moves up by adding (publishing more, specifying more, requiring more verification), not by switching methodology.",
+        values: [
+          {
+            id: "impressionistic",
+            name: "Tier 1: Impressionistic",
+            description: "No published commitments tied to evidence. Decisions through reputation, narrative judgment, and trust."
+          },
+          {
+            id: "process-conformant",
+            name: "Tier 2: Process Conformant",
+            description: "Published process rules (eligibility, application procedures, administrative requirements). The program conforms to its own published process. Outcome specification minimal or absent."
+          },
+          {
+            id: "outcome-specified-self-reported",
+            name: "Tier 3: Outcome Specified, Self-Reported",
+            description: "Outcome commitments published. Grantees report against them. No independent party verifies."
+          },
+          {
+            id: "independently-verified",
+            name: "Tier 4: Independently Verified",
+            description: "Outcome commitments published. An independent party (per the Determination Body Separation primitive) verifies."
+          },
+          {
+            id: "falsifiable",
+            name: "Tier 5: Falsifiable",
+            description: "Commitments published at every CLEAR step. Evidence queryable from the Attestation Corpus. Drift detectable per step. Adverse Signal Engagement Principle active. Multi-cycle Retrospective Assessment published."
+          }
+        ],
+        detection_criteria: "Tier 1: an organization has published statements about how it makes decisions but those statements do not include checkable evidence requirements. Tier 2: published process rules exist without outcome specification. Tier 3: outcome commitments published but verification is grantee self-report. Tier 4: published commitments paired with an independent verification mechanism named in the framework documentation. Tier 5: commitments span all five CLEAR stages AND the framework has an explicit drift detection or audit mechanism.",
+        output_shape_note: "Runbook produces current-plus-target: the organization's current tier and the realistic next tier achievable within a stated time horizon. For Octant at Epoch 13: current Tier 1, target Tier 2 by Epoch 13, target Tier 3 by Epoch 16 or 17. The runbook produces the path, not just the position."
+      },
+      {
+        id: "authority-source",
+        name: "Authority Source",
+        what_it_organizes: "The source of the framework's binding force.",
+        values: [
+          {
+            id: "statutory",
+            name: "Statutory",
+            description: "Established by legislation. Examples: Companies Act 2013 (India CSR), Title V Higher Education Act (WIOA), Federal Demonstration Partnership RPPR."
+          },
+          {
+            id: "regulatory",
+            name: "Regulatory",
+            description: "Established by a regulatory body under statutory authority. Examples: 2 CFR 200, GREAT Act implementation rules."
+          },
+          {
+            id: "contractual",
+            name: "Contractual",
+            description: "Binds parties through grant agreement terms. Examples: BARDA Other Transactions, ARPA-H individual award agreements."
+          },
+          {
+            id: "voluntary-published",
+            name: "Voluntary Published",
+            description: "Published by an organization that uses it for its own grantmaking; adoption by others is voluntary. Examples: Trust-Based Philanthropy, Annie E. Casey RBA."
+          },
+          {
+            id: "civil-society-advisory",
+            name: "Civil-Society Advisory",
+            description: "Authored by an academic or coalition body, intended as advisory guidance for funders or grantees. Examples: NCRP Criteria for Philanthropy at Its Best, Hopkins Principles for Use of Funds from the Opioid Litigation."
+          },
+          {
+            id: "professional-society-standard",
+            name: "Professional-Society Standard",
+            description: "Authored by a professional society for practitioners. Examples: AEA Program Evaluation Standards, COPE Ethical Guidelines for Peer Reviewers, IDEAS Competencies for Development Evaluation."
+          }
+        ],
+        detection_criteria: "Statutory: reference to a specific act or law. Regulatory: reference to a regulatory body operating under statutory authority. Contractual: reference to grant agreement instruments. Voluntary Published: organization publishes its own framework without claiming it authoritative for others. Civil-Society Advisory: academic or coalition body authors framework explicitly intended as advisory. Professional-Society Standard: professional society as authoring body.",
+        output_shape_note: null
+      },
+      {
+        id: "cultural-methodological-lineage",
+        name: "Cultural-Methodological Lineage",
+        what_it_organizes: "The cultural, jurisprudential, or methodological tradition the framework descends from. Makes legible that the corpus covers traditions that operate by structurally different principles, and that compatibility means different things across lineages.",
+        values: [
+          {
+            id: "western-institutional",
+            name: "Western institutional",
+            description: "The dominant evaluation, accountability, and reporting tradition descended from Anglo-American institutional grantmaking. Most of Part XII."
+          },
+          {
+            id: "islamic-finance-jurisprudence",
+            name: "Islamic finance jurisprudence",
+            description: "Descended from Islamic legal and accounting traditions; AAOIFI as the canonical body of standards. Treats charitable instruments (Zakat, Waqf) through jurisprudential rather than evaluation lenses."
+          },
+          {
+            id: "indigenous-treaty-partnership",
+            name: "Indigenous Treaty partnership",
+            description: "Operating within a Treaty-based partnership relationship between an Indigenous nation and a settler-colonial state. Te Puni Kokiri Effectiveness for Maori Framework is the canonical example; IPAF carries strong Treaty partnership characteristics through UNDRIP."
+          },
+          {
+            id: "indigenous-led-participatory-non-treaty",
+            name: "Indigenous-led participatory (non-Treaty)",
+            description: "Led by Indigenous communities or coalitions outside a Treaty partnership. NDN Collective, Indigenous Environmental Network, First Nations Development Institute. Operating principle: participatory design and Indigenous data sovereignty without a formal Treaty instrument."
+          },
+          {
+            id: "traditional-without-administrative-infrastructure",
+            name: "Traditional without administrative infrastructure",
+            description: "Giving traditions that predate or operate outside formal measurement frameworks by design. Mecenat, Mazenatentum, Daana, Dana, Ubuntu-based giving. Documented in the Partial Coverage Map."
+          },
+          {
+            id: "hybrid",
+            name: "Hybrid",
+            description: "Explicitly drawing from multiple lineages. IDB Invest DELTA combines Latin American institutional with multilateral development bank lineage. Some Gulf frameworks combine Islamic finance with Anglo-American institutional reporting."
+          }
+        ],
+        detection_criteria: "Western institutional: default when none of the other values apply. Islamic finance jurisprudence: AAOIFI reference or named Islamic legal scholarship in the framework's own documentation. Indigenous Treaty partnership: framework explicitly invokes a Treaty or constitutional instrument between an Indigenous nation and a state. Indigenous-led participatory non-Treaty: Indigenous authorship without Treaty anchoring. Traditional without administrative infrastructure: giving tradition predates formal measurement frameworks and the corpus does not document an evolution into administrative form. Hybrid: framework explicitly draws from two or more lineages.",
+        output_shape_note: null
+      },
+      {
+        id: "funder-typology",
+        name: "Funder Typology",
+        what_it_organizes: "The kind of funder the framework authored or operates under. Makes legible the structural differences between funder types and lets the corpus answer questions about coverage distribution.",
+        values: [
+          { id: "bilateral-aid-agency", name: "Bilateral aid agency", description: "USAID, FCDO, AFD, JICA, Global Affairs Canada, DFAT, Irish Aid, SDC, BMZ/GIZ, AICS, AECID, Enabel, LuxDev." },
+          { id: "multilateral-bank-or-fund", name: "Multilateral bank or fund", description: "World Bank, IDB, IFC, AfDB, ADB, EBRD, Green Climate Fund, GEF, IFAD, IDB Invest, Global Fund, GAVI." },
+          { id: "private-foundation", name: "Private foundation", description: "Gates, Ford, Hewlett, MacArthur, Rockefeller, WK Kellogg, Annie E. Casey, Open Society, Robert Wood Johnson, William Penn, Carnegie, Sloan, Knight, Mellon, Templeton World Charity, Wellcome." },
+          { id: "government-non-aid", name: "Government (non-aid)", description: "US federal grant programs (NIH, NSF, CDC, USDA NIFA, NASA, EPA, ARPA-H, ARPA-E, BARDA, DOT, FEMA); UK government (UKRI, Innovate UK, Arts Council England); state and municipal grant programs." },
+          { id: "pooled-fund-or-intermediary", name: "Pooled fund / intermediary", description: "Tides, Borealis, NEO Philanthropy, Hopewell Fund, Sixteen Thirty Fund, ClimateWorks, donor collaboratives generally." },
+          { id: "individual-donor", name: "Individual donor", description: "MacKenzie Scott / Yield Giving, Schmidt Sciences (where it functions as individual-donor extension), Mike Bloomberg personal giving." },
+          { id: "dao-or-protocol", name: "DAO or protocol", description: "Octant, Optimism Retro Funding, Gitcoin Grants, Arbitrum DAO, ENS DAO, Aave Grants, Compound Grants." },
+          { id: "corporate-csr", name: "Corporate CSR", description: "Microsoft AI for Good, Google.org, Salesforce, corporate foundation giving." },
+          { id: "faith-based", name: "Faith-based", description: "Caritas, World Vision, Lutheran World Relief, USCCB CCHD, Tzu Chi, Aga Khan, AAOIFI-aligned Islamic charitable bodies." },
+          { id: "settlement-administered", name: "Settlement-administered", description: "Opioid Settlement allocations, VW Environmental Mitigation Trust, BP Settlement / RESTORE Act, tobacco MSA-funded foundations." }
+        ],
+        detection_criteria: "The funder typology of a framework is identified by who the authoring or operating organization is. Where a framework is used by multiple typologies (OECD DAC criteria used by most bilaterals; AAOIFI used by many faith-based bodies), the framework gets a primary typology with secondary typologies noted.",
+        output_shape_note: null
+      },
+      {
+        id: "framework-scope-type",
+        name: "Framework Scope Type",
+        what_it_organizes: "What kind of object the framework is, regardless of who authored it or what tier it operates at. Resolves an ambiguity in the corpus: Part XII statements have meant different things for different framework types.",
+        values: [
+          { id: "grantee-outcome-measurement", name: "Grantee outcome measurement framework", description: "Specifies what grantees must measure and report at the outcome level. Annie E. Casey RBA, USAID PIRS, OECD DAC criteria, GRI, CGIAR MELIA, DCED Standard, ESF+ result indicators." },
+          { id: "allocator-process", name: "Allocator process framework", description: "Specifies how a funder runs its grantmaking process (selection, allocation, oversight) without primarily specifying grantee outcome measurement. GovS 015, Trust-Based Philanthropy, NCRP Criteria for Philanthropy at Its Best." },
+          { id: "third-party-rating", name: "Third-party rating framework", description: "Frameworks where an external party rates organizations against criteria the organization does not author. Charity Navigator, GiveWell top-charity methodology." },
+          { id: "certification", name: "Certification framework", description: "Frameworks where organizations earn a certification by meeting published criteria, administered by a third party. What Works Cities, Candid Seals of Transparency, Community Foundation National Standards." },
+          { id: "professional-practice-ethics", name: "Professional practice / ethics framework", description: "Frameworks that govern practitioner conduct rather than program measurement. AEA Program Evaluation Standards, COPE Ethical Guidelines for Peer Reviewers, IDEAS Competencies for Development Evaluation." },
+          { id: "government-accountability", name: "Government accountability framework", description: "Frameworks for assessing government performance, not grantee performance. Open Government Partnership IRM, Auditor General independence standards." },
+          { id: "accounting-financial", name: "Accounting or financial reporting standard", description: "Frameworks specifying financial disclosure rather than program measurement. AAOIFI FAS 37, FAS 39; IFRS where it applies to grant-receiving entities." },
+          { id: "jurisprudential", name: "Jurisprudential standard", description: "Frameworks specifying the legal or jurisprudential conditions under which giving operates. AAOIFI Sharia Standards, French 2003 Law on Philanthropy, India Companies Act 2013 Schedule VII." }
+        ],
+        detection_criteria: "Grantee outcome measurement: primary content addresses what grantees must measure. Allocator process: primary content addresses how the funder runs its process. Third-party rating: rating party is structurally distinct from the rated entity. Certification: organizations earn a status against published criteria. Professional practice: framework governs practitioner conduct. Government accountability: framework subject is government performance. Accounting standard: primary content addresses financial reporting. Jurisprudential standard: primary content addresses legal conditions for charitable activity.",
+        output_shape_note: null
+      }
+    ];
+    function getLens2(id) {
+      return exports.LENSES.find((l) => l.id === id);
+    }
+    function getLensValue2(lensId, valueId) {
+      const lens = getLens2(lensId);
+      if (!lens)
+        return void 0;
+      return lens.values.find((v) => v.id === valueId);
+    }
+    function getAllLensIds2() {
+      return exports.LENSES.map((l) => l.id);
+    }
+  }
+});
+
+// packages/core/dist/falsifiability.js
+var require_falsifiability = __commonJS({
+  "packages/core/dist/falsifiability.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = void 0;
+    exports.getFalsifiabilityElements = getFalsifiabilityElements;
+    exports.getFalsifiabilityType = getFalsifiabilityType2;
+    exports.getFalsifiabilityFailureMode = getFalsifiabilityFailureMode2;
+    exports.FALSIFIABILITY_ELEMENTS = [
+      {
+        id: "pre-committed-claim",
+        name: "Pre-Committed Claim",
+        requirement: "The specific statement of what the round, program, or applicant will accomplish, published before the period the claim covers begins. The claim is specific enough that it can be confronted with evidence.",
+        primitive_anchors: [
+          "Gate Type (Layer 3, entry specification gate)",
+          "CROSS Part IV pre-round publication requirement",
+          "WALKRI Section 3 pre-publication field requirements",
+          "Pre-Award Indicator Confirmation Stage (Layer 3)"
+        ],
+        structural_test: "Could a reviewer who did not commission the work determine, from publicly accessible evidence without contacting the claimant, whether the claim is met? If yes, the claim is structured as pre-committed. If no, the claim is too vague to be falsifiable."
+      },
+      {
+        id: "verifying-source",
+        name: "Verifying Source",
+        requirement: "The named source outside the claimant's control where evidence for or against the claim will be checked. The source must be queryable independently of the claimant's participation.",
+        primitive_anchors: [
+          "Independent Verifiability from Sources Outside the Applicant's Control (Layer 1)",
+          "Attestation Corpus (Layer 4)",
+          "Evidence Form specifications (WALKRI Section 3 / Primitives Foundation Layer 5)"
+        ],
+        structural_test: "Is the source named in the round configuration or applicant-facing publication? Can a third party access the source without the claimant's cooperation? Does the source produce evidence in a form that can be checked against the pre-committed claim? If all three: the verifying source element is satisfied."
+      },
+      {
+        id: "drift-detection-mechanism",
+        name: "Drift Detection Mechanism",
+        requirement: "The named procedure by which mismatch between the pre-committed claim and the produced evidence is identified, located, and named. Drift is not assumed away; it is expected and surfaced.",
+        primitive_anchors: [
+          "Adverse Signal Engagement Principle Core Standard",
+          "Obligation Fulfillment Record (Layer 3) for per-grant drift",
+          "Portfolio-level Continuation Benchmark (Layer 7) for portfolio-level drift",
+          "Inter-cycle Reflection Stage (Layer 4) for cross-cycle drift"
+        ],
+        structural_test: "When the produced evidence does not match the pre-committed claim, is there a named procedure that surfaces the mismatch? Is the procedure operative regardless of whether the claimant initiates it (a drift detection mechanism that depends on the claimant's cooperation is not yet a drift detection mechanism)?"
+      },
+      {
+        id: "disclosure-obligation",
+        name: "Disclosure Obligation",
+        requirement: "The named requirement that the verification finding and any drift detected be published in a form independently queryable. Disclosure closes the loop: drift that is detected but not disclosed does not satisfy falsifiability.",
+        primitive_anchors: [
+          "Attestation Corpus (Layer 4) as the publication target",
+          "CROSS Part XI funder obligations",
+          "Inter-cycle Reflection Stage (Layer 4) as the standing publication vehicle"
+        ],
+        structural_test: "Where is the verification finding published? Is the publication independently queryable? Is the publication required (not optional)? Does the publication include both confirmed claims and drift findings (selective disclosure of only confirmed claims fails this element)?"
+      }
+    ];
+    exports.FALSIFIABILITY_TYPES = [
+      {
+        id: "type-a-entry-gate",
+        name: "Type A: Entry-Gate Falsifiability",
+        what_is_falsifiable: "The applicant's declared FROM state (change mode), declared deliverable specification (build mode), or declared prior contribution (retroactive mode); organizational identity declaration; sufficiency architecture declaration; public benefit mechanism declaration; prior work attribution where work is cited.",
+        pre_commitment_instrument: "The applicant's entry-gate submission, recorded as filed.",
+        verifying_source: "For organizational identity: registry of legal entities and the Attestation Corpus. For sufficiency: published treasury or financial disclosures and any prior round records. For public benefit mechanism: named access condition (e.g., SPDX license file present in the repository).",
+        drift_detection: "Discrepancy between the entry-gate declaration and the verifying source (legal entity name claimed does not match registration; affiliated entities not disclosed but publicly documentable; prior round history misstated).",
+        disclosure_obligation: "Determination body's entry-gate finding published; any discrepancy noted as adverse signal entered in the standing log."
+      },
+      {
+        id: "type-b-progress-gate",
+        name: "Type B: Progress-Gate Falsifiability",
+        what_is_falsifiable: "The applicant's pre-committed milestone specification; the disbursement-trigger evidence requirements.",
+        pre_commitment_instrument: "The Pre-Award Indicator Confirmation Stage document binding the indicator schedule before disbursement begins.",
+        verifying_source: "The Attestation Corpus snapshot at the progress gate; named third-party data sources per the round configuration.",
+        drift_detection: "Difference between the pre-committed milestone and the snapshot reading; the Adverse Signal Engagement plan operative for surfacing the difference.",
+        disclosure_obligation: "Progress-gate finding published; iteration rights apply (Gate Character is developmental at progress gates), but the drift is documented even when iteration occurs."
+      },
+      {
+        id: "type-c-completion-gate",
+        name: "Type C: Completion-Gate Falsifiability",
+        what_is_falsifiable: "The applicant's pre-committed deliverable, change, or contribution against the produced evidence at the named evidence scope and strength.",
+        pre_commitment_instrument: "The entry-gate criteria carried through (via the Pre-Award Indicator Confirmation Stage where configured); the runbook's completion-gate evidence requirements.",
+        verifying_source: "The Attestation Corpus snapshot at completion; the named independent verification source per Commitment 6; the Determination Body Separation operating on the evidence.",
+        drift_detection: "The Determination Body's finding on whether the pre-committed claim was met; per-criterion findings where multiple criteria are configured.",
+        disclosure_obligation: "Determination published; the redress procedure operates if the finding is contested; the finding enters the Obligation Fulfillment Record for the applicant and is queryable by future funders."
+      },
+      {
+        id: "type-d-continuation-gate",
+        name: "Type D: Continuation-Gate Falsifiability",
+        what_is_falsifiable: "The sustainability stance declared; the continuation-stage evidence against the prior-cycle outcomes.",
+        pre_commitment_instrument: "The continuation-specification gate criteria published at the program level (not the per-round level).",
+        verifying_source: "Attestation Corpus snapshot at the continuation review; the named third-party data sources for sustained outcomes.",
+        drift_detection: "Mismatch between the declared sustainability stance and the observed outcome trajectory.",
+        disclosure_obligation: "Continuation finding published; portfolio-level patterns aggregated into the Portfolio-level Continuation Benchmark assessment."
+      },
+      {
+        id: "type-e-portfolio-level",
+        name: "Type E: Portfolio-Level Falsifiability",
+        what_is_falsifiable: "The Portfolio-level Continuation Benchmark threshold; the program's continued operation against the declared benchmark.",
+        pre_commitment_instrument: "The benchmark threshold published at the program's entry specification gate.",
+        verifying_source: "The aggregated Attestation Corpus across the funded cohort; the Inter-cycle Reflection Stage publications.",
+        drift_detection: "Program-level performance below the declared benchmark.",
+        disclosure_obligation: "The funder publishes the portfolio finding; the program design is revised before the next cycle opens if the benchmark is not met."
+      }
+    ];
+    exports.FALSIFIABILITY_FAILURE_MODES = [
+      {
+        id: "transcendence-claim",
+        name: "Transcendence Claim",
+        description: 'The claim asserts it has escaped the falsifiability constraints it operates within ("Our outcomes are too systemic to be measured against pre-committed indicators").',
+        remediation: "Name the systemic outcome at the ecosystem-shift mechanism type; commit to evidence at the impact evidence scope; accept contribution stance with named causal pathway and co-factors."
+      },
+      {
+        id: "declaration-exploit",
+        name: "Declaration Exploit",
+        description: 'The act of declaring a falsifiable commitment is treated as evidence the commitment is falsifiable ("Our round configuration declares the indicators; that declaration is itself the falsifiability").',
+        remediation: "Declarations are pre-commitment instruments but do not by themselves satisfy Elements 2, 3, and 4. The verifying source must be named and the disclosure obligation operative."
+      },
+      {
+        id: "precision-facade",
+        name: "Precision Facade",
+        description: 'The claim appears specific but the specificity does not carry falsifiability content ("a 23.7% improvement in the named metric" where the named metric is not actually defined or measured by an independent source).',
+        remediation: "Precision is necessary but not sufficient; the precision must be backed by named verifying source and named drift detection mechanism."
+      },
+      {
+        id: "partial-instantiation",
+        name: "Partial Instantiation",
+        description: "A falsifiability structure is partially implemented while an unfalsifiable assumption does the remaining work (pre-commitment published; verifying source named; but drift detection left to the grantee's self-report).",
+        remediation: "Name the missing element explicitly. A partial form is admissible if the partial state is documented."
+      },
+      {
+        id: "direction-without-destination",
+        name: "Direction Without Destination",
+        description: 'The claim names motion toward an outcome without specifying the outcome ("The program will strengthen the ecosystem").',
+        remediation: "Name the destination per the Obligation Mode entry-gate requirement. A directional claim with no destination cannot be falsified because nothing has been committed to."
+      },
+      {
+        id: "vocabulary-without-architecture",
+        name: "Vocabulary Without Architecture",
+        description: "Falsifiability vocabulary is used without the structural requirements falsifiability implies (a Part XII compatibility statement claims the source framework operates at Tier 5 (Falsifiable) but the framework lacks any of the four elements).",
+        remediation: "Vocabulary use must be backed by structural elements. If a framework is described as falsifiable, audit the framework against the four-element test before publishing the description."
+      },
+      {
+        id: "correct-map-wrong-territory",
+        name: "Correct Map / Wrong Territory",
+        description: "Falsifiability language accurately describes a different context but not the one it is applied to (a round configuration imports falsifiability vocabulary from a regulatory context where independent verification is statutorily required, but the round itself operates under voluntary publication without the regulatory infrastructure).",
+        remediation: "Name the territory the falsifiability claim operates in; do not import vocabulary from a different territory without naming the structural difference."
+      },
+      {
+        id: "frozen-map",
+        name: "Frozen Map",
+        description: "Falsifiability language that was accurate at specification has not been updated as conditions changed (a round configuration specifies falsifiability against an Attestation Corpus source that has subsequently changed its API or its publication mechanism, making the verifying source no longer queryable as specified).",
+        remediation: "Per Element 2, the verifying source must remain queryable; changes to source availability require updates to the configuration."
+      }
+    ];
+    function getFalsifiabilityElements() {
+      return exports.FALSIFIABILITY_ELEMENTS;
+    }
+    function getFalsifiabilityType2(id) {
+      return exports.FALSIFIABILITY_TYPES.find((t) => t.id === id);
+    }
+    function getFalsifiabilityFailureMode2(id) {
+      return exports.FALSIFIABILITY_FAILURE_MODES.find((m) => m.id === id);
+    }
+  }
+});
+
 // packages/core/dist/prompts.js
 var require_prompts = __commonJS({
   "packages/core/dist/prompts.js"(exports) {
@@ -12553,7 +12893,7 @@ var require_dist2 = __commonJS({
   "packages/core/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
+    exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.getFalsifiabilityFailureMode = exports.getFalsifiabilityType = exports.getFalsifiabilityElements = exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = exports.getAllLensIds = exports.getLensValue = exports.getLens = exports.LENSES = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
     var schemas_js_1 = require_schemas();
     Object.defineProperty(exports, "walkriFieldTypeSchema", { enumerable: true, get: function() {
       return schemas_js_1.walkriFieldTypeSchema;
@@ -12614,6 +12954,38 @@ var require_dist2 = __commonJS({
     } });
     Object.defineProperty(exports, "searchPrimitives", { enumerable: true, get: function() {
       return primitives_js_1.searchPrimitives;
+    } });
+    var lenses_js_1 = require_lenses();
+    Object.defineProperty(exports, "LENSES", { enumerable: true, get: function() {
+      return lenses_js_1.LENSES;
+    } });
+    Object.defineProperty(exports, "getLens", { enumerable: true, get: function() {
+      return lenses_js_1.getLens;
+    } });
+    Object.defineProperty(exports, "getLensValue", { enumerable: true, get: function() {
+      return lenses_js_1.getLensValue;
+    } });
+    Object.defineProperty(exports, "getAllLensIds", { enumerable: true, get: function() {
+      return lenses_js_1.getAllLensIds;
+    } });
+    var falsifiability_js_1 = require_falsifiability();
+    Object.defineProperty(exports, "FALSIFIABILITY_ELEMENTS", { enumerable: true, get: function() {
+      return falsifiability_js_1.FALSIFIABILITY_ELEMENTS;
+    } });
+    Object.defineProperty(exports, "FALSIFIABILITY_TYPES", { enumerable: true, get: function() {
+      return falsifiability_js_1.FALSIFIABILITY_TYPES;
+    } });
+    Object.defineProperty(exports, "FALSIFIABILITY_FAILURE_MODES", { enumerable: true, get: function() {
+      return falsifiability_js_1.FALSIFIABILITY_FAILURE_MODES;
+    } });
+    Object.defineProperty(exports, "getFalsifiabilityElements", { enumerable: true, get: function() {
+      return falsifiability_js_1.getFalsifiabilityElements;
+    } });
+    Object.defineProperty(exports, "getFalsifiabilityType", { enumerable: true, get: function() {
+      return falsifiability_js_1.getFalsifiabilityType;
+    } });
+    Object.defineProperty(exports, "getFalsifiabilityFailureMode", { enumerable: true, get: function() {
+      return falsifiability_js_1.getFalsifiabilityFailureMode;
     } });
     var prompts_js_1 = require_prompts();
     Object.defineProperty(exports, "auditFieldPrompt", { enumerable: true, get: function() {
@@ -21022,6 +21394,46 @@ var TOOLS = [
     }
   },
   {
+    name: "cross_lookup_lens",
+    description: "Look up a dimension of the CROSS+WALKRI Lenses Framework. Five lenses sit above the primitives: calibration-tier, authority-source, cultural-methodological-lineage, funder-typology, framework-scope-type.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        lens_id: {
+          type: "string",
+          enum: [
+            "calibration-tier",
+            "authority-source",
+            "cultural-methodological-lineage",
+            "funder-typology",
+            "framework-scope-type"
+          ],
+          description: "Optional: a specific lens to return."
+        },
+        value_id: {
+          type: "string",
+          description: "Optional: a specific value within the named lens. Requires lens_id."
+        }
+      }
+    }
+  },
+  {
+    name: "cross_falsifiability_audit",
+    description: "Apply the four-element falsifiability test from the Falsifiability Architecture document. Returns the four structural elements, the five gate-based falsifiability types, and the eight failure modes.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        scope: {
+          type: "string",
+          enum: ["elements", "types", "failure-modes", "all"],
+          description: "What to return. Default: all."
+        },
+        type_id: { type: "string", description: "Optional specific falsifiability type." },
+        failure_mode_id: { type: "string", description: "Optional specific failure mode." }
+      }
+    }
+  },
+  {
     name: "cross_audit_round",
     description: "Evaluate whether a described grant round was run correctly under CROSS+WALKRI. Returns a structured assessment with a conformance verdict and prioritized gap list.",
     inputSchema: {
@@ -21322,9 +21734,53 @@ Conformance Checks:
   text += "\nFor comprehensive evaluation:\n\n---\n" + (0, import_core7.evaluateRoundPrompt)(fullDescription) + "\n---\n";
   return { content: [{ type: "text", text }] };
 }
+function handleCrossLookupLens(args) {
+  const lensId = args["lens_id"] != null ? String(args["lens_id"]) : null;
+  const valueId = args["value_id"] != null ? String(args["value_id"]) : null;
+  if (lensId && valueId) {
+    const value = (0, import_core7.getLensValue)(lensId, valueId);
+    if (!value) {
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Value "${valueId}" not found in lens "${lensId}".`, available_lenses: (0, import_core7.getAllLensIds)() }, null, 2) }], isError: true };
+    }
+    const lens = (0, import_core7.getLens)(lensId);
+    return { content: [{ type: "text", text: JSON.stringify({ lens: lens?.name, value, detection_criteria: lens?.detection_criteria }, null, 2) }] };
+  }
+  if (lensId) {
+    const lens = (0, import_core7.getLens)(lensId);
+    if (!lens) {
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Lens "${lensId}" not found.`, available_lenses: (0, import_core7.getAllLensIds)() }, null, 2) }], isError: true };
+    }
+    return { content: [{ type: "text", text: JSON.stringify(lens, null, 2) }] };
+  }
+  return { content: [{ type: "text", text: JSON.stringify({ total: import_core7.LENSES.length, lenses: import_core7.LENSES }, null, 2) }] };
+}
+function handleCrossFalsifiabilityAudit(args) {
+  const scope = args["scope"] != null ? String(args["scope"]) : "all";
+  const typeId = args["type_id"] != null ? String(args["type_id"]) : null;
+  const failureModeId = args["failure_mode_id"] != null ? String(args["failure_mode_id"]) : null;
+  if (typeId) {
+    const type = (0, import_core7.getFalsifiabilityType)(typeId);
+    if (!type) {
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Falsifiability type "${typeId}" not found.`, available: import_core7.FALSIFIABILITY_TYPES.map((t) => t.id) }, null, 2) }], isError: true };
+    }
+    return { content: [{ type: "text", text: JSON.stringify({ type }, null, 2) }] };
+  }
+  if (failureModeId) {
+    const mode = (0, import_core7.getFalsifiabilityFailureMode)(failureModeId);
+    if (!mode) {
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Failure mode "${failureModeId}" not found.`, available: import_core7.FALSIFIABILITY_FAILURE_MODES.map((m) => m.id) }, null, 2) }], isError: true };
+    }
+    return { content: [{ type: "text", text: JSON.stringify({ failure_mode: mode }, null, 2) }] };
+  }
+  const payload = {};
+  if (scope === "elements" || scope === "all") payload["four_elements"] = import_core7.FALSIFIABILITY_ELEMENTS;
+  if (scope === "types" || scope === "all") payload["gate_types"] = import_core7.FALSIFIABILITY_TYPES;
+  if (scope === "failure-modes" || scope === "all") payload["failure_modes"] = import_core7.FALSIFIABILITY_FAILURE_MODES;
+  return { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] };
+}
 function createMcpServer() {
   const server = new Server(
-    { name: "cross-walkri", version: "0.1.0" },
+    { name: "cross-walkri", version: "0.3.0" },
     { capabilities: { tools: {} } }
   );
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
@@ -21342,6 +21798,10 @@ function createMcpServer() {
         return handleCrossConfigureRound(safeArgs);
       case "cross_classify_framework":
         return handleCrossClassifyFramework(safeArgs);
+      case "cross_lookup_lens":
+        return handleCrossLookupLens(safeArgs);
+      case "cross_falsifiability_audit":
+        return handleCrossFalsifiabilityAudit(safeArgs);
       case "cross_audit_round":
         return handleCrossAuditRound(safeArgs);
       default:

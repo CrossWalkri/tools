@@ -22,6 +22,15 @@ import {
   configureRoundPrompt,
   classifyFrameworkPrompt,
   evaluateRoundPrompt,
+  LENSES,
+  getLens,
+  getLensValue,
+  getAllLensIds,
+  FALSIFIABILITY_ELEMENTS,
+  FALSIFIABILITY_TYPES,
+  FALSIFIABILITY_FAILURE_MODES,
+  getFalsifiabilityType,
+  getFalsifiabilityFailureMode,
 } from '@cross-walkri/core'
 import type { WalkriField, CrossGateType, CrossObligationMode } from '@cross-walkri/core'
 
@@ -96,6 +105,48 @@ const TOOLS = [
         frameworkName: { type: 'string', description: 'The name of the framework (optional, for reference in the output).' },
       },
       required: ['frameworkDescription'],
+    },
+  },
+  {
+    name: 'cross_lookup_lens',
+    description:
+      'Look up a dimension of the CROSS+WALKRI Lenses Framework. Five lenses sit above the primitives: calibration-tier, authority-source, cultural-methodological-lineage, funder-typology, framework-scope-type.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        lens_id: {
+          type: 'string',
+          enum: [
+            'calibration-tier',
+            'authority-source',
+            'cultural-methodological-lineage',
+            'funder-typology',
+            'framework-scope-type',
+          ],
+          description: 'Optional: a specific lens to return.',
+        },
+        value_id: {
+          type: 'string',
+          description: 'Optional: a specific value within the named lens. Requires lens_id.',
+        },
+      },
+    },
+  },
+  {
+    name: 'cross_falsifiability_audit',
+    description:
+      'Apply the four-element falsifiability test from the Falsifiability Architecture document. Returns the four structural elements, the five gate-based falsifiability types, and the eight failure modes.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        scope: {
+          type: 'string',
+          enum: ['elements', 'types', 'failure-modes', 'all'],
+          description: 'What to return. Default: all.',
+        },
+        type_id: { type: 'string', description: 'Optional specific falsifiability type.' },
+        failure_mode_id: { type: 'string', description: 'Optional specific failure mode.' },
+      },
     },
   },
   {
@@ -315,13 +366,59 @@ function handleCrossAuditRound(args: Record<string, unknown>) {
   return { content: [{ type: 'text', text }] }
 }
 
+function handleCrossLookupLens(args: Record<string, unknown>) {
+  const lensId = args['lens_id'] != null ? String(args['lens_id']) : null
+  const valueId = args['value_id'] != null ? String(args['value_id']) : null
+  if (lensId && valueId) {
+    const value = getLensValue(lensId, valueId)
+    if (!value) {
+      return { content: [{ type: 'text', text: JSON.stringify({ error: `Value "${valueId}" not found in lens "${lensId}".`, available_lenses: getAllLensIds() }, null, 2) }], isError: true }
+    }
+    const lens = getLens(lensId)
+    return { content: [{ type: 'text', text: JSON.stringify({ lens: lens?.name, value, detection_criteria: lens?.detection_criteria }, null, 2) }] }
+  }
+  if (lensId) {
+    const lens = getLens(lensId)
+    if (!lens) {
+      return { content: [{ type: 'text', text: JSON.stringify({ error: `Lens "${lensId}" not found.`, available_lenses: getAllLensIds() }, null, 2) }], isError: true }
+    }
+    return { content: [{ type: 'text', text: JSON.stringify(lens, null, 2) }] }
+  }
+  return { content: [{ type: 'text', text: JSON.stringify({ total: LENSES.length, lenses: LENSES }, null, 2) }] }
+}
+
+function handleCrossFalsifiabilityAudit(args: Record<string, unknown>) {
+  const scope = args['scope'] != null ? String(args['scope']) : 'all'
+  const typeId = args['type_id'] != null ? String(args['type_id']) : null
+  const failureModeId = args['failure_mode_id'] != null ? String(args['failure_mode_id']) : null
+  if (typeId) {
+    const type = getFalsifiabilityType(typeId)
+    if (!type) {
+      return { content: [{ type: 'text', text: JSON.stringify({ error: `Falsifiability type "${typeId}" not found.`, available: FALSIFIABILITY_TYPES.map((t) => t.id) }, null, 2) }], isError: true }
+    }
+    return { content: [{ type: 'text', text: JSON.stringify({ type }, null, 2) }] }
+  }
+  if (failureModeId) {
+    const mode = getFalsifiabilityFailureMode(failureModeId)
+    if (!mode) {
+      return { content: [{ type: 'text', text: JSON.stringify({ error: `Failure mode "${failureModeId}" not found.`, available: FALSIFIABILITY_FAILURE_MODES.map((m) => m.id) }, null, 2) }], isError: true }
+    }
+    return { content: [{ type: 'text', text: JSON.stringify({ failure_mode: mode }, null, 2) }] }
+  }
+  const payload: Record<string, unknown> = {}
+  if (scope === 'elements' || scope === 'all') payload['four_elements'] = FALSIFIABILITY_ELEMENTS
+  if (scope === 'types' || scope === 'all') payload['gate_types'] = FALSIFIABILITY_TYPES
+  if (scope === 'failure-modes' || scope === 'all') payload['failure_modes'] = FALSIFIABILITY_FAILURE_MODES
+  return { content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }] }
+}
+
 // ---------------------------------------------------------------------------
 // Factory
 // ---------------------------------------------------------------------------
 
 export function createMcpServer(): Server {
   const server = new Server(
-    { name: 'cross-walkri', version: '0.1.0' },
+    { name: 'cross-walkri', version: '0.3.0' },
     { capabilities: { tools: {} } },
   )
 
@@ -336,6 +433,8 @@ export function createMcpServer(): Server {
       case 'cross_check_gate': return handleCrossCheckGate(safeArgs)
       case 'cross_configure_round': return handleCrossConfigureRound(safeArgs)
       case 'cross_classify_framework': return handleCrossClassifyFramework(safeArgs)
+      case 'cross_lookup_lens': return handleCrossLookupLens(safeArgs)
+      case 'cross_falsifiability_audit': return handleCrossFalsifiabilityAudit(safeArgs)
       case 'cross_audit_round': return handleCrossAuditRound(safeArgs)
       default:
         return { content: [{ type: 'text', text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(', ')}` }], isError: true }

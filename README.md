@@ -16,7 +16,7 @@ Zero runtime dependencies. Pure TypeScript.
 
 **packages/mcp-server** (@cross-walkri/mcp-server)
 
-MCP server that wraps the core package and exposes six tools via stdio transport. Install once in your MCP client and use CROSS+WALKRI from any AI assistant.
+MCP server that wraps the core package and exposes eight tools via stdio transport. Install once in your MCP client and use CROSS+WALKRI from any AI assistant.
 
 ---
 
@@ -72,7 +72,7 @@ npx jsr add @cross-walkri/core
 
 ---
 
-## The six MCP tools
+## The eight MCP tools
 
 **walkri_audit_field**
 
@@ -96,6 +96,14 @@ Accepts a plain-language program description and infers an obligation mode, then
 
 Accepts a description of an external framework and classifies it against the 50 CROSS+WALKRI primitives across seven layers. Returns which layers the framework addresses, which primitives it exemplifies, which are absent, and a prompt template for generating a formal compatibility statement.
 
+**cross_lookup_lens**
+
+Looks up a dimension of the CROSS+WALKRI Lenses Framework. Five lenses sit above the primitives as cross-cutting metadata: calibration-tier (five tiers from impressionistic to falsifiable, with current-plus-target output shape), authority-source (where binding force comes from), cultural-methodological-lineage (the tradition the framework descends from, including Western institutional, Islamic finance jurisprudence, Indigenous Treaty partnership, Indigenous-led participatory non-Treaty, traditional without administrative infrastructure, and hybrid), funder-typology (ten kinds of funder including bilateral aid agency, multilateral bank or fund, private foundation, government non-aid, pooled fund, individual donor, DAO or protocol, corporate CSR, faith-based, and settlement-administered), and framework-scope-type (what kind of object the framework is). Returns the lens, its enumerated values, and detection criteria.
+
+**cross_falsifiability_audit**
+
+Applies the four-element falsifiability test from the Falsifiability Architecture document. A falsifiable claim has a pre-committed claim, a named verifying source outside the claimant's control, a drift detection mechanism, and a disclosure obligation. Returns the four structural elements with structural tests, the five gate-based falsifiability types (entry-gate, progress-gate, completion-gate, continuation-gate, portfolio-level), and the eight failure modes (transcendence-claim, declaration-exploit, precision-facade, partial-instantiation, direction-without-destination, vocabulary-without-architecture, correct-map-wrong-territory, frozen-map).
+
 **cross_audit_round**
 
 Evaluates whether a described grant round was run correctly under CROSS+WALKRI. Checks for entry specification gate, explicit obligation mode, completion gate, WALKRI-conformant field characteristics, and financial accountability. Returns a conformance verdict (conformant/partial/non-conformant) and a prioritized gap list, plus a prompt template for comprehensive AI-assisted evaluation.
@@ -115,6 +123,10 @@ The `@cross-walkri/core` package exports:
 **CROSS gate logic**: `getGateRequirements(gateType, obligationMode): string[]`, `validateRoundConfig(round: CrossRound): { valid: boolean; gaps: string[] }`, `classifyObligationMode(description: string): CrossObligationMode`
 
 **Primitives**: `PRIMITIVES` (typed const array of all 50), `getPrimitiveByName(name: string)`, `getPrimitivesByLayer(layer: PrimitiveLayer)`, `searchPrimitives(keyword: string)`
+
+**Lenses Framework**: `LENSES` (typed const array of the five lenses), `getLens(id)`, `getLensValue(lensId, valueId)`, `getAllLensIds()`
+
+**Falsifiability Architecture**: `FALSIFIABILITY_ELEMENTS` (the four elements), `FALSIFIABILITY_TYPES` (the five gate-based types), `FALSIFIABILITY_FAILURE_MODES` (the eight failure modes), `getFalsifiabilityType(id)`, `getFalsifiabilityFailureMode(id)`
 
 **Prompt templates**: `auditFieldPrompt(field)`, `configureRoundPrompt(description, programType)`, `classifyFrameworkPrompt(description)`, `evaluateRoundPrompt(description)`
 

@@ -30,6 +30,15 @@ import {
   walkriFieldSchema,
   crossGateTypeSchema,
   crossObligationModeSchema,
+  LENSES,
+  getLens,
+  getLensValue,
+  getAllLensIds,
+  FALSIFIABILITY_ELEMENTS,
+  FALSIFIABILITY_TYPES,
+  FALSIFIABILITY_FAILURE_MODES,
+  getFalsifiabilityType,
+  getFalsifiabilityFailureMode,
 } from '@cross-walkri/core'
 import type { WalkriField, CrossGateType, CrossObligationMode } from '@cross-walkri/core'
 
@@ -173,6 +182,59 @@ const TOOLS = [
         },
       },
       required: ['frameworkDescription'],
+    },
+  },
+  {
+    name: 'cross_lookup_lens',
+    description:
+      'Look up a dimension of the CROSS+WALKRI Lenses Framework. Five lenses sit above the primitives as cross-cutting metadata: calibration-tier (five tiers from impressionistic to falsifiable), authority-source (where binding force comes from), cultural-methodological-lineage (the tradition the framework descends from), funder-typology (the kind of funder), and framework-scope-type (what kind of object the framework is). Returns the lens, its enumerated values, and detection criteria. Use this when classifying a framework, assessing where an organization sits today, or naming a realistic next position.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        lens_id: {
+          type: 'string',
+          enum: [
+            'calibration-tier',
+            'authority-source',
+            'cultural-methodological-lineage',
+            'funder-typology',
+            'framework-scope-type',
+          ],
+          description:
+            'Optional: a specific lens to return. If omitted, returns all five lenses with their values.',
+        },
+        value_id: {
+          type: 'string',
+          description:
+            'Optional: a specific value within the named lens to return. Requires lens_id.',
+        },
+      },
+    },
+  },
+  {
+    name: 'cross_falsifiability_audit',
+    description:
+      'Apply the four-element falsifiability test from the Falsifiability Architecture document. A falsifiable claim has: (1) a pre-committed claim, (2) a named verifying source outside the claimant\'s control, (3) a drift detection mechanism, and (4) a disclosure obligation. The tool returns the four elements with structural tests, plus the five gate-based falsifiability types and the eight failure modes. Use this when auditing whether a round configuration, compatibility statement, or grantee report meets the falsifiability standard, or when diagnosing why a claim that uses falsifiability vocabulary fails to function as falsifiable.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        scope: {
+          type: 'string',
+          enum: ['elements', 'types', 'failure-modes', 'all'],
+          description:
+            'What to return. "elements" returns the four structural elements. "types" returns the five gate-based falsifiability types. "failure-modes" returns the eight ways a falsifiability claim fails to function. "all" returns everything. Default: "all".',
+        },
+        type_id: {
+          type: 'string',
+          description:
+            'Optional: a specific falsifiability type to return. Available: type-a-entry-gate, type-b-progress-gate, type-c-completion-gate, type-d-continuation-gate, type-e-portfolio-level.',
+        },
+        failure_mode_id: {
+          type: 'string',
+          description:
+            'Optional: a specific failure mode to return. Available: transcendence-claim, declaration-exploit, precision-facade, partial-instantiation, direction-without-destination, vocabulary-without-architecture, correct-map-wrong-territory, frozen-map.',
+        },
+      },
     },
   },
   {
@@ -682,12 +744,169 @@ function handleCrossAuditRound(args: Record<string, unknown>) {
   return { content: [{ type: 'text', text }] }
 }
 
+function handleCrossLookupLens(args: Record<string, unknown>) {
+  const lensId = args['lens_id'] != null ? String(args['lens_id']) : null
+  const valueId = args['value_id'] != null ? String(args['value_id']) : null
+
+  if (lensId && valueId) {
+    const value = getLensValue(lensId, valueId)
+    if (!value) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                error: `Value "${valueId}" not found in lens "${lensId}".`,
+                available_lenses: getAllLensIds(),
+              },
+              null,
+              2,
+            ),
+          },
+        ],
+        isError: true,
+      }
+    }
+    const lens = getLens(lensId)
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            { lens: lens?.name, value, detection_criteria: lens?.detection_criteria },
+            null,
+            2,
+          ),
+        },
+      ],
+    }
+  }
+
+  if (lensId) {
+    const lens = getLens(lensId)
+    if (!lens) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                error: `Lens "${lensId}" not found.`,
+                available_lenses: getAllLensIds(),
+              },
+              null,
+              2,
+            ),
+          },
+        ],
+        isError: true,
+      }
+    }
+    return {
+      content: [{ type: 'text', text: JSON.stringify(lens, null, 2) }],
+    }
+  }
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: JSON.stringify(
+          {
+            total: LENSES.length,
+            lenses: LENSES,
+            note:
+              'Five lenses organize cross-cutting metadata above the primitives. Each Part XII compatibility statement, gap map entry, and partial coverage map entry carries one value per lens.',
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+  }
+}
+
+function handleCrossFalsifiabilityAudit(args: Record<string, unknown>) {
+  const scope = args['scope'] != null ? String(args['scope']) : 'all'
+  const typeId = args['type_id'] != null ? String(args['type_id']) : null
+  const failureModeId =
+    args['failure_mode_id'] != null ? String(args['failure_mode_id']) : null
+
+  if (typeId) {
+    const type = getFalsifiabilityType(typeId)
+    if (!type) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                error: `Falsifiability type "${typeId}" not found.`,
+                available: FALSIFIABILITY_TYPES.map((t) => t.id),
+              },
+              null,
+              2,
+            ),
+          },
+        ],
+        isError: true,
+      }
+    }
+    return {
+      content: [{ type: 'text', text: JSON.stringify({ type }, null, 2) }],
+    }
+  }
+
+  if (failureModeId) {
+    const mode = getFalsifiabilityFailureMode(failureModeId)
+    if (!mode) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                error: `Failure mode "${failureModeId}" not found.`,
+                available: FALSIFIABILITY_FAILURE_MODES.map((m) => m.id),
+              },
+              null,
+              2,
+            ),
+          },
+        ],
+        isError: true,
+      }
+    }
+    return {
+      content: [{ type: 'text', text: JSON.stringify({ failure_mode: mode }, null, 2) }],
+    }
+  }
+
+  const payload: Record<string, unknown> = {}
+  if (scope === 'elements' || scope === 'all') {
+    payload['four_elements'] = FALSIFIABILITY_ELEMENTS
+  }
+  if (scope === 'types' || scope === 'all') {
+    payload['gate_types'] = FALSIFIABILITY_TYPES
+  }
+  if (scope === 'failure-modes' || scope === 'all') {
+    payload['failure_modes'] = FALSIFIABILITY_FAILURE_MODES
+  }
+  payload['note'] =
+    'A falsifiable claim requires all four elements (pre-committed claim, verifying source, drift detection mechanism, disclosure obligation). Gate type determines what is falsifiable at each stage. Failure modes name the eight ways a falsifiability claim fails to function in practice.'
+
+  return {
+    content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }],
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Server setup
 // ---------------------------------------------------------------------------
 
 const server = new Server(
-  { name: 'cross-walkri', version: '0.1.0' },
+  { name: 'cross-walkri', version: '0.3.0' },
   { capabilities: { tools: {} } },
 )
 
@@ -710,6 +929,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return handleCrossConfigureRound(safeArgs)
     case 'cross_classify_framework':
       return handleCrossClassifyFramework(safeArgs)
+    case 'cross_lookup_lens':
+      return handleCrossLookupLens(safeArgs)
+    case 'cross_falsifiability_audit':
+      return handleCrossFalsifiabilityAudit(safeArgs)
     case 'cross_audit_round':
       return handleCrossAuditRound(safeArgs)
     default:

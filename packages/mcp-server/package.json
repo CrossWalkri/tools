@@ -1,6 +1,6 @@
 {
   "name": "@cross-walkri/mcp-server",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MCP server exposing CROSS+WALKRI as AI tools",
   "license": "CC0-1.0",
   "type": "module",

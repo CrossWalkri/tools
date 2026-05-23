@@ -59,6 +59,25 @@ export {
   searchPrimitives,
 } from './primitives.js'
 
+// Lenses Framework
+export type { LensId, LensValue, Lens } from './lenses.js'
+export { LENSES, getLens, getLensValue, getAllLensIds } from './lenses.js'
+
+// Falsifiability Architecture
+export type {
+  FalsifiabilityElement,
+  FalsifiabilityType,
+  FalsifiabilityFailureMode,
+} from './falsifiability.js'
+export {
+  FALSIFIABILITY_ELEMENTS,
+  FALSIFIABILITY_TYPES,
+  FALSIFIABILITY_FAILURE_MODES,
+  getFalsifiabilityElements,
+  getFalsifiabilityType,
+  getFalsifiabilityFailureMode,
+} from './falsifiability.js'
+
 // Prompt templates
 export {
   auditFieldPrompt,
