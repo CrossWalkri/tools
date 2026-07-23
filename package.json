@@ -12,9 +12,6 @@
     "clean": "pnpm -r --parallel exec rm -rf dist"
   },
   "devDependencies": {
-    "typescript": "^5.4.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "typescript": "^5.9.3"
   }
 }
