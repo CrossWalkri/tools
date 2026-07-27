@@ -1,11 +1,11 @@
 {
-  "name": "@cross-walkri/mcp-server",
-  "version": "0.3.0",
+  "name": "@proof-of-coord/evidence-integrity",
+  "version": "0.4.0",
   "license": "CC0-1.0",
   "exports": {
     ".": "./src/index.ts"
   },
   "imports": {
-    "@cross-walkri/core": "jsr:@cross-walkri/core@^0.3.0"
+    "@proof-of-coord/evidence-core": "jsr:@proof-of-coord/evidence-core@^0.4.0"
   }
 }

@@ -1,7 +1,7 @@
 {
-  "name": "@cross-walkri/core",
-  "version": "0.3.0",
-  "description": "TypeScript types, schemas, and utilities for CROSS+WALKRI grant standards",
+  "name": "@proof-of-coord/evidence-core",
+  "version": "0.4.0",
+  "description": "Types, schemas, and audit logic for the evidence integrity standards: CROSS, WALKRI, ORE, and the finding contract",
   "license": "CC0-1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,8 +9,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "build": "pnpm generate && tsc",
+    "typecheck": "tsc --noEmit",
+    "generate": "node ../../scripts/generate-primitives.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

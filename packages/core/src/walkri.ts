@@ -243,13 +243,13 @@ function checkEvidenceForm(field: WalkriField): WalkriCriterion {
 }
 
 /**
- * Criterion 5 - Compliance threshold.
+ * Criterion 5 - Conformance threshold.
  * For fields referencing external standards, the field must enumerate which
  * components apply and what passage looks like. Detected via keywords
  * referencing standards, certifications, or regulatory requirements.
  */
 function checkComplianceThreshold(field: WalkriField): WalkriCriterion {
-  const name: WalkriCriterionName = 'compliance-threshold'
+  const name: WalkriCriterionName = 'conformance-threshold'
 
   const standardKeywords = [
     'standard',
@@ -302,7 +302,7 @@ function checkComplianceThreshold(field: WalkriField): WalkriCriterion {
       passes: false,
       gap: 'This field references an external standard but does not specify which components of that standard apply or what constitutes passage.',
       suggestion:
-        'Add a compliance threshold to the caption or description: name the specific standard version, list which components or clauses apply, provide qualifying examples, provide at least one non-qualifying example, and state the minimum threshold for passage.',
+        'Add a conformance threshold to the caption or description: name the specific standard version, list which components or clauses apply, provide qualifying examples, provide at least one non-qualifying example, and state the minimum threshold for passage.',
     }
   }
 
@@ -323,7 +323,7 @@ function detectSystemicPatterns(criteria: WalkriCriterion[]): string[] {
     )
   }
 
-  if (failing.includes('evidence-form') && failing.includes('compliance-threshold')) {
+  if (failing.includes('evidence-form') && failing.includes('conformance-threshold')) {
     patterns.push(
       'Unverifiable standard reference: the field references a standard but specifies neither what evidence satisfies it nor what passage looks like.',
     )

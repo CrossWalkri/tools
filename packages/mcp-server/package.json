@@ -1,7 +1,7 @@
 {
-  "name": "@cross-walkri/mcp-server",
-  "version": "0.3.0",
-  "description": "MCP server exposing CROSS+WALKRI as AI tools",
+  "name": "@proof-of-coord/evidence-integrity",
+  "version": "0.4.0",
+  "description": "MCP server exposing the evidence integrity standards as AI tools",
   "license": "CC0-1.0",
   "type": "module",
   "bin": {
@@ -17,9 +17,9 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@cross-walkri/core": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "@proof-of-coord/evidence-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",

@@ -1,12 +1,44 @@
 name: Publish to JSR
 
+# Publishing is gated. A tag alone does not publish: verify must pass first, on
+# every supported Node version. Previously a tag went straight to `jsr publish`
+# with no typecheck, no build and no test.
 on:
   push:
     tags:
       - 'v*'
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm test
+      - name: Bundles match source
+        if: matrix.node == 20
+        run: |
+          pnpm bundle
+          if ! git diff --exit-code -- server.mjs server-http.mjs; then
+            echo "The committed bundles do not match the current source."
+            exit 1
+          fi
+
   publish:
+    needs: verify
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -26,14 +58,19 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Publish @cross-walkri/core
+      - name: Dry run both packages
+        run: |
+          cd packages/core && npx jsr publish --dry-run
+          cd ../mcp-server && npx jsr publish --dry-run
+
+      - name: Publish evidence core
         working-directory: packages/core
-        run: npx jsr publish --allow-slow-types
+        run: npx jsr publish
         env:
           JSR_TOKEN: ${{ secrets.JSR_TOKEN }}
 
-      - name: Publish @cross-walkri/mcp-server
+      - name: Publish evidence integrity server
         working-directory: packages/mcp-server
-        run: npx jsr publish --allow-slow-types
+        run: npx jsr publish
         env:
           JSR_TOKEN: ${{ secrets.JSR_TOKEN }}

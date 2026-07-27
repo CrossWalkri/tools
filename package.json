@@ -9,9 +9,13 @@
     "bundle": "packages/mcp-server/node_modules/.bin/esbuild packages/mcp-server/src/index.ts --bundle --platform=node --format=esm --outfile=server.mjs && packages/mcp-server/node_modules/.bin/esbuild packages/mcp-server/src/http.ts --bundle --platform=node --format=esm --outfile=server-http.mjs",
     "start": "node server-http.mjs",
     "typecheck": "pnpm -r typecheck",
-    "clean": "pnpm -r --parallel exec rm -rf dist"
+    "clean": "pnpm -r --parallel exec rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate": "node scripts/generate-primitives.mjs"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
   }
 }

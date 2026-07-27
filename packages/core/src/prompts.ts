@@ -44,7 +44,7 @@ The five WALKRI criteria are:
 
 4. Evidence form: The specific artifact that satisfies the criterion: document type, data source, or access path, at a level sufficient for independent replication. Not "evidence of X" but "a URL to the LICENSE file in the root directory of a publicly accessible repository."
 
-5. Compliance threshold: For fields referencing external standards, which components apply, what evidence satisfies each component, and what the minimum threshold for passage is.
+5. Conformance threshold: For fields referencing external standards, which components apply, what evidence satisfies each component, and what the minimum threshold for passage is.
 
 Field to audit:
 - Label: ${field.label}
@@ -66,7 +66,7 @@ Respond in structured JSON matching this schema:
 {
   "criteria": [
     {
-      "name": "criterion-intent" | "operational-definition" | "response-form" | "evidence-form" | "compliance-threshold",
+      "name": "criterion-intent" | "operational-definition" | "response-form" | "evidence-form" | "conformance-threshold",
       "passes": boolean,
       "gap": string | null,
       "suggestion": string | null

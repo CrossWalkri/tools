@@ -9,8 +9,9 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js'
 
-// Re-export everything from index except the transport startup
-// by extracting the shared logic here. index.ts and http.ts both import this.
+// Tool definitions and handlers are duplicated with index.ts, which is a known
+// hazard: two hand-synced copies with a comment asserting they agree. The ORE
+// tools are shared from ./ore-tools.js instead; the original eight are not yet.
 
 import {
   auditField,
@@ -31,12 +32,17 @@ import {
   FALSIFIABILITY_FAILURE_MODES,
   getFalsifiabilityType,
   getFalsifiabilityFailureMode,
-} from '@cross-walkri/core'
-import type { WalkriField, CrossGateType, CrossObligationMode } from '@cross-walkri/core'
+} from '@proof-of-coord/evidence-core'
+import type { WalkriField, CrossGateType, CrossObligationMode } from '@proof-of-coord/evidence-core'
+import { ORE_TOOLS, handleOreTool } from './ore-tools.js'
+import { validateToolArgs, toolError } from './tool-validation.js'
 
 // ---------------------------------------------------------------------------
 // Tool definitions (identical to index.ts)
 // ---------------------------------------------------------------------------
+
+export const SERVER_NAME = 'evidence-integrity-suite'
+export const SERVER_VERSION = '0.4.0'
 
 const TOOLS = [
   {
@@ -163,6 +169,7 @@ const TOOLS = [
       required: ['roundDescription'],
     },
   },
+  ...ORE_TOOLS,
 ]
 
 // ---------------------------------------------------------------------------
@@ -216,7 +223,7 @@ function handleWalkriGenerateField(args: Record<string, unknown>) {
   text += '\nTo generate a WALKRI-conformant specification, send this prompt to a language model:\n\n---\n'
   text += `You are a grant form designer applying the WALKRI standard. Generate a complete, WALKRI-conformant field specification for the following measurement goal.\n\nWhat this field should measure: ${whatToMeasure}\nProgram type: ${programType}\n`
   if (fieldTypeHint) text += `Preferred field type (justify or revise): ${fieldTypeHint}\n`
-  text += `\nA WALKRI-conformant field must satisfy all five criterion specification elements:\n1. Criterion intent\n2. Operational definition\n3. Response form\n4. Evidence form\n5. Compliance threshold\n\nReturn a complete field specification as JSON.\n---\n\n`
+  text += `\nA WALKRI-conformant field must satisfy all five criterion specification elements:\n1. Criterion intent\n2. Operational definition\n3. Response form\n4. Evidence form\n5. Conformance threshold\n\nReturn a complete field specification as JSON.\n---\n\n`
   const auditResult = auditField(draftField)
   text += `Structural audit of the draft:\nVerdict: ${auditResult.verdict.toUpperCase()}\nCriteria that need specification:\n`
   for (const criterion of auditResult.criteria.filter((c) => !c.passes)) {
@@ -418,7 +425,7 @@ function handleCrossFalsifiabilityAudit(args: Record<string, unknown>) {
 
 export function createMcpServer(): Server {
   const server = new Server(
-    { name: 'cross-walkri', version: '0.3.0' },
+    { name: SERVER_NAME, version: SERVER_VERSION },
     { capabilities: { tools: {} } },
   )
 
@@ -426,7 +433,14 @@ export function createMcpServer(): Server {
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params
-    const safeArgs = (args ?? {}) as Record<string, unknown>
+    const raw = (args ?? {}) as Record<string, unknown>
+    let safeArgs: Record<string, unknown>
+    try {
+      safeArgs = validateToolArgs(name, raw)
+    } catch (err) {
+      return toolError(err, name)
+    }
+    try {
     switch (name) {
       case 'walkri_audit_field': return handleWalkriAuditField(safeArgs)
       case 'walkri_generate_field': return handleWalkriGenerateField(safeArgs)
@@ -436,8 +450,14 @@ export function createMcpServer(): Server {
       case 'cross_lookup_lens': return handleCrossLookupLens(safeArgs)
       case 'cross_falsifiability_audit': return handleCrossFalsifiabilityAudit(safeArgs)
       case 'cross_audit_round': return handleCrossAuditRound(safeArgs)
-      default:
+      default: {
+        const oreResult = handleOreTool(name, safeArgs)
+        if (oreResult) return oreResult
         return { content: [{ type: 'text', text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(', ')}` }], isError: true }
+      }
+    }
+    } catch (err) {
+      return toolError(err, name)
     }
   })
 

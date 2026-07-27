@@ -1,0 +1,214 @@
+#!/usr/bin/env node
+/**
+ * Generate the typed primitives array from the canonical foundation.
+ *
+ * The primitives were hand-maintained for months and fell four releases behind
+ * without anything noticing: the server encoded fifty at v0.1.7 while the
+ * foundation had settled at a hundred and forty-six at v0.2.3, and two renames
+ * from the Frame Language pass never arrived. Hand-maintaining a copy of data
+ * that has a canonical source is what produced that, so the copy is gone.
+ *
+ * This follows the pattern the Frame Language server already uses, where the
+ * watchlist derives from a single term registry rather than a hand-edited list.
+ *
+ * The source markdown is vendored at packages/core/src/data so builds are
+ * hermetic. A separate check verifies the vendored copy still matches the
+ * published foundation, which is where drift is caught now: at the boundary
+ * where a human vendored a file, not scattered through a typed array.
+ *
+ * Usage: node scripts/generate-primitives.mjs
+ */
+
+import { readFileSync, writeFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
+
+const here = dirname(fileURLToPath(import.meta.url))
+const SOURCE = join(here, '..', 'packages', 'core', 'src', 'data', 'primitives-foundation.md')
+const TARGET = join(here, '..', 'packages', 'core', 'src', 'primitives.ts')
+
+const LAYER_SLUGS = {
+  'Methodological Primitives': 'methodological',
+  'Identity Primitives': 'identity',
+  'Obligation Primitives': 'obligation',
+  'Evidence Primitives': 'evidence',
+  'Specification Primitives': 'specification',
+  'Causal Architecture Primitives': 'causal-architecture',
+  'Portfolio Primitives': 'portfolio',
+}
+
+function frontMatter(text) {
+  const m = text.match(/^---\n([\s\S]*?)\n---/)
+  if (!m) throw new Error('no front matter in the foundation source')
+  const version = m[1].match(/^version:\s*(\S+)/m)
+  const date = m[1].match(/^date:\s*(\S+)/m)
+  if (!version) throw new Error('no version in the foundation front matter')
+  return { version: version[1], date: date ? date[1] : 'unknown' }
+}
+
+/** Split the document into layer sections, then into primitives within each. */
+function parse(text) {
+  const lines = text.split('\n')
+  const primitives = []
+  let layer = null
+
+  let current = null
+  const flush = () => {
+    if (!current) return
+    primitives.push(current)
+    current = null
+  }
+
+  for (const line of lines) {
+    const layerMatch = line.match(/^## Layer \d+: (.+)$/)
+    if (layerMatch) {
+      flush()
+      const slug = LAYER_SLUGS[layerMatch[1].trim()]
+      if (!slug) throw new Error(`unknown layer heading: ${layerMatch[1]}`)
+      layer = slug
+      continue
+    }
+    // Any other level-two heading ends the primitive run for that layer.
+    if (/^## /.test(line)) {
+      flush()
+      layer = null
+      continue
+    }
+    const nameMatch = line.match(/^### (.+)$/)
+    if (nameMatch) {
+      flush()
+      if (!layer) continue // a level-three heading outside any layer section
+      current = { name: nameMatch[1].trim(), layer, body: [] }
+      continue
+    }
+    if (current) current.body.push(line)
+  }
+  flush()
+
+  return primitives.map((p) => {
+    const body = p.body.join('\n')
+    const relIdx = body.indexOf('**Relationships:**')
+    const appIdx = body.indexOf('**Applications:**')
+
+    const descEnd = relIdx >= 0 ? relIdx : appIdx >= 0 ? appIdx : body.length
+    const description = clean(body.slice(0, descEnd))
+
+    const relationships =
+      relIdx >= 0
+        ? clean(
+            body
+              .slice(relIdx + '**Relationships:**'.length, appIdx > relIdx ? appIdx : undefined)
+              .replace(/\n---\s*$/, ''),
+          )
+        : ''
+    const applications =
+      appIdx >= 0 ? clean(body.slice(appIdx + '**Applications:**'.length)) : ''
+
+    return { name: p.name, layer: p.layer, description, relationships, applications }
+  })
+}
+
+/** Strip the trailing rule, collapse whitespace, keep paragraph breaks readable. */
+function clean(s) {
+  return s
+    .replace(/\n-{3,}\s*$/g, '')
+    .split('\n')
+    .map((l) => l.trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
+function tsString(s) {
+  return JSON.stringify(s)
+}
+
+function main() {
+  const text = readFileSync(SOURCE, 'utf8')
+  const { version, date } = frontMatter(text)
+  const primitives = parse(text)
+
+  const declared = text.match(/(\d+) standing primitives across 7 layers/)
+  if (declared && Number(declared[1]) !== primitives.length) {
+    throw new Error(
+      `the foundation declares ${declared[1]} standing primitives but ${primitives.length} were parsed. ` +
+        'Either the document structure changed or the parser is wrong; do not generate from a mismatch.',
+    )
+  }
+
+  const byLayer = {}
+  for (const p of primitives) byLayer[p.layer] = (byLayer[p.layer] ?? 0) + 1
+
+  const header = `/**
+ * All ${primitives.length} CROSS+WALKRI primitives, generated from the canonical foundation.
+ *
+ * DO NOT EDIT THIS FILE BY HAND. It is generated by scripts/generate-primitives.mjs
+ * from packages/core/src/data/primitives-foundation.md. Edit the source and
+ * regenerate; a hand edit will be overwritten by the next build and will not
+ * survive review.
+ *
+ * Foundation version ${version} (${date}).
+ * Layers: ${Object.entries(byLayer)
+   .map(([l, n]) => `${l} ${n}`)
+   .join(', ')}.
+ *
+ * License: CC0, inherited from the foundation.
+ */
+
+import type { CrossPrimitive, PrimitiveLayer } from './types.js'
+
+/** The version of the foundation this array was generated from. */
+export const PRIMITIVES_FOUNDATION_VERSION = '${version}'
+
+/** The date of the foundation this array was generated from. */
+export const PRIMITIVES_FOUNDATION_DATE = '${date}'
+
+export const PRIMITIVES: readonly CrossPrimitive[] = [
+`
+
+  const entries = primitives
+    .map(
+      (p) => `  {
+    name: ${tsString(p.name)},
+    layer: ${tsString(p.layer)},
+    description: ${tsString(p.description)},
+    relationships: ${tsString(p.relationships)},
+    applications: ${tsString(p.applications)},
+  },`,
+    )
+    .join('\n')
+
+  const footer = `
+]
+
+/** Return a primitive by exact name, case-insensitive. */
+export function getPrimitiveByName(name: string): CrossPrimitive | undefined {
+  const lower = name.toLowerCase()
+  return PRIMITIVES.find((p) => p.name.toLowerCase() === lower)
+}
+
+/** Return every primitive in a layer. */
+export function getPrimitivesByLayer(layer: PrimitiveLayer): CrossPrimitive[] {
+  return PRIMITIVES.filter((p) => p.layer === layer)
+}
+
+/** Search names, descriptions, relationships and applications for a keyword. */
+export function searchPrimitives(keyword: string): CrossPrimitive[] {
+  const lower = keyword.toLowerCase()
+  return PRIMITIVES.filter(
+    (p) =>
+      p.name.toLowerCase().includes(lower) ||
+      p.description.toLowerCase().includes(lower) ||
+      p.relationships.toLowerCase().includes(lower) ||
+      p.applications.toLowerCase().includes(lower),
+  )
+}
+`
+
+  writeFileSync(TARGET, header + entries + footer, 'utf8')
+
+  console.log(`generated ${primitives.length} primitives from foundation ${version}`)
+  for (const [layer, n] of Object.entries(byLayer)) console.log(`  ${layer}: ${n}`)
+}
+
+main()

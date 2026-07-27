@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 /**
- * @cross-walkri/mcp-server
+ * @proof-of-coord/evidence-integrity
  *
- * MCP server exposing CROSS+WALKRI as AI tools via stdio transport.
- * Six tools covering WALKRI field auditing, field generation, CROSS gate
- * checking, round configuration, framework classification, and round auditing.
+ * MCP server exposing the evidence integrity standards as AI tools over stdio.
+ * Thirteen tools: WALKRI field auditing and generation, CROSS gate checking,
+ * round configuration, framework classification, lens lookup, falsifiability
+ * auditing and round auditing, plus ORE source grading, independence checking,
+ * finding auditing, posture declaration and the Meridian Basin benchmark.
  *
- * Version 0.1.0 | CC0
+ * Version 0.4.0 | CC0
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
@@ -39,8 +41,11 @@ import {
   FALSIFIABILITY_FAILURE_MODES,
   getFalsifiabilityType,
   getFalsifiabilityFailureMode,
-} from '@cross-walkri/core'
-import type { WalkriField, CrossGateType, CrossObligationMode } from '@cross-walkri/core'
+} from '@proof-of-coord/evidence-core'
+import type { WalkriField, CrossGateType, CrossObligationMode } from '@proof-of-coord/evidence-core'
+import { ORE_TOOLS, handleOreTool } from './ore-tools.js'
+import { validateToolArgs, toolError } from './tool-validation.js'
+import { SERVER_NAME, SERVER_VERSION } from './create-server.js'
 
 // ---------------------------------------------------------------------------
 // Tool definitions
@@ -269,6 +274,7 @@ const TOOLS = [
       required: ['roundDescription'],
     },
   },
+  ...ORE_TOOLS,
 ]
 
 // ---------------------------------------------------------------------------
@@ -357,7 +363,7 @@ function handleWalkriGenerateField(args: Record<string, unknown>) {
   text += `2. Operational definition: qualifying and non-qualifying examples that constrain interpretation\n`
   text += `3. Response form: the response type with a written justification\n`
   text += `4. Evidence form: specific artifact type and access path, not "evidence of X"\n`
-  text += `5. Compliance threshold: if referencing an external standard, which components apply and what passage looks like\n\n`
+  text += `5. Conformance threshold: if referencing an external standard, which components apply and what passage looks like\n\n`
   text += `Return a complete field specification as JSON:\n`
   text += `{\n  "label": string,\n  "description": string,\n  "fieldType": string,\n  "options": string[] | null,\n  "caption": string,\n  "placeholder": string,\n  "required": boolean,\n  "walkriNotes": {\n    "criterionIntent": string,\n    "operationalDefinition": string,\n    "responseFormJustification": string,\n    "evidenceForm": string,\n    "complianceThreshold": string | null\n  }\n}`
   text += '\n---\n\n'
@@ -906,7 +912,7 @@ function handleCrossFalsifiabilityAudit(args: Record<string, unknown>) {
 // ---------------------------------------------------------------------------
 
 const server = new Server(
-  { name: 'cross-walkri', version: '0.3.0' },
+  { name: SERVER_NAME, version: SERVER_VERSION },
   { capabilities: { tools: {} } },
 )
 
@@ -916,8 +922,16 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params
-  const safeArgs = (args ?? {}) as Record<string, unknown>
+  const raw = (args ?? {}) as Record<string, unknown>
 
+  let safeArgs: Record<string, unknown>
+  try {
+    safeArgs = validateToolArgs(name, raw)
+  } catch (err) {
+    return toolError(err, name)
+  }
+
+  try {
   switch (name) {
     case 'walkri_audit_field':
       return handleWalkriAuditField(safeArgs)
@@ -935,7 +949,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return handleCrossFalsifiabilityAudit(safeArgs)
     case 'cross_audit_round':
       return handleCrossAuditRound(safeArgs)
-    default:
+    default: {
+      const oreResult = handleOreTool(name, safeArgs)
+      if (oreResult) return oreResult
       return {
         content: [
           {
@@ -945,6 +961,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         ],
         isError: true,
       }
+    }
+  }
+  } catch (err) {
+    return toolError(err, name)
   }
 })
 

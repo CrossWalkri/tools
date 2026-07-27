@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @cross-walkri/mcp-server - HTTP transport entry point
+ * @proof-of-coord/evidence-integrity - HTTP transport entry point
  *
  * Stateless Streamable HTTP MCP server. Each request gets a fresh
  * server+transport pair. No session state is maintained.
@@ -10,7 +10,7 @@
 
 import { createServer as createHttpServer } from 'node:http'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
-import { createMcpServer } from './create-server.js'
+import { createMcpServer, SERVER_NAME, SERVER_VERSION } from './create-server.js'
 
 const PORT = Number(process.env['PORT'] ?? 3000)
 
@@ -18,7 +18,7 @@ const httpServer = createHttpServer(async (req, res) => {
   // Health check
   if (req.url === '/health' || req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ status: 'ok', server: 'cross-walkri', version: '0.1.0' }))
+    res.end(JSON.stringify({ status: 'ok', server: SERVER_NAME, version: SERVER_VERSION }))
     return
   }
 
@@ -61,6 +61,6 @@ const httpServer = createHttpServer(async (req, res) => {
 })
 
 httpServer.listen(PORT, () => {
-  console.error(`cross-walkri MCP server listening on port ${PORT}`)
+  console.error(`${SERVER_NAME} MCP server v${SERVER_VERSION} listening on port ${PORT}`)
   console.error(`MCP endpoint: http://localhost:${PORT}/mcp`)
 })

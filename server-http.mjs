@@ -6,7 +6,11 @@ var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __commonJS = (cb, mod) => function __require() {
-  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  try {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  } catch (e) {
+    throw mod = 0, e;
+  }
 };
 var __export = (target, all) => {
   for (var name in all)
@@ -97,7 +101,7 @@ var require_code = __commonJS({
     }
     exports._ = _;
     var plus = new _Code("+");
-    function str(strs, ...args) {
+    function str2(strs, ...args) {
       const expr = [safeStringify(strs[0])];
       let i = 0;
       while (i < args.length) {
@@ -108,7 +112,7 @@ var require_code = __commonJS({
       optimize(expr);
       return new _Code(expr);
     }
-    exports.str = str;
+    exports.str = str2;
     function addCodeArg(code, arg) {
       if (arg instanceof _Code)
         code.push(...arg._items);
@@ -151,7 +155,7 @@ var require_code = __commonJS({
       return;
     }
     function strConcat(c1, c2) {
-      return c2.emptyStr() ? c1 : c1.emptyStr() ? c2 : str`${c1}${c2}`;
+      return c2.emptyStr() ? c1 : c1.emptyStr() ? c2 : str2`${c1}${c2}`;
     }
     exports.strConcat = strConcat;
     function interpolate(x) {
@@ -406,11 +410,11 @@ var require_codegen = __commonJS({
         const rhs = this.rhs === void 0 ? "" : ` = ${this.rhs}`;
         return `${varKind} ${this.name}${rhs};` + _n;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants2) {
         if (!names[this.name.str])
           return;
         if (this.rhs)
-          this.rhs = optimizeExpr(this.rhs, names, constants);
+          this.rhs = optimizeExpr(this.rhs, names, constants2);
         return this;
       }
       get names() {
@@ -427,10 +431,10 @@ var require_codegen = __commonJS({
       render({ _n }) {
         return `${this.lhs} = ${this.rhs};` + _n;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants2) {
         if (this.lhs instanceof code_1.Name && !names[this.lhs.str] && !this.sideEffects)
           return;
-        this.rhs = optimizeExpr(this.rhs, names, constants);
+        this.rhs = optimizeExpr(this.rhs, names, constants2);
         return this;
       }
       get names() {
@@ -491,8 +495,8 @@ var require_codegen = __commonJS({
       optimizeNodes() {
         return `${this.code}` ? this : void 0;
       }
-      optimizeNames(names, constants) {
-        this.code = optimizeExpr(this.code, names, constants);
+      optimizeNames(names, constants2) {
+        this.code = optimizeExpr(this.code, names, constants2);
         return this;
       }
       get names() {
@@ -521,12 +525,12 @@ var require_codegen = __commonJS({
         }
         return nodes.length > 0 ? this : void 0;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants2) {
         const { nodes } = this;
         let i = nodes.length;
         while (i--) {
           const n = nodes[i];
-          if (n.optimizeNames(names, constants))
+          if (n.optimizeNames(names, constants2))
             continue;
           subtractNames(names, n.names);
           nodes.splice(i, 1);
@@ -579,12 +583,12 @@ var require_codegen = __commonJS({
           return void 0;
         return this;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants2) {
         var _a;
-        this.else = (_a = this.else) === null || _a === void 0 ? void 0 : _a.optimizeNames(names, constants);
-        if (!(super.optimizeNames(names, constants) || this.else))
+        this.else = (_a = this.else) === null || _a === void 0 ? void 0 : _a.optimizeNames(names, constants2);
+        if (!(super.optimizeNames(names, constants2) || this.else))
           return;
-        this.condition = optimizeExpr(this.condition, names, constants);
+        this.condition = optimizeExpr(this.condition, names, constants2);
         return this;
       }
       get names() {
@@ -607,10 +611,10 @@ var require_codegen = __commonJS({
       render(opts) {
         return `for(${this.iteration})` + super.render(opts);
       }
-      optimizeNames(names, constants) {
-        if (!super.optimizeNames(names, constants))
+      optimizeNames(names, constants2) {
+        if (!super.optimizeNames(names, constants2))
           return;
-        this.iteration = optimizeExpr(this.iteration, names, constants);
+        this.iteration = optimizeExpr(this.iteration, names, constants2);
         return this;
       }
       get names() {
@@ -646,10 +650,10 @@ var require_codegen = __commonJS({
       render(opts) {
         return `for(${this.varKind} ${this.name} ${this.loop} ${this.iterable})` + super.render(opts);
       }
-      optimizeNames(names, constants) {
-        if (!super.optimizeNames(names, constants))
+      optimizeNames(names, constants2) {
+        if (!super.optimizeNames(names, constants2))
           return;
-        this.iterable = optimizeExpr(this.iterable, names, constants);
+        this.iterable = optimizeExpr(this.iterable, names, constants2);
         return this;
       }
       get names() {
@@ -691,11 +695,11 @@ var require_codegen = __commonJS({
         (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNodes();
         return this;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants2) {
         var _a, _b;
-        super.optimizeNames(names, constants);
-        (_a = this.catch) === null || _a === void 0 ? void 0 : _a.optimizeNames(names, constants);
-        (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNames(names, constants);
+        super.optimizeNames(names, constants2);
+        (_a = this.catch) === null || _a === void 0 ? void 0 : _a.optimizeNames(names, constants2);
+        (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNames(names, constants2);
         return this;
       }
       get names() {
@@ -996,7 +1000,7 @@ var require_codegen = __commonJS({
     function addExprNames(names, from) {
       return from instanceof code_1._CodeOrName ? addNames(names, from.names) : names;
     }
-    function optimizeExpr(expr, names, constants) {
+    function optimizeExpr(expr, names, constants2) {
       if (expr instanceof code_1.Name)
         return replaceName(expr);
       if (!canOptimize(expr))
@@ -1011,14 +1015,14 @@ var require_codegen = __commonJS({
         return items;
       }, []));
       function replaceName(n) {
-        const c = constants[n.str];
+        const c = constants2[n.str];
         if (c === void 0 || names[n.str] !== 1)
           return n;
         delete names[n.str];
         return c;
       }
       function canOptimize(e) {
-        return e instanceof code_1._Code && e._items.some((c) => c instanceof code_1.Name && names[c.str] === 1 && constants[c.str] !== void 0);
+        return e instanceof code_1._Code && e._items.some((c) => c instanceof code_1.Name && names[c.str] === 1 && constants2[c.str] !== void 0);
       }
     }
     function subtractNames(names, from) {
@@ -1113,22 +1117,22 @@ var require_util = __commonJS({
       return (0, codegen_1._)`${topSchemaRef}${schemaPath}${(0, codegen_1.getProperty)(keyword)}`;
     }
     exports.schemaRefOrVal = schemaRefOrVal;
-    function unescapeFragment(str) {
-      return unescapeJsonPointer(decodeURIComponent(str));
+    function unescapeFragment(str2) {
+      return unescapeJsonPointer(decodeURIComponent(str2));
     }
     exports.unescapeFragment = unescapeFragment;
-    function escapeFragment(str) {
-      return encodeURIComponent(escapeJsonPointer(str));
+    function escapeFragment(str2) {
+      return encodeURIComponent(escapeJsonPointer(str2));
     }
     exports.escapeFragment = escapeFragment;
-    function escapeJsonPointer(str) {
-      if (typeof str == "number")
-        return `${str}`;
-      return str.replace(/~/g, "~0").replace(/\//g, "~1");
+    function escapeJsonPointer(str2) {
+      if (typeof str2 == "number")
+        return `${str2}`;
+      return str2.replace(/~/g, "~0").replace(/\//g, "~1");
     }
     exports.escapeJsonPointer = escapeJsonPointer;
-    function unescapeJsonPointer(str) {
-      return str.replace(/~1/g, "/").replace(/~0/g, "~");
+    function unescapeJsonPointer(str2) {
+      return str2.replace(/~1/g, "/").replace(/~0/g, "~");
     }
     exports.unescapeJsonPointer = unescapeJsonPointer;
     function eachItem(xs, f) {
@@ -1140,9 +1144,9 @@ var require_util = __commonJS({
       }
     }
     exports.eachItem = eachItem;
-    function makeMergeEvaluated({ mergeNames, mergeToName, mergeValues: mergeValues2, resultToName }) {
+    function makeMergeEvaluated({ mergeNames, mergeToName, mergeValues: mergeValues3, resultToName }) {
       return (gen, from, to, toName) => {
-        const res = to === void 0 ? from : to instanceof codegen_1.Name ? (from instanceof codegen_1.Name ? mergeNames(gen, from, to) : mergeToName(gen, from, to), to) : from instanceof codegen_1.Name ? (mergeToName(gen, to, from), from) : mergeValues2(from, to);
+        const res = to === void 0 ? from : to instanceof codegen_1.Name ? (from instanceof codegen_1.Name ? mergeNames(gen, from, to) : mergeToName(gen, from, to), to) : from instanceof codegen_1.Name ? (mergeToName(gen, to, from), from) : mergeValues3(from, to);
         return toName === codegen_1.Name && !(res instanceof codegen_1.Name) ? resultToName(gen, res) : res;
       };
     }
@@ -2153,8 +2157,8 @@ var require_json_schema_traverse = __commonJS({
         post(schema, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex);
       }
     }
-    function escapeJsonPtr(str) {
-      return str.replace(/~/g, "~0").replace(/\//g, "~1");
+    function escapeJsonPtr(str2) {
+      return str2.replace(/~/g, "~0").replace(/\//g, "~1");
     }
   }
 });
@@ -3099,9 +3103,9 @@ var require_data = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-uri@3.1.2/node_modules/fast-uri/lib/utils.js
+// node_modules/.pnpm/fast-uri@3.1.4/node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/.pnpm/fast-uri@3.1.2/node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "node_modules/.pnpm/fast-uri@3.1.4/node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     var isUUID = RegExp.prototype.test.bind(/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iu);
     var isIPv4 = RegExp.prototype.test.bind(/^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$/u);
@@ -3218,10 +3222,10 @@ var require_utils = __commonJS({
         return { host, isIPV6: false };
       }
     }
-    function findToken(str, token) {
+    function findToken(str2, token) {
       let ind = 0;
-      for (let i = 0; i < str.length; i++) {
-        if (str[i] === token) ind++;
+      for (let i = 0; i < str2.length; i++) {
+        if (str2[i] === token) ind++;
       }
       return ind;
     }
@@ -3412,9 +3416,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-uri@3.1.2/node_modules/fast-uri/lib/schemes.js
+// node_modules/.pnpm/fast-uri@3.1.4/node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "node_modules/.pnpm/fast-uri@3.1.2/node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "node_modules/.pnpm/fast-uri@3.1.4/node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     var { isUUID } = require_utils();
     var URN_REG = /([\da-z][\d\-a-z]{0,31}):((?:[\w!$'()*+,\-.:;=@]|%[\da-f]{2})+)/iu;
@@ -3622,9 +3626,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-uri@3.1.2/node_modules/fast-uri/index.js
+// node_modules/.pnpm/fast-uri@3.1.4/node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "node_modules/.pnpm/fast-uri@3.1.2/node_modules/fast-uri/index.js"(exports, module) {
+  "node_modules/.pnpm/fast-uri@3.1.4/node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     var { normalizeIPv6, removeDotSegments, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, escapePreservingEscapes, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
     var { SCHEMES, getSchemeHandler } = require_schemes();
@@ -3765,6 +3769,7 @@ var require_fast_uri = __commonJS({
       return uriTokens.join("");
     }
     var URI_PARSE = /^(?:([^#/:?]+):)?(?:\/\/((?:([^#/?@]*)@)?(\[[^#/?\]]+\]|[^#/:?]*)(?::(\d*))?))?([^#?]*)(?:\?([^#]*))?(?:#((?:.|[\n\r])*))?/u;
+    var AUTHORITY_PREFIX = /^(?:[^#/:?]+:)?\/\/([^/?#]*)/;
     function getParseError(parsed, matches) {
       if (matches[2] !== void 0 && parsed.path && parsed.path[0] !== "/") {
         return 'URI path must start with "/" when authority is present.';
@@ -3793,6 +3798,11 @@ var require_fast_uri = __commonJS({
         } else {
           uri = "//" + uri;
         }
+      }
+      const authorityMatch = uri.match(AUTHORITY_PREFIX);
+      if (authorityMatch !== null && authorityMatch[1].indexOf("\\") !== -1) {
+        parsed.error = "URI authority must not contain a literal backslash.";
+        malformedAuthorityOrPort = true;
       }
       const matches = uri.match(URI_PARSE);
       if (matches) {
@@ -3837,7 +3847,7 @@ var require_fast_uri = __commonJS({
         if (!options.unicodeSupport && (!schemeHandler || !schemeHandler.unicodeSupport)) {
           if (parsed.host && (options.domainHost || schemeHandler && schemeHandler.domainHost) && isIP === false && nonSimpleDomain(parsed.host)) {
             try {
-              parsed.host = URL.domainToASCII(parsed.host.toLowerCase());
+              parsed.host = new URL("http://" + parsed.host).hostname;
             } catch (e) {
               parsed.error = parsed.error || "Host's domain name can not be converted to ASCII: " + e;
             }
@@ -3958,7 +3968,7 @@ var require_core = __commonJS({
     var util_1 = require_util();
     var $dataRefSchema = require_data();
     var uri_1 = require_uri();
-    var defaultRegExp = (str, flags) => new RegExp(str, flags);
+    var defaultRegExp = (str2, flags) => new RegExp(str2, flags);
     defaultRegExp.code = "new RegExp";
     var META_IGNORE_OPTIONS = ["removeAdditional", "useDefaults", "coerceTypes"];
     var EXT_SCOPE_NAMES = /* @__PURE__ */ new Set([
@@ -4753,16 +4763,16 @@ var require_ucs2length = __commonJS({
   "node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    function ucs2length(str) {
-      const len = str.length;
+    function ucs2length(str2) {
+      const len = str2.length;
       let length = 0;
       let pos = 0;
       let value;
       while (pos < len) {
         length++;
-        value = str.charCodeAt(pos++);
+        value = str2.charCodeAt(pos++);
         if (value >= 55296 && value <= 56319 && pos < len) {
-          value = str.charCodeAt(pos);
+          value = str2.charCodeAt(pos);
           if ((value & 64512) === 56320)
             pos++;
         }
@@ -6645,8 +6655,8 @@ var require_formats = __commonJS({
     }
     var DATE = /^(\d\d\d\d)-(\d\d)-(\d\d)$/;
     var DAYS = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    function date3(str) {
-      const matches = DATE.exec(str);
+    function date3(str2) {
+      const matches = DATE.exec(str2);
       if (!matches)
         return false;
       const year = +matches[1];
@@ -6665,8 +6675,8 @@ var require_formats = __commonJS({
     }
     var TIME = /^(\d\d):(\d\d):(\d\d(?:\.\d+)?)(z|([+-])(\d\d)(?::?(\d\d))?)?$/i;
     function getTime(strictTimeZone) {
-      return function time3(str) {
-        const matches = TIME.exec(str);
+      return function time3(str2) {
+        const matches = TIME.exec(str2);
         if (!matches)
           return false;
         const hr = +matches[1];
@@ -6712,8 +6722,8 @@ var require_formats = __commonJS({
     var DATE_TIME_SEPARATOR = /t|\s/i;
     function getDateTime(strictTimeZone) {
       const time3 = getTime(strictTimeZone);
-      return function date_time(str) {
-        const dateTime = str.split(DATE_TIME_SEPARATOR);
+      return function date_time(str2) {
+        const dateTime = str2.split(DATE_TIME_SEPARATOR);
         return dateTime.length === 2 && date3(dateTime[0]) && time3(dateTime[1]);
       };
     }
@@ -6738,13 +6748,13 @@ var require_formats = __commonJS({
     }
     var NOT_URI_FRAGMENT = /\/|:/;
     var URI = /^(?:[a-z][a-z0-9+\-.]*:)(?:\/?\/(?:(?:[a-z0-9\-._~!$&'()*+,;=:]|%[0-9a-f]{2})*@)?(?:\[(?:(?:(?:(?:[0-9a-f]{1,4}:){6}|::(?:[0-9a-f]{1,4}:){5}|(?:[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){4}|(?:(?:[0-9a-f]{1,4}:){0,1}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){3}|(?:(?:[0-9a-f]{1,4}:){0,2}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){2}|(?:(?:[0-9a-f]{1,4}:){0,3}[0-9a-f]{1,4})?::[0-9a-f]{1,4}:|(?:(?:[0-9a-f]{1,4}:){0,4}[0-9a-f]{1,4})?::)(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?))|(?:(?:[0-9a-f]{1,4}:){0,5}[0-9a-f]{1,4})?::[0-9a-f]{1,4}|(?:(?:[0-9a-f]{1,4}:){0,6}[0-9a-f]{1,4})?::)|[Vv][0-9a-f]+\.[a-z0-9\-._~!$&'()*+,;=:]+)\]|(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)|(?:[a-z0-9\-._~!$&'()*+,;=]|%[0-9a-f]{2})*)(?::\d*)?(?:\/(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})*)*|\/(?:(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})+(?:\/(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})*)*)?|(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})+(?:\/(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})*)*)(?:\?(?:[a-z0-9\-._~!$&'()*+,;=:@/?]|%[0-9a-f]{2})*)?(?:#(?:[a-z0-9\-._~!$&'()*+,;=:@/?]|%[0-9a-f]{2})*)?$/i;
-    function uri(str) {
-      return NOT_URI_FRAGMENT.test(str) && URI.test(str);
+    function uri(str2) {
+      return NOT_URI_FRAGMENT.test(str2) && URI.test(str2);
     }
     var BYTE = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/gm;
-    function byte(str) {
+    function byte(str2) {
       BYTE.lastIndex = 0;
-      return BYTE.test(str);
+      return BYTE.test(str2);
     }
     var MIN_INT32 = -(2 ** 31);
     var MAX_INT32 = 2 ** 31 - 1;
@@ -6758,11 +6768,11 @@ var require_formats = __commonJS({
       return true;
     }
     var Z_ANCHOR = /[^\\]\\Z/;
-    function regex(str) {
-      if (Z_ANCHOR.test(str))
+    function regex(str2) {
+      if (Z_ANCHOR.test(str2))
         return false;
       try {
-        new RegExp(str);
+        new RegExp(str2);
         return true;
       } catch (e) {
         return false;
@@ -6891,38 +6901,38 @@ var require_util2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getParsedType = exports.ZodParsedType = exports.objectUtil = exports.util = void 0;
-    var util;
-    (function(util2) {
-      util2.assertEqual = (_) => {
+    var util2;
+    (function(util3) {
+      util3.assertEqual = (_) => {
       };
       function assertIs2(_arg) {
       }
-      util2.assertIs = assertIs2;
+      util3.assertIs = assertIs2;
       function assertNever2(_x) {
         throw new Error();
       }
-      util2.assertNever = assertNever2;
-      util2.arrayToEnum = (items) => {
+      util3.assertNever = assertNever2;
+      util3.arrayToEnum = (items) => {
         const obj = {};
         for (const item of items) {
           obj[item] = item;
         }
         return obj;
       };
-      util2.getValidEnumValues = (obj) => {
-        const validKeys = util2.objectKeys(obj).filter((k) => typeof obj[obj[k]] !== "number");
+      util3.getValidEnumValues = (obj) => {
+        const validKeys = util3.objectKeys(obj).filter((k) => typeof obj[obj[k]] !== "number");
         const filtered = {};
         for (const k of validKeys) {
           filtered[k] = obj[k];
         }
-        return util2.objectValues(filtered);
+        return util3.objectValues(filtered);
       };
-      util2.objectValues = (obj) => {
-        return util2.objectKeys(obj).map(function(e) {
+      util3.objectValues = (obj) => {
+        return util3.objectKeys(obj).map(function(e) {
           return obj[e];
         });
       };
-      util2.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object3) => {
+      util3.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object3) => {
         const keys = [];
         for (const key in object3) {
           if (Object.prototype.hasOwnProperty.call(object3, key)) {
@@ -6931,36 +6941,36 @@ var require_util2 = __commonJS({
         }
         return keys;
       };
-      util2.find = (arr, checker) => {
+      util3.find = (arr, checker) => {
         for (const item of arr) {
           if (checker(item))
             return item;
         }
         return void 0;
       };
-      util2.isInteger = typeof Number.isInteger === "function" ? (val) => Number.isInteger(val) : (val) => typeof val === "number" && Number.isFinite(val) && Math.floor(val) === val;
+      util3.isInteger = typeof Number.isInteger === "function" ? (val) => Number.isInteger(val) : (val) => typeof val === "number" && Number.isFinite(val) && Math.floor(val) === val;
       function joinValues2(array2, separator = " | ") {
         return array2.map((val) => typeof val === "string" ? `'${val}'` : val).join(separator);
       }
-      util2.joinValues = joinValues2;
-      util2.jsonStringifyReplacer = (_, value) => {
+      util3.joinValues = joinValues2;
+      util3.jsonStringifyReplacer = (_, value) => {
         if (typeof value === "bigint") {
           return value.toString();
         }
         return value;
       };
-    })(util || (exports.util = util = {}));
-    var objectUtil;
-    (function(objectUtil2) {
-      objectUtil2.mergeShapes = (first, second) => {
+    })(util2 || (exports.util = util2 = {}));
+    var objectUtil2;
+    (function(objectUtil3) {
+      objectUtil3.mergeShapes = (first, second) => {
         return {
           ...first,
           ...second
           // second overwrites first
         };
       };
-    })(objectUtil || (exports.objectUtil = objectUtil = {}));
-    exports.ZodParsedType = util.arrayToEnum([
+    })(objectUtil2 || (exports.objectUtil = objectUtil2 = {}));
+    exports.ZodParsedType = util2.arrayToEnum([
       "string",
       "nan",
       "number",
@@ -6982,7 +6992,7 @@ var require_util2 = __commonJS({
       "map",
       "set"
     ]);
-    var getParsedType2 = (data) => {
+    var getParsedType3 = (data) => {
       const t = typeof data;
       switch (t) {
         case "undefined":
@@ -7023,7 +7033,7 @@ var require_util2 = __commonJS({
           return exports.ZodParsedType.unknown;
       }
     };
-    exports.getParsedType = getParsedType2;
+    exports.getParsedType = getParsedType3;
   }
 });
 
@@ -7052,12 +7062,12 @@ var require_ZodError = __commonJS({
       "not_multiple_of",
       "not_finite"
     ]);
-    var quotelessJson = (obj) => {
-      const json = JSON.stringify(obj, null, 2);
-      return json.replace(/"([^"]+)":/g, "$1:");
+    var quotelessJson2 = (obj) => {
+      const json2 = JSON.stringify(obj, null, 2);
+      return json2.replace(/"([^"]+)":/g, "$1:");
     };
-    exports.quotelessJson = quotelessJson;
-    var ZodError2 = class _ZodError extends Error {
+    exports.quotelessJson = quotelessJson2;
+    var ZodError3 = class _ZodError extends Error {
       get errors() {
         return this.issues;
       }
@@ -7147,9 +7157,9 @@ var require_ZodError = __commonJS({
         return this.flatten();
       }
     };
-    exports.ZodError = ZodError2;
-    ZodError2.create = (issues) => {
-      const error2 = new ZodError2(issues);
+    exports.ZodError = ZodError3;
+    ZodError3.create = (issues) => {
+      const error2 = new ZodError3(issues);
       return error2;
     };
   }
@@ -7162,7 +7172,7 @@ var require_en = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     var ZodError_js_1 = require_ZodError();
     var util_js_1 = require_util2();
-    var errorMap = (issue2, _ctx) => {
+    var errorMap2 = (issue2, _ctx) => {
       let message;
       switch (issue2.code) {
         case ZodError_js_1.ZodIssueCode.invalid_type:
@@ -7262,7 +7272,7 @@ var require_en = __commonJS({
       }
       return { message };
     };
-    exports.default = errorMap;
+    exports.default = errorMap2;
   }
 });
 
@@ -7275,16 +7285,16 @@ var require_errors2 = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.defaultErrorMap = void 0;
-    exports.setErrorMap = setErrorMap;
-    exports.getErrorMap = getErrorMap;
+    exports.setErrorMap = setErrorMap2;
+    exports.getErrorMap = getErrorMap2;
     var en_js_1 = __importDefault(require_en());
     exports.defaultErrorMap = en_js_1.default;
-    var overrideErrorMap = en_js_1.default;
-    function setErrorMap(map) {
-      overrideErrorMap = map;
+    var overrideErrorMap2 = en_js_1.default;
+    function setErrorMap2(map) {
+      overrideErrorMap2 = map;
     }
-    function getErrorMap() {
-      return overrideErrorMap;
+    function getErrorMap2() {
+      return overrideErrorMap2;
     }
   }
 });
@@ -7298,10 +7308,10 @@ var require_parseUtil = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAsync = exports.isValid = exports.isDirty = exports.isAborted = exports.OK = exports.DIRTY = exports.INVALID = exports.ParseStatus = exports.EMPTY_PATH = exports.makeIssue = void 0;
-    exports.addIssueToContext = addIssueToContext;
+    exports.addIssueToContext = addIssueToContext2;
     var errors_js_1 = require_errors2();
     var en_js_1 = __importDefault(require_en());
-    var makeIssue = (params) => {
+    var makeIssue2 = (params) => {
       const { data, path, errorMaps, issueData } = params;
       const fullPath = [...path, ...issueData.path || []];
       const fullIssue = {
@@ -7326,9 +7336,9 @@ var require_parseUtil = __commonJS({
         message: errorMessage
       };
     };
-    exports.makeIssue = makeIssue;
+    exports.makeIssue = makeIssue2;
     exports.EMPTY_PATH = [];
-    function addIssueToContext(ctx, issueData) {
+    function addIssueToContext2(ctx, issueData) {
       const overrideMap = (0, errors_js_1.getErrorMap)();
       const issue2 = (0, exports.makeIssue)({
         issueData,
@@ -7347,7 +7357,7 @@ var require_parseUtil = __commonJS({
       });
       ctx.common.issues.push(issue2);
     }
-    var ParseStatus = class _ParseStatus {
+    var ParseStatus2 = class _ParseStatus {
       constructor() {
         this.value = "valid";
       }
@@ -7401,22 +7411,22 @@ var require_parseUtil = __commonJS({
         return { status: status.value, value: finalObject };
       }
     };
-    exports.ParseStatus = ParseStatus;
+    exports.ParseStatus = ParseStatus2;
     exports.INVALID = Object.freeze({
       status: "aborted"
     });
-    var DIRTY = (value) => ({ status: "dirty", value });
-    exports.DIRTY = DIRTY;
-    var OK = (value) => ({ status: "valid", value });
-    exports.OK = OK;
-    var isAborted = (x) => x.status === "aborted";
-    exports.isAborted = isAborted;
-    var isDirty = (x) => x.status === "dirty";
-    exports.isDirty = isDirty;
-    var isValid = (x) => x.status === "valid";
-    exports.isValid = isValid;
-    var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
-    exports.isAsync = isAsync;
+    var DIRTY2 = (value) => ({ status: "dirty", value });
+    exports.DIRTY = DIRTY2;
+    var OK2 = (value) => ({ status: "valid", value });
+    exports.OK = OK2;
+    var isAborted2 = (x) => x.status === "aborted";
+    exports.isAborted = isAborted2;
+    var isDirty2 = (x) => x.status === "dirty";
+    exports.isDirty = isDirty2;
+    var isValid2 = (x) => x.status === "valid";
+    exports.isValid = isValid2;
+    var isAsync2 = (x) => typeof Promise !== "undefined" && x instanceof Promise;
+    exports.isAsync = isAsync2;
   }
 });
 
@@ -7434,11 +7444,11 @@ var require_errorUtil = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.errorUtil = void 0;
-    var errorUtil;
-    (function(errorUtil2) {
-      errorUtil2.errToObj = (message) => typeof message === "string" ? { message } : message || {};
-      errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
-    })(errorUtil || (exports.errorUtil = errorUtil = {}));
+    var errorUtil2;
+    (function(errorUtil3) {
+      errorUtil3.errToObj = (message) => typeof message === "string" ? { message } : message || {};
+      errorUtil3.toString = (message) => typeof message === "string" ? message : message?.message;
+    })(errorUtil2 || (exports.errorUtil = errorUtil2 = {}));
   }
 });
 
@@ -7449,14 +7459,14 @@ var require_types2 = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.discriminatedUnion = exports.date = exports.boolean = exports.bigint = exports.array = exports.any = exports.coerce = exports.ZodFirstPartyTypeKind = exports.late = exports.ZodSchema = exports.Schema = exports.ZodReadonly = exports.ZodPipeline = exports.ZodBranded = exports.BRAND = exports.ZodNaN = exports.ZodCatch = exports.ZodDefault = exports.ZodNullable = exports.ZodOptional = exports.ZodTransformer = exports.ZodEffects = exports.ZodPromise = exports.ZodNativeEnum = exports.ZodEnum = exports.ZodLiteral = exports.ZodLazy = exports.ZodFunction = exports.ZodSet = exports.ZodMap = exports.ZodRecord = exports.ZodTuple = exports.ZodIntersection = exports.ZodDiscriminatedUnion = exports.ZodUnion = exports.ZodObject = exports.ZodArray = exports.ZodVoid = exports.ZodNever = exports.ZodUnknown = exports.ZodAny = exports.ZodNull = exports.ZodUndefined = exports.ZodSymbol = exports.ZodDate = exports.ZodBoolean = exports.ZodBigInt = exports.ZodNumber = exports.ZodString = exports.ZodType = void 0;
     exports.NEVER = exports.void = exports.unknown = exports.union = exports.undefined = exports.tuple = exports.transformer = exports.symbol = exports.string = exports.strictObject = exports.set = exports.record = exports.promise = exports.preprocess = exports.pipeline = exports.ostring = exports.optional = exports.onumber = exports.oboolean = exports.object = exports.number = exports.nullable = exports.null = exports.never = exports.nativeEnum = exports.nan = exports.map = exports.literal = exports.lazy = exports.intersection = exports.instanceof = exports.function = exports.enum = exports.effect = void 0;
-    exports.datetimeRegex = datetimeRegex;
-    exports.custom = custom2;
+    exports.datetimeRegex = datetimeRegex2;
+    exports.custom = custom3;
     var ZodError_js_1 = require_ZodError();
     var errors_js_1 = require_errors2();
     var errorUtil_js_1 = require_errorUtil();
     var parseUtil_js_1 = require_parseUtil();
     var util_js_1 = require_util2();
-    var ParseInputLazyPath = class {
+    var ParseInputLazyPath2 = class {
       constructor(parent, value, path, key) {
         this._cachedPath = [];
         this.parent = parent;
@@ -7475,7 +7485,7 @@ var require_types2 = __commonJS({
         return this._cachedPath;
       }
     };
-    var handleResult = (ctx, result) => {
+    var handleResult2 = (ctx, result) => {
       if ((0, parseUtil_js_1.isValid)(result)) {
         return { success: true, data: result.value };
       } else {
@@ -7494,15 +7504,15 @@ var require_types2 = __commonJS({
         };
       }
     };
-    function processCreateParams(params) {
+    function processCreateParams2(params) {
       if (!params)
         return {};
-      const { errorMap, invalid_type_error, required_error, description } = params;
-      if (errorMap && (invalid_type_error || required_error)) {
+      const { errorMap: errorMap2, invalid_type_error, required_error, description } = params;
+      if (errorMap2 && (invalid_type_error || required_error)) {
         throw new Error(`Can't use "invalid_type_error" or "required_error" in conjunction with custom error map.`);
       }
-      if (errorMap)
-        return { errorMap, description };
+      if (errorMap2)
+        return { errorMap: errorMap2, description };
       const customMap = (iss, ctx) => {
         const { message } = params;
         if (iss.code === "invalid_enum_value") {
@@ -7517,7 +7527,7 @@ var require_types2 = __commonJS({
       };
       return { errorMap: customMap, description };
     }
-    var ZodType2 = class {
+    var ZodType3 = class {
       get description() {
         return this._def.description;
       }
@@ -7578,7 +7588,7 @@ var require_types2 = __commonJS({
           parsedType: (0, util_js_1.getParsedType)(data)
         };
         const result = this._parseSync({ data, path: ctx.path, parent: ctx });
-        return handleResult(ctx, result);
+        return handleResult2(ctx, result);
       }
       "~validate"(data) {
         const ctx = {
@@ -7637,7 +7647,7 @@ var require_types2 = __commonJS({
         };
         const maybeAsyncResult = this._parse({ data, path: ctx.path, parent: ctx });
         const result = await ((0, parseUtil_js_1.isAsync)(maybeAsyncResult) ? maybeAsyncResult : Promise.resolve(maybeAsyncResult));
-        return handleResult(ctx, result);
+        return handleResult2(ctx, result);
       }
       refine(check2, message) {
         const getIssueProperties = (val) => {
@@ -7684,9 +7694,9 @@ var require_types2 = __commonJS({
         });
       }
       _refinement(refinement) {
-        return new ZodEffects({
+        return new ZodEffects2({
           schema: this,
-          typeName: ZodFirstPartyTypeKind.ZodEffects,
+          typeName: ZodFirstPartyTypeKind2.ZodEffects,
           effect: { type: "refinement", refinement }
         });
       }
@@ -7727,57 +7737,57 @@ var require_types2 = __commonJS({
         };
       }
       optional() {
-        return ZodOptional2.create(this, this._def);
+        return ZodOptional3.create(this, this._def);
       }
       nullable() {
-        return ZodNullable2.create(this, this._def);
+        return ZodNullable3.create(this, this._def);
       }
       nullish() {
         return this.nullable().optional();
       }
       array() {
-        return ZodArray2.create(this);
+        return ZodArray3.create(this);
       }
       promise() {
-        return ZodPromise.create(this, this._def);
+        return ZodPromise2.create(this, this._def);
       }
       or(option) {
-        return ZodUnion2.create([this, option], this._def);
+        return ZodUnion3.create([this, option], this._def);
       }
       and(incoming) {
-        return ZodIntersection2.create(this, incoming, this._def);
+        return ZodIntersection3.create(this, incoming, this._def);
       }
       transform(transform2) {
-        return new ZodEffects({
-          ...processCreateParams(this._def),
+        return new ZodEffects2({
+          ...processCreateParams2(this._def),
           schema: this,
-          typeName: ZodFirstPartyTypeKind.ZodEffects,
+          typeName: ZodFirstPartyTypeKind2.ZodEffects,
           effect: { type: "transform", transform: transform2 }
         });
       }
       default(def) {
         const defaultValueFunc = typeof def === "function" ? def : () => def;
-        return new ZodDefault2({
-          ...processCreateParams(this._def),
+        return new ZodDefault3({
+          ...processCreateParams2(this._def),
           innerType: this,
           defaultValue: defaultValueFunc,
-          typeName: ZodFirstPartyTypeKind.ZodDefault
+          typeName: ZodFirstPartyTypeKind2.ZodDefault
         });
       }
       brand() {
-        return new ZodBranded({
-          typeName: ZodFirstPartyTypeKind.ZodBranded,
+        return new ZodBranded2({
+          typeName: ZodFirstPartyTypeKind2.ZodBranded,
           type: this,
-          ...processCreateParams(this._def)
+          ...processCreateParams2(this._def)
         });
       }
       catch(def) {
         const catchValueFunc = typeof def === "function" ? def : () => def;
-        return new ZodCatch2({
-          ...processCreateParams(this._def),
+        return new ZodCatch3({
+          ...processCreateParams2(this._def),
           innerType: this,
           catchValue: catchValueFunc,
-          typeName: ZodFirstPartyTypeKind.ZodCatch
+          typeName: ZodFirstPartyTypeKind2.ZodCatch
         });
       }
       describe(description) {
@@ -7788,10 +7798,10 @@ var require_types2 = __commonJS({
         });
       }
       pipe(target) {
-        return ZodPipeline.create(this, target);
+        return ZodPipeline2.create(this, target);
       }
       readonly() {
-        return ZodReadonly2.create(this);
+        return ZodReadonly3.create(this);
       }
       isOptional() {
         return this.safeParse(void 0).success;
@@ -7800,28 +7810,28 @@ var require_types2 = __commonJS({
         return this.safeParse(null).success;
       }
     };
-    exports.ZodType = ZodType2;
-    exports.Schema = ZodType2;
-    exports.ZodSchema = ZodType2;
-    var cuidRegex = /^c[^\s-]{8,}$/i;
-    var cuid2Regex = /^[0-9a-z]+$/;
-    var ulidRegex = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
-    var uuidRegex = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/i;
-    var nanoidRegex = /^[a-z0-9_-]{21}$/i;
-    var jwtRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/;
-    var durationRegex = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/;
-    var emailRegex = /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
-    var _emojiRegex = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
-    var emojiRegex;
-    var ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
-    var ipv4CidrRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/;
-    var ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
-    var ipv6CidrRegex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
-    var base64Regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-    var base64urlRegex = /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/;
-    var dateRegexSource = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
-    var dateRegex = new RegExp(`^${dateRegexSource}$`);
-    function timeRegexSource(args) {
+    exports.ZodType = ZodType3;
+    exports.Schema = ZodType3;
+    exports.ZodSchema = ZodType3;
+    var cuidRegex2 = /^c[^\s-]{8,}$/i;
+    var cuid2Regex2 = /^[0-9a-z]+$/;
+    var ulidRegex2 = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
+    var uuidRegex2 = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/i;
+    var nanoidRegex2 = /^[a-z0-9_-]{21}$/i;
+    var jwtRegex2 = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/;
+    var durationRegex2 = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/;
+    var emailRegex2 = /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
+    var _emojiRegex2 = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
+    var emojiRegex2;
+    var ipv4Regex2 = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
+    var ipv4CidrRegex2 = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/;
+    var ipv6Regex2 = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+    var ipv6CidrRegex2 = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
+    var base64Regex2 = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+    var base64urlRegex2 = /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/;
+    var dateRegexSource2 = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
+    var dateRegex2 = new RegExp(`^${dateRegexSource2}$`);
+    function timeRegexSource2(args) {
       let secondsRegexSource = `[0-5]\\d`;
       if (args.precision) {
         secondsRegexSource = `${secondsRegexSource}\\.\\d{${args.precision}}`;
@@ -7831,11 +7841,11 @@ var require_types2 = __commonJS({
       const secondsQuantifier = args.precision ? "+" : "?";
       return `([01]\\d|2[0-3]):[0-5]\\d(:${secondsRegexSource})${secondsQuantifier}`;
     }
-    function timeRegex(args) {
-      return new RegExp(`^${timeRegexSource(args)}$`);
+    function timeRegex2(args) {
+      return new RegExp(`^${timeRegexSource2(args)}$`);
     }
-    function datetimeRegex(args) {
-      let regex = `${dateRegexSource}T${timeRegexSource(args)}`;
+    function datetimeRegex2(args) {
+      let regex = `${dateRegexSource2}T${timeRegexSource2(args)}`;
       const opts = [];
       opts.push(args.local ? `Z?` : `Z`);
       if (args.offset)
@@ -7843,17 +7853,17 @@ var require_types2 = __commonJS({
       regex = `${regex}(${opts.join("|")})`;
       return new RegExp(`^${regex}$`);
     }
-    function isValidIP(ip, version2) {
-      if ((version2 === "v4" || !version2) && ipv4Regex.test(ip)) {
+    function isValidIP2(ip, version2) {
+      if ((version2 === "v4" || !version2) && ipv4Regex2.test(ip)) {
         return true;
       }
-      if ((version2 === "v6" || !version2) && ipv6Regex.test(ip)) {
+      if ((version2 === "v6" || !version2) && ipv6Regex2.test(ip)) {
         return true;
       }
       return false;
     }
-    function isValidJWT2(jwt, alg) {
-      if (!jwtRegex.test(jwt))
+    function isValidJWT3(jwt, alg) {
+      if (!jwtRegex2.test(jwt))
         return false;
       try {
         const [header] = jwt.split(".");
@@ -7874,16 +7884,16 @@ var require_types2 = __commonJS({
         return false;
       }
     }
-    function isValidCidr(ip, version2) {
-      if ((version2 === "v4" || !version2) && ipv4CidrRegex.test(ip)) {
+    function isValidCidr2(ip, version2) {
+      if ((version2 === "v4" || !version2) && ipv4CidrRegex2.test(ip)) {
         return true;
       }
-      if ((version2 === "v6" || !version2) && ipv6CidrRegex.test(ip)) {
+      if ((version2 === "v6" || !version2) && ipv6CidrRegex2.test(ip)) {
         return true;
       }
       return false;
     }
-    var ZodString2 = class _ZodString2 extends ZodType2 {
+    var ZodString3 = class _ZodString2 extends ZodType3 {
       _parse(input) {
         if (this._def.coerce) {
           input.data = String(input.data);
@@ -7954,7 +7964,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "email") {
-            if (!emailRegex.test(input.data)) {
+            if (!emailRegex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "email",
@@ -7964,10 +7974,10 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "emoji") {
-            if (!emojiRegex) {
-              emojiRegex = new RegExp(_emojiRegex, "u");
+            if (!emojiRegex2) {
+              emojiRegex2 = new RegExp(_emojiRegex2, "u");
             }
-            if (!emojiRegex.test(input.data)) {
+            if (!emojiRegex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "emoji",
@@ -7977,7 +7987,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "uuid") {
-            if (!uuidRegex.test(input.data)) {
+            if (!uuidRegex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "uuid",
@@ -7987,7 +7997,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "nanoid") {
-            if (!nanoidRegex.test(input.data)) {
+            if (!nanoidRegex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "nanoid",
@@ -7997,7 +8007,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "cuid") {
-            if (!cuidRegex.test(input.data)) {
+            if (!cuidRegex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "cuid",
@@ -8007,7 +8017,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "cuid2") {
-            if (!cuid2Regex.test(input.data)) {
+            if (!cuid2Regex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "cuid2",
@@ -8017,7 +8027,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "ulid") {
-            if (!ulidRegex.test(input.data)) {
+            if (!ulidRegex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "ulid",
@@ -8087,7 +8097,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "datetime") {
-            const regex = datetimeRegex(check2);
+            const regex = datetimeRegex2(check2);
             if (!regex.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
@@ -8098,7 +8108,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "date") {
-            const regex = dateRegex;
+            const regex = dateRegex2;
             if (!regex.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
@@ -8109,7 +8119,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "time") {
-            const regex = timeRegex(check2);
+            const regex = timeRegex2(check2);
             if (!regex.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
@@ -8120,7 +8130,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "duration") {
-            if (!durationRegex.test(input.data)) {
+            if (!durationRegex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "duration",
@@ -8130,7 +8140,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "ip") {
-            if (!isValidIP(input.data, check2.version)) {
+            if (!isValidIP2(input.data, check2.version)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "ip",
@@ -8140,7 +8150,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "jwt") {
-            if (!isValidJWT2(input.data, check2.alg)) {
+            if (!isValidJWT3(input.data, check2.alg)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "jwt",
@@ -8150,7 +8160,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "cidr") {
-            if (!isValidCidr(input.data, check2.version)) {
+            if (!isValidCidr2(input.data, check2.version)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "cidr",
@@ -8160,7 +8170,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "base64") {
-            if (!base64Regex.test(input.data)) {
+            if (!base64Regex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "base64",
@@ -8170,7 +8180,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "base64url") {
-            if (!base64urlRegex.test(input.data)) {
+            if (!base64urlRegex2.test(input.data)) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 validation: "base64url",
@@ -8421,16 +8431,16 @@ var require_types2 = __commonJS({
         return max;
       }
     };
-    exports.ZodString = ZodString2;
-    ZodString2.create = (params) => {
-      return new ZodString2({
+    exports.ZodString = ZodString3;
+    ZodString3.create = (params) => {
+      return new ZodString3({
         checks: [],
-        typeName: ZodFirstPartyTypeKind.ZodString,
+        typeName: ZodFirstPartyTypeKind2.ZodString,
         coerce: params?.coerce ?? false,
-        ...processCreateParams(params)
+        ...processCreateParams2(params)
       });
     };
-    function floatSafeRemainder2(val, step) {
+    function floatSafeRemainder3(val, step) {
       const valDecCount = (val.toString().split(".")[1] || "").length;
       const stepDecCount = (step.toString().split(".")[1] || "").length;
       const decCount = valDecCount > stepDecCount ? valDecCount : stepDecCount;
@@ -8438,7 +8448,7 @@ var require_types2 = __commonJS({
       const stepInt = Number.parseInt(step.toFixed(decCount).replace(".", ""));
       return valInt % stepInt / 10 ** decCount;
     }
-    var ZodNumber2 = class _ZodNumber extends ZodType2 {
+    var ZodNumber3 = class _ZodNumber extends ZodType3 {
       constructor() {
         super(...arguments);
         this.min = this.gte;
@@ -8502,7 +8512,7 @@ var require_types2 = __commonJS({
               status.dirty();
             }
           } else if (check2.kind === "multipleOf") {
-            if (floatSafeRemainder2(input.data, check2.value) !== 0) {
+            if (floatSafeRemainder3(input.data, check2.value) !== 0) {
               ctx = this._getOrReturnCtx(input, ctx);
               (0, parseUtil_js_1.addIssueToContext)(ctx, {
                 code: ZodError_js_1.ZodIssueCode.not_multiple_of,
@@ -8662,16 +8672,16 @@ var require_types2 = __commonJS({
         return Number.isFinite(min) && Number.isFinite(max);
       }
     };
-    exports.ZodNumber = ZodNumber2;
-    ZodNumber2.create = (params) => {
-      return new ZodNumber2({
+    exports.ZodNumber = ZodNumber3;
+    ZodNumber3.create = (params) => {
+      return new ZodNumber3({
         checks: [],
-        typeName: ZodFirstPartyTypeKind.ZodNumber,
+        typeName: ZodFirstPartyTypeKind2.ZodNumber,
         coerce: params?.coerce || false,
-        ...processCreateParams(params)
+        ...processCreateParams2(params)
       });
     };
-    var ZodBigInt = class _ZodBigInt extends ZodType2 {
+    var ZodBigInt2 = class _ZodBigInt extends ZodType3 {
       constructor() {
         super(...arguments);
         this.min = this.gte;
@@ -8835,16 +8845,16 @@ var require_types2 = __commonJS({
         return max;
       }
     };
-    exports.ZodBigInt = ZodBigInt;
-    ZodBigInt.create = (params) => {
-      return new ZodBigInt({
+    exports.ZodBigInt = ZodBigInt2;
+    ZodBigInt2.create = (params) => {
+      return new ZodBigInt2({
         checks: [],
-        typeName: ZodFirstPartyTypeKind.ZodBigInt,
+        typeName: ZodFirstPartyTypeKind2.ZodBigInt,
         coerce: params?.coerce ?? false,
-        ...processCreateParams(params)
+        ...processCreateParams2(params)
       });
     };
-    var ZodBoolean2 = class extends ZodType2 {
+    var ZodBoolean3 = class extends ZodType3 {
       _parse(input) {
         if (this._def.coerce) {
           input.data = Boolean(input.data);
@@ -8862,15 +8872,15 @@ var require_types2 = __commonJS({
         return (0, parseUtil_js_1.OK)(input.data);
       }
     };
-    exports.ZodBoolean = ZodBoolean2;
-    ZodBoolean2.create = (params) => {
-      return new ZodBoolean2({
-        typeName: ZodFirstPartyTypeKind.ZodBoolean,
+    exports.ZodBoolean = ZodBoolean3;
+    ZodBoolean3.create = (params) => {
+      return new ZodBoolean3({
+        typeName: ZodFirstPartyTypeKind2.ZodBoolean,
         coerce: params?.coerce || false,
-        ...processCreateParams(params)
+        ...processCreateParams2(params)
       });
     };
-    var ZodDate = class _ZodDate extends ZodType2 {
+    var ZodDate2 = class _ZodDate extends ZodType3 {
       _parse(input) {
         if (this._def.coerce) {
           input.data = new Date(input.data);
@@ -8971,16 +8981,16 @@ var require_types2 = __commonJS({
         return max != null ? new Date(max) : null;
       }
     };
-    exports.ZodDate = ZodDate;
-    ZodDate.create = (params) => {
-      return new ZodDate({
+    exports.ZodDate = ZodDate2;
+    ZodDate2.create = (params) => {
+      return new ZodDate2({
         checks: [],
         coerce: params?.coerce || false,
-        typeName: ZodFirstPartyTypeKind.ZodDate,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodDate,
+        ...processCreateParams2(params)
       });
     };
-    var ZodSymbol = class extends ZodType2 {
+    var ZodSymbol2 = class extends ZodType3 {
       _parse(input) {
         const parsedType2 = this._getType(input);
         if (parsedType2 !== util_js_1.ZodParsedType.symbol) {
@@ -8995,14 +9005,14 @@ var require_types2 = __commonJS({
         return (0, parseUtil_js_1.OK)(input.data);
       }
     };
-    exports.ZodSymbol = ZodSymbol;
-    ZodSymbol.create = (params) => {
-      return new ZodSymbol({
-        typeName: ZodFirstPartyTypeKind.ZodSymbol,
-        ...processCreateParams(params)
+    exports.ZodSymbol = ZodSymbol2;
+    ZodSymbol2.create = (params) => {
+      return new ZodSymbol2({
+        typeName: ZodFirstPartyTypeKind2.ZodSymbol,
+        ...processCreateParams2(params)
       });
     };
-    var ZodUndefined = class extends ZodType2 {
+    var ZodUndefined2 = class extends ZodType3 {
       _parse(input) {
         const parsedType2 = this._getType(input);
         if (parsedType2 !== util_js_1.ZodParsedType.undefined) {
@@ -9017,14 +9027,14 @@ var require_types2 = __commonJS({
         return (0, parseUtil_js_1.OK)(input.data);
       }
     };
-    exports.ZodUndefined = ZodUndefined;
-    ZodUndefined.create = (params) => {
-      return new ZodUndefined({
-        typeName: ZodFirstPartyTypeKind.ZodUndefined,
-        ...processCreateParams(params)
+    exports.ZodUndefined = ZodUndefined2;
+    ZodUndefined2.create = (params) => {
+      return new ZodUndefined2({
+        typeName: ZodFirstPartyTypeKind2.ZodUndefined,
+        ...processCreateParams2(params)
       });
     };
-    var ZodNull2 = class extends ZodType2 {
+    var ZodNull3 = class extends ZodType3 {
       _parse(input) {
         const parsedType2 = this._getType(input);
         if (parsedType2 !== util_js_1.ZodParsedType.null) {
@@ -9039,14 +9049,14 @@ var require_types2 = __commonJS({
         return (0, parseUtil_js_1.OK)(input.data);
       }
     };
-    exports.ZodNull = ZodNull2;
-    ZodNull2.create = (params) => {
-      return new ZodNull2({
-        typeName: ZodFirstPartyTypeKind.ZodNull,
-        ...processCreateParams(params)
+    exports.ZodNull = ZodNull3;
+    ZodNull3.create = (params) => {
+      return new ZodNull3({
+        typeName: ZodFirstPartyTypeKind2.ZodNull,
+        ...processCreateParams2(params)
       });
     };
-    var ZodAny = class extends ZodType2 {
+    var ZodAny2 = class extends ZodType3 {
       constructor() {
         super(...arguments);
         this._any = true;
@@ -9055,14 +9065,14 @@ var require_types2 = __commonJS({
         return (0, parseUtil_js_1.OK)(input.data);
       }
     };
-    exports.ZodAny = ZodAny;
-    ZodAny.create = (params) => {
-      return new ZodAny({
-        typeName: ZodFirstPartyTypeKind.ZodAny,
-        ...processCreateParams(params)
+    exports.ZodAny = ZodAny2;
+    ZodAny2.create = (params) => {
+      return new ZodAny2({
+        typeName: ZodFirstPartyTypeKind2.ZodAny,
+        ...processCreateParams2(params)
       });
     };
-    var ZodUnknown2 = class extends ZodType2 {
+    var ZodUnknown3 = class extends ZodType3 {
       constructor() {
         super(...arguments);
         this._unknown = true;
@@ -9071,14 +9081,14 @@ var require_types2 = __commonJS({
         return (0, parseUtil_js_1.OK)(input.data);
       }
     };
-    exports.ZodUnknown = ZodUnknown2;
-    ZodUnknown2.create = (params) => {
-      return new ZodUnknown2({
-        typeName: ZodFirstPartyTypeKind.ZodUnknown,
-        ...processCreateParams(params)
+    exports.ZodUnknown = ZodUnknown3;
+    ZodUnknown3.create = (params) => {
+      return new ZodUnknown3({
+        typeName: ZodFirstPartyTypeKind2.ZodUnknown,
+        ...processCreateParams2(params)
       });
     };
-    var ZodNever2 = class extends ZodType2 {
+    var ZodNever3 = class extends ZodType3 {
       _parse(input) {
         const ctx = this._getOrReturnCtx(input);
         (0, parseUtil_js_1.addIssueToContext)(ctx, {
@@ -9089,14 +9099,14 @@ var require_types2 = __commonJS({
         return parseUtil_js_1.INVALID;
       }
     };
-    exports.ZodNever = ZodNever2;
-    ZodNever2.create = (params) => {
-      return new ZodNever2({
-        typeName: ZodFirstPartyTypeKind.ZodNever,
-        ...processCreateParams(params)
+    exports.ZodNever = ZodNever3;
+    ZodNever3.create = (params) => {
+      return new ZodNever3({
+        typeName: ZodFirstPartyTypeKind2.ZodNever,
+        ...processCreateParams2(params)
       });
     };
-    var ZodVoid = class extends ZodType2 {
+    var ZodVoid2 = class extends ZodType3 {
       _parse(input) {
         const parsedType2 = this._getType(input);
         if (parsedType2 !== util_js_1.ZodParsedType.undefined) {
@@ -9111,14 +9121,14 @@ var require_types2 = __commonJS({
         return (0, parseUtil_js_1.OK)(input.data);
       }
     };
-    exports.ZodVoid = ZodVoid;
-    ZodVoid.create = (params) => {
-      return new ZodVoid({
-        typeName: ZodFirstPartyTypeKind.ZodVoid,
-        ...processCreateParams(params)
+    exports.ZodVoid = ZodVoid2;
+    ZodVoid2.create = (params) => {
+      return new ZodVoid2({
+        typeName: ZodFirstPartyTypeKind2.ZodVoid,
+        ...processCreateParams2(params)
       });
     };
-    var ZodArray2 = class _ZodArray extends ZodType2 {
+    var ZodArray3 = class _ZodArray extends ZodType3 {
       _parse(input) {
         const { ctx, status } = this._processInputParams(input);
         const def = this._def;
@@ -9174,13 +9184,13 @@ var require_types2 = __commonJS({
         }
         if (ctx.common.async) {
           return Promise.all([...ctx.data].map((item, i) => {
-            return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i));
+            return def.type._parseAsync(new ParseInputLazyPath2(ctx, item, ctx.path, i));
           })).then((result2) => {
             return parseUtil_js_1.ParseStatus.mergeArray(status, result2);
           });
         }
         const result = [...ctx.data].map((item, i) => {
-          return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i));
+          return def.type._parseSync(new ParseInputLazyPath2(ctx, item, ctx.path, i));
         });
         return parseUtil_js_1.ParseStatus.mergeArray(status, result);
       }
@@ -9209,44 +9219,44 @@ var require_types2 = __commonJS({
         return this.min(1, message);
       }
     };
-    exports.ZodArray = ZodArray2;
-    ZodArray2.create = (schema, params) => {
-      return new ZodArray2({
+    exports.ZodArray = ZodArray3;
+    ZodArray3.create = (schema, params) => {
+      return new ZodArray3({
         type: schema,
         minLength: null,
         maxLength: null,
         exactLength: null,
-        typeName: ZodFirstPartyTypeKind.ZodArray,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodArray,
+        ...processCreateParams2(params)
       });
     };
-    function deepPartialify(schema) {
-      if (schema instanceof ZodObject2) {
+    function deepPartialify2(schema) {
+      if (schema instanceof ZodObject3) {
         const newShape = {};
         for (const key in schema.shape) {
           const fieldSchema = schema.shape[key];
-          newShape[key] = ZodOptional2.create(deepPartialify(fieldSchema));
+          newShape[key] = ZodOptional3.create(deepPartialify2(fieldSchema));
         }
-        return new ZodObject2({
+        return new ZodObject3({
           ...schema._def,
           shape: () => newShape
         });
-      } else if (schema instanceof ZodArray2) {
-        return new ZodArray2({
+      } else if (schema instanceof ZodArray3) {
+        return new ZodArray3({
           ...schema._def,
-          type: deepPartialify(schema.element)
+          type: deepPartialify2(schema.element)
         });
-      } else if (schema instanceof ZodOptional2) {
-        return ZodOptional2.create(deepPartialify(schema.unwrap()));
-      } else if (schema instanceof ZodNullable2) {
-        return ZodNullable2.create(deepPartialify(schema.unwrap()));
-      } else if (schema instanceof ZodTuple) {
-        return ZodTuple.create(schema.items.map((item) => deepPartialify(item)));
+      } else if (schema instanceof ZodOptional3) {
+        return ZodOptional3.create(deepPartialify2(schema.unwrap()));
+      } else if (schema instanceof ZodNullable3) {
+        return ZodNullable3.create(deepPartialify2(schema.unwrap()));
+      } else if (schema instanceof ZodTuple2) {
+        return ZodTuple2.create(schema.items.map((item) => deepPartialify2(item)));
       } else {
         return schema;
       }
     }
-    var ZodObject2 = class _ZodObject extends ZodType2 {
+    var ZodObject3 = class _ZodObject extends ZodType3 {
       constructor() {
         super(...arguments);
         this._cached = null;
@@ -9275,7 +9285,7 @@ var require_types2 = __commonJS({
         const { status, ctx } = this._processInputParams(input);
         const { shape, keys: shapeKeys } = this._getCached();
         const extraKeys = [];
-        if (!(this._def.catchall instanceof ZodNever2 && this._def.unknownKeys === "strip")) {
+        if (!(this._def.catchall instanceof ZodNever3 && this._def.unknownKeys === "strip")) {
           for (const key in ctx.data) {
             if (!shapeKeys.includes(key)) {
               extraKeys.push(key);
@@ -9288,11 +9298,11 @@ var require_types2 = __commonJS({
           const value = ctx.data[key];
           pairs.push({
             key: { status: "valid", value: key },
-            value: keyValidator._parse(new ParseInputLazyPath(ctx, value, ctx.path, key)),
+            value: keyValidator._parse(new ParseInputLazyPath2(ctx, value, ctx.path, key)),
             alwaysSet: key in ctx.data
           });
         }
-        if (this._def.catchall instanceof ZodNever2) {
+        if (this._def.catchall instanceof ZodNever3) {
           const unknownKeys = this._def.unknownKeys;
           if (unknownKeys === "passthrough") {
             for (const key of extraKeys) {
@@ -9320,7 +9330,7 @@ var require_types2 = __commonJS({
             pairs.push({
               key: { status: "valid", value: key },
               value: catchall._parse(
-                new ParseInputLazyPath(ctx, value, ctx.path, key)
+                new ParseInputLazyPath2(ctx, value, ctx.path, key)
                 //, ctx.child(key), value, getParsedType(value)
               ),
               alwaysSet: key in ctx.data
@@ -9420,7 +9430,7 @@ var require_types2 = __commonJS({
             ...this._def.shape(),
             ...merging._def.shape()
           }),
-          typeName: ZodFirstPartyTypeKind.ZodObject
+          typeName: ZodFirstPartyTypeKind2.ZodObject
         });
         return merged;
       }
@@ -9517,7 +9527,7 @@ var require_types2 = __commonJS({
        * @deprecated
        */
       deepPartial() {
-        return deepPartialify(this);
+        return deepPartialify2(this);
       }
       partial(mask) {
         const newShape = {};
@@ -9542,7 +9552,7 @@ var require_types2 = __commonJS({
           } else {
             const fieldSchema = this.shape[key];
             let newField = fieldSchema;
-            while (newField instanceof ZodOptional2) {
+            while (newField instanceof ZodOptional3) {
               newField = newField._def.innerType;
             }
             newShape[key] = newField;
@@ -9554,38 +9564,38 @@ var require_types2 = __commonJS({
         });
       }
       keyof() {
-        return createZodEnum(util_js_1.util.objectKeys(this.shape));
+        return createZodEnum2(util_js_1.util.objectKeys(this.shape));
       }
     };
-    exports.ZodObject = ZodObject2;
-    ZodObject2.create = (shape, params) => {
-      return new ZodObject2({
+    exports.ZodObject = ZodObject3;
+    ZodObject3.create = (shape, params) => {
+      return new ZodObject3({
         shape: () => shape,
         unknownKeys: "strip",
-        catchall: ZodNever2.create(),
-        typeName: ZodFirstPartyTypeKind.ZodObject,
-        ...processCreateParams(params)
+        catchall: ZodNever3.create(),
+        typeName: ZodFirstPartyTypeKind2.ZodObject,
+        ...processCreateParams2(params)
       });
     };
-    ZodObject2.strictCreate = (shape, params) => {
-      return new ZodObject2({
+    ZodObject3.strictCreate = (shape, params) => {
+      return new ZodObject3({
         shape: () => shape,
         unknownKeys: "strict",
-        catchall: ZodNever2.create(),
-        typeName: ZodFirstPartyTypeKind.ZodObject,
-        ...processCreateParams(params)
+        catchall: ZodNever3.create(),
+        typeName: ZodFirstPartyTypeKind2.ZodObject,
+        ...processCreateParams2(params)
       });
     };
-    ZodObject2.lazycreate = (shape, params) => {
-      return new ZodObject2({
+    ZodObject3.lazycreate = (shape, params) => {
+      return new ZodObject3({
         shape,
         unknownKeys: "strip",
-        catchall: ZodNever2.create(),
-        typeName: ZodFirstPartyTypeKind.ZodObject,
-        ...processCreateParams(params)
+        catchall: ZodNever3.create(),
+        typeName: ZodFirstPartyTypeKind2.ZodObject,
+        ...processCreateParams2(params)
       });
     };
-    var ZodUnion2 = class extends ZodType2 {
+    var ZodUnion3 = class extends ZodType3 {
       _parse(input) {
         const { ctx } = this._processInputParams(input);
         const options = this._def.options;
@@ -9669,46 +9679,46 @@ var require_types2 = __commonJS({
         return this._def.options;
       }
     };
-    exports.ZodUnion = ZodUnion2;
-    ZodUnion2.create = (types, params) => {
-      return new ZodUnion2({
+    exports.ZodUnion = ZodUnion3;
+    ZodUnion3.create = (types, params) => {
+      return new ZodUnion3({
         options: types,
-        typeName: ZodFirstPartyTypeKind.ZodUnion,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodUnion,
+        ...processCreateParams2(params)
       });
     };
-    var getDiscriminator = (type) => {
-      if (type instanceof ZodLazy) {
-        return getDiscriminator(type.schema);
-      } else if (type instanceof ZodEffects) {
-        return getDiscriminator(type.innerType());
-      } else if (type instanceof ZodLiteral2) {
+    var getDiscriminator2 = (type) => {
+      if (type instanceof ZodLazy2) {
+        return getDiscriminator2(type.schema);
+      } else if (type instanceof ZodEffects2) {
+        return getDiscriminator2(type.innerType());
+      } else if (type instanceof ZodLiteral3) {
         return [type.value];
-      } else if (type instanceof ZodEnum2) {
+      } else if (type instanceof ZodEnum3) {
         return type.options;
-      } else if (type instanceof ZodNativeEnum) {
+      } else if (type instanceof ZodNativeEnum2) {
         return util_js_1.util.objectValues(type.enum);
-      } else if (type instanceof ZodDefault2) {
-        return getDiscriminator(type._def.innerType);
-      } else if (type instanceof ZodUndefined) {
+      } else if (type instanceof ZodDefault3) {
+        return getDiscriminator2(type._def.innerType);
+      } else if (type instanceof ZodUndefined2) {
         return [void 0];
-      } else if (type instanceof ZodNull2) {
+      } else if (type instanceof ZodNull3) {
         return [null];
-      } else if (type instanceof ZodOptional2) {
-        return [void 0, ...getDiscriminator(type.unwrap())];
-      } else if (type instanceof ZodNullable2) {
-        return [null, ...getDiscriminator(type.unwrap())];
-      } else if (type instanceof ZodBranded) {
-        return getDiscriminator(type.unwrap());
-      } else if (type instanceof ZodReadonly2) {
-        return getDiscriminator(type.unwrap());
-      } else if (type instanceof ZodCatch2) {
-        return getDiscriminator(type._def.innerType);
+      } else if (type instanceof ZodOptional3) {
+        return [void 0, ...getDiscriminator2(type.unwrap())];
+      } else if (type instanceof ZodNullable3) {
+        return [null, ...getDiscriminator2(type.unwrap())];
+      } else if (type instanceof ZodBranded2) {
+        return getDiscriminator2(type.unwrap());
+      } else if (type instanceof ZodReadonly3) {
+        return getDiscriminator2(type.unwrap());
+      } else if (type instanceof ZodCatch3) {
+        return getDiscriminator2(type._def.innerType);
       } else {
         return [];
       }
     };
-    var ZodDiscriminatedUnion2 = class _ZodDiscriminatedUnion extends ZodType2 {
+    var ZodDiscriminatedUnion3 = class _ZodDiscriminatedUnion extends ZodType3 {
       _parse(input) {
         const { ctx } = this._processInputParams(input);
         if (ctx.parsedType !== util_js_1.ZodParsedType.object) {
@@ -9764,7 +9774,7 @@ var require_types2 = __commonJS({
       static create(discriminator, options, params) {
         const optionsMap = /* @__PURE__ */ new Map();
         for (const type of options) {
-          const discriminatorValues = getDiscriminator(type.shape[discriminator]);
+          const discriminatorValues = getDiscriminator2(type.shape[discriminator]);
           if (!discriminatorValues.length) {
             throw new Error(`A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`);
           }
@@ -9776,16 +9786,16 @@ var require_types2 = __commonJS({
           }
         }
         return new _ZodDiscriminatedUnion({
-          typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion,
+          typeName: ZodFirstPartyTypeKind2.ZodDiscriminatedUnion,
           discriminator,
           options,
           optionsMap,
-          ...processCreateParams(params)
+          ...processCreateParams2(params)
         });
       }
     };
-    exports.ZodDiscriminatedUnion = ZodDiscriminatedUnion2;
-    function mergeValues2(a, b) {
+    exports.ZodDiscriminatedUnion = ZodDiscriminatedUnion3;
+    function mergeValues3(a, b) {
       const aType = (0, util_js_1.getParsedType)(a);
       const bType = (0, util_js_1.getParsedType)(b);
       if (a === b) {
@@ -9795,7 +9805,7 @@ var require_types2 = __commonJS({
         const sharedKeys = util_js_1.util.objectKeys(a).filter((key) => bKeys.indexOf(key) !== -1);
         const newObj = { ...a, ...b };
         for (const key of sharedKeys) {
-          const sharedValue = mergeValues2(a[key], b[key]);
+          const sharedValue = mergeValues3(a[key], b[key]);
           if (!sharedValue.valid) {
             return { valid: false };
           }
@@ -9810,7 +9820,7 @@ var require_types2 = __commonJS({
         for (let index = 0; index < a.length; index++) {
           const itemA = a[index];
           const itemB = b[index];
-          const sharedValue = mergeValues2(itemA, itemB);
+          const sharedValue = mergeValues3(itemA, itemB);
           if (!sharedValue.valid) {
             return { valid: false };
           }
@@ -9823,14 +9833,14 @@ var require_types2 = __commonJS({
         return { valid: false };
       }
     }
-    var ZodIntersection2 = class extends ZodType2 {
+    var ZodIntersection3 = class extends ZodType3 {
       _parse(input) {
         const { status, ctx } = this._processInputParams(input);
         const handleParsed = (parsedLeft, parsedRight) => {
           if ((0, parseUtil_js_1.isAborted)(parsedLeft) || (0, parseUtil_js_1.isAborted)(parsedRight)) {
             return parseUtil_js_1.INVALID;
           }
-          const merged = mergeValues2(parsedLeft.value, parsedRight.value);
+          const merged = mergeValues3(parsedLeft.value, parsedRight.value);
           if (!merged.valid) {
             (0, parseUtil_js_1.addIssueToContext)(ctx, {
               code: ZodError_js_1.ZodIssueCode.invalid_intersection_types
@@ -9868,16 +9878,16 @@ var require_types2 = __commonJS({
         }
       }
     };
-    exports.ZodIntersection = ZodIntersection2;
-    ZodIntersection2.create = (left, right, params) => {
-      return new ZodIntersection2({
+    exports.ZodIntersection = ZodIntersection3;
+    ZodIntersection3.create = (left, right, params) => {
+      return new ZodIntersection3({
         left,
         right,
-        typeName: ZodFirstPartyTypeKind.ZodIntersection,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodIntersection,
+        ...processCreateParams2(params)
       });
     };
-    var ZodTuple = class _ZodTuple extends ZodType2 {
+    var ZodTuple2 = class _ZodTuple extends ZodType3 {
       _parse(input) {
         const { status, ctx } = this._processInputParams(input);
         if (ctx.parsedType !== util_js_1.ZodParsedType.array) {
@@ -9913,7 +9923,7 @@ var require_types2 = __commonJS({
           const schema = this._def.items[itemIndex] || this._def.rest;
           if (!schema)
             return null;
-          return schema._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex));
+          return schema._parse(new ParseInputLazyPath2(ctx, item, ctx.path, itemIndex));
         }).filter((x) => !!x);
         if (ctx.common.async) {
           return Promise.all(items).then((results) => {
@@ -9933,19 +9943,19 @@ var require_types2 = __commonJS({
         });
       }
     };
-    exports.ZodTuple = ZodTuple;
-    ZodTuple.create = (schemas, params) => {
+    exports.ZodTuple = ZodTuple2;
+    ZodTuple2.create = (schemas, params) => {
       if (!Array.isArray(schemas)) {
         throw new Error("You must pass an array of schemas to z.tuple([ ... ])");
       }
-      return new ZodTuple({
+      return new ZodTuple2({
         items: schemas,
-        typeName: ZodFirstPartyTypeKind.ZodTuple,
+        typeName: ZodFirstPartyTypeKind2.ZodTuple,
         rest: null,
-        ...processCreateParams(params)
+        ...processCreateParams2(params)
       });
     };
-    var ZodRecord2 = class _ZodRecord extends ZodType2 {
+    var ZodRecord3 = class _ZodRecord extends ZodType3 {
       get keySchema() {
         return this._def.keyType;
       }
@@ -9967,8 +9977,8 @@ var require_types2 = __commonJS({
         const valueType = this._def.valueType;
         for (const key in ctx.data) {
           pairs.push({
-            key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, key)),
-            value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key)),
+            key: keyType._parse(new ParseInputLazyPath2(ctx, key, ctx.path, key)),
+            value: valueType._parse(new ParseInputLazyPath2(ctx, ctx.data[key], ctx.path, key)),
             alwaysSet: key in ctx.data
           });
         }
@@ -9982,24 +9992,24 @@ var require_types2 = __commonJS({
         return this._def.valueType;
       }
       static create(first, second, third) {
-        if (second instanceof ZodType2) {
+        if (second instanceof ZodType3) {
           return new _ZodRecord({
             keyType: first,
             valueType: second,
-            typeName: ZodFirstPartyTypeKind.ZodRecord,
-            ...processCreateParams(third)
+            typeName: ZodFirstPartyTypeKind2.ZodRecord,
+            ...processCreateParams2(third)
           });
         }
         return new _ZodRecord({
-          keyType: ZodString2.create(),
+          keyType: ZodString3.create(),
           valueType: first,
-          typeName: ZodFirstPartyTypeKind.ZodRecord,
-          ...processCreateParams(second)
+          typeName: ZodFirstPartyTypeKind2.ZodRecord,
+          ...processCreateParams2(second)
         });
       }
     };
-    exports.ZodRecord = ZodRecord2;
-    var ZodMap = class extends ZodType2 {
+    exports.ZodRecord = ZodRecord3;
+    var ZodMap2 = class extends ZodType3 {
       get keySchema() {
         return this._def.keyType;
       }
@@ -10020,8 +10030,8 @@ var require_types2 = __commonJS({
         const valueType = this._def.valueType;
         const pairs = [...ctx.data.entries()].map(([key, value], index) => {
           return {
-            key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, [index, "key"])),
-            value: valueType._parse(new ParseInputLazyPath(ctx, value, ctx.path, [index, "value"]))
+            key: keyType._parse(new ParseInputLazyPath2(ctx, key, ctx.path, [index, "key"])),
+            value: valueType._parse(new ParseInputLazyPath2(ctx, value, ctx.path, [index, "value"]))
           };
         });
         if (ctx.common.async) {
@@ -10057,16 +10067,16 @@ var require_types2 = __commonJS({
         }
       }
     };
-    exports.ZodMap = ZodMap;
-    ZodMap.create = (keyType, valueType, params) => {
-      return new ZodMap({
+    exports.ZodMap = ZodMap2;
+    ZodMap2.create = (keyType, valueType, params) => {
+      return new ZodMap2({
         valueType,
         keyType,
-        typeName: ZodFirstPartyTypeKind.ZodMap,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodMap,
+        ...processCreateParams2(params)
       });
     };
-    var ZodSet = class _ZodSet extends ZodType2 {
+    var ZodSet2 = class _ZodSet extends ZodType3 {
       _parse(input) {
         const { status, ctx } = this._processInputParams(input);
         if (ctx.parsedType !== util_js_1.ZodParsedType.set) {
@@ -10116,7 +10126,7 @@ var require_types2 = __commonJS({
           }
           return { status: status.value, value: parsedSet };
         }
-        const elements = [...ctx.data.values()].map((item, i) => valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i)));
+        const elements = [...ctx.data.values()].map((item, i) => valueType._parse(new ParseInputLazyPath2(ctx, item, ctx.path, i)));
         if (ctx.common.async) {
           return Promise.all(elements).then((elements2) => finalizeSet(elements2));
         } else {
@@ -10142,17 +10152,17 @@ var require_types2 = __commonJS({
         return this.min(1, message);
       }
     };
-    exports.ZodSet = ZodSet;
-    ZodSet.create = (valueType, params) => {
-      return new ZodSet({
+    exports.ZodSet = ZodSet2;
+    ZodSet2.create = (valueType, params) => {
+      return new ZodSet2({
         valueType,
         minSize: null,
         maxSize: null,
-        typeName: ZodFirstPartyTypeKind.ZodSet,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodSet,
+        ...processCreateParams2(params)
       });
     };
-    var ZodFunction = class _ZodFunction extends ZodType2 {
+    var ZodFunction2 = class _ZodFunction extends ZodType3 {
       constructor() {
         super(...arguments);
         this.validate = this.implement;
@@ -10191,7 +10201,7 @@ var require_types2 = __commonJS({
         }
         const params = { errorMap: ctx.common.contextualErrorMap };
         const fn = ctx.data;
-        if (this._def.returns instanceof ZodPromise) {
+        if (this._def.returns instanceof ZodPromise2) {
           const me = this;
           return (0, parseUtil_js_1.OK)(async function(...args) {
             const error2 = new ZodError_js_1.ZodError([]);
@@ -10231,7 +10241,7 @@ var require_types2 = __commonJS({
       args(...items) {
         return new _ZodFunction({
           ...this._def,
-          args: ZodTuple.create(items).rest(ZodUnknown2.create())
+          args: ZodTuple2.create(items).rest(ZodUnknown3.create())
         });
       }
       returns(returnType) {
@@ -10250,15 +10260,15 @@ var require_types2 = __commonJS({
       }
       static create(args, returns, params) {
         return new _ZodFunction({
-          args: args ? args : ZodTuple.create([]).rest(ZodUnknown2.create()),
-          returns: returns || ZodUnknown2.create(),
-          typeName: ZodFirstPartyTypeKind.ZodFunction,
-          ...processCreateParams(params)
+          args: args ? args : ZodTuple2.create([]).rest(ZodUnknown3.create()),
+          returns: returns || ZodUnknown3.create(),
+          typeName: ZodFirstPartyTypeKind2.ZodFunction,
+          ...processCreateParams2(params)
         });
       }
     };
-    exports.ZodFunction = ZodFunction;
-    var ZodLazy = class extends ZodType2 {
+    exports.ZodFunction = ZodFunction2;
+    var ZodLazy2 = class extends ZodType3 {
       get schema() {
         return this._def.getter();
       }
@@ -10268,15 +10278,15 @@ var require_types2 = __commonJS({
         return lazySchema._parse({ data: ctx.data, path: ctx.path, parent: ctx });
       }
     };
-    exports.ZodLazy = ZodLazy;
-    ZodLazy.create = (getter, params) => {
-      return new ZodLazy({
+    exports.ZodLazy = ZodLazy2;
+    ZodLazy2.create = (getter, params) => {
+      return new ZodLazy2({
         getter,
-        typeName: ZodFirstPartyTypeKind.ZodLazy,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodLazy,
+        ...processCreateParams2(params)
       });
     };
-    var ZodLiteral2 = class extends ZodType2 {
+    var ZodLiteral3 = class extends ZodType3 {
       _parse(input) {
         if (input.data !== this._def.value) {
           const ctx = this._getOrReturnCtx(input);
@@ -10293,22 +10303,22 @@ var require_types2 = __commonJS({
         return this._def.value;
       }
     };
-    exports.ZodLiteral = ZodLiteral2;
-    ZodLiteral2.create = (value, params) => {
-      return new ZodLiteral2({
+    exports.ZodLiteral = ZodLiteral3;
+    ZodLiteral3.create = (value, params) => {
+      return new ZodLiteral3({
         value,
-        typeName: ZodFirstPartyTypeKind.ZodLiteral,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodLiteral,
+        ...processCreateParams2(params)
       });
     };
-    function createZodEnum(values, params) {
-      return new ZodEnum2({
+    function createZodEnum2(values, params) {
+      return new ZodEnum3({
         values,
-        typeName: ZodFirstPartyTypeKind.ZodEnum,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodEnum,
+        ...processCreateParams2(params)
       });
     }
-    var ZodEnum2 = class _ZodEnum extends ZodType2 {
+    var ZodEnum3 = class _ZodEnum extends ZodType3 {
       _parse(input) {
         if (typeof input.data !== "string") {
           const ctx = this._getOrReturnCtx(input);
@@ -10372,9 +10382,9 @@ var require_types2 = __commonJS({
         });
       }
     };
-    exports.ZodEnum = ZodEnum2;
-    ZodEnum2.create = createZodEnum;
-    var ZodNativeEnum = class extends ZodType2 {
+    exports.ZodEnum = ZodEnum3;
+    ZodEnum3.create = createZodEnum2;
+    var ZodNativeEnum2 = class extends ZodType3 {
       _parse(input) {
         const nativeEnumValues = util_js_1.util.getValidEnumValues(this._def.values);
         const ctx = this._getOrReturnCtx(input);
@@ -10405,15 +10415,15 @@ var require_types2 = __commonJS({
         return this._def.values;
       }
     };
-    exports.ZodNativeEnum = ZodNativeEnum;
-    ZodNativeEnum.create = (values, params) => {
-      return new ZodNativeEnum({
+    exports.ZodNativeEnum = ZodNativeEnum2;
+    ZodNativeEnum2.create = (values, params) => {
+      return new ZodNativeEnum2({
         values,
-        typeName: ZodFirstPartyTypeKind.ZodNativeEnum,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodNativeEnum,
+        ...processCreateParams2(params)
       });
     };
-    var ZodPromise = class extends ZodType2 {
+    var ZodPromise2 = class extends ZodType3 {
       unwrap() {
         return this._def.type;
       }
@@ -10436,20 +10446,20 @@ var require_types2 = __commonJS({
         }));
       }
     };
-    exports.ZodPromise = ZodPromise;
-    ZodPromise.create = (schema, params) => {
-      return new ZodPromise({
+    exports.ZodPromise = ZodPromise2;
+    ZodPromise2.create = (schema, params) => {
+      return new ZodPromise2({
         type: schema,
-        typeName: ZodFirstPartyTypeKind.ZodPromise,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodPromise,
+        ...processCreateParams2(params)
       });
     };
-    var ZodEffects = class extends ZodType2 {
+    var ZodEffects2 = class extends ZodType3 {
       innerType() {
         return this._def.schema;
       }
       sourceType() {
-        return this._def.schema._def.typeName === ZodFirstPartyTypeKind.ZodEffects ? this._def.schema.sourceType() : this._def.schema;
+        return this._def.schema._def.typeName === ZodFirstPartyTypeKind2.ZodEffects ? this._def.schema.sourceType() : this._def.schema;
       }
       _parse(input) {
         const { status, ctx } = this._processInputParams(input);
@@ -10567,25 +10577,25 @@ var require_types2 = __commonJS({
         util_js_1.util.assertNever(effect);
       }
     };
-    exports.ZodEffects = ZodEffects;
-    exports.ZodTransformer = ZodEffects;
-    ZodEffects.create = (schema, effect, params) => {
-      return new ZodEffects({
+    exports.ZodEffects = ZodEffects2;
+    exports.ZodTransformer = ZodEffects2;
+    ZodEffects2.create = (schema, effect, params) => {
+      return new ZodEffects2({
         schema,
-        typeName: ZodFirstPartyTypeKind.ZodEffects,
+        typeName: ZodFirstPartyTypeKind2.ZodEffects,
         effect,
-        ...processCreateParams(params)
+        ...processCreateParams2(params)
       });
     };
-    ZodEffects.createWithPreprocess = (preprocess2, schema, params) => {
-      return new ZodEffects({
+    ZodEffects2.createWithPreprocess = (preprocess2, schema, params) => {
+      return new ZodEffects2({
         schema,
         effect: { type: "preprocess", transform: preprocess2 },
-        typeName: ZodFirstPartyTypeKind.ZodEffects,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodEffects,
+        ...processCreateParams2(params)
       });
     };
-    var ZodOptional2 = class extends ZodType2 {
+    var ZodOptional3 = class extends ZodType3 {
       _parse(input) {
         const parsedType2 = this._getType(input);
         if (parsedType2 === util_js_1.ZodParsedType.undefined) {
@@ -10597,15 +10607,15 @@ var require_types2 = __commonJS({
         return this._def.innerType;
       }
     };
-    exports.ZodOptional = ZodOptional2;
-    ZodOptional2.create = (type, params) => {
-      return new ZodOptional2({
+    exports.ZodOptional = ZodOptional3;
+    ZodOptional3.create = (type, params) => {
+      return new ZodOptional3({
         innerType: type,
-        typeName: ZodFirstPartyTypeKind.ZodOptional,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodOptional,
+        ...processCreateParams2(params)
       });
     };
-    var ZodNullable2 = class extends ZodType2 {
+    var ZodNullable3 = class extends ZodType3 {
       _parse(input) {
         const parsedType2 = this._getType(input);
         if (parsedType2 === util_js_1.ZodParsedType.null) {
@@ -10617,15 +10627,15 @@ var require_types2 = __commonJS({
         return this._def.innerType;
       }
     };
-    exports.ZodNullable = ZodNullable2;
-    ZodNullable2.create = (type, params) => {
-      return new ZodNullable2({
+    exports.ZodNullable = ZodNullable3;
+    ZodNullable3.create = (type, params) => {
+      return new ZodNullable3({
         innerType: type,
-        typeName: ZodFirstPartyTypeKind.ZodNullable,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodNullable,
+        ...processCreateParams2(params)
       });
     };
-    var ZodDefault2 = class extends ZodType2 {
+    var ZodDefault3 = class extends ZodType3 {
       _parse(input) {
         const { ctx } = this._processInputParams(input);
         let data = ctx.data;
@@ -10642,16 +10652,16 @@ var require_types2 = __commonJS({
         return this._def.innerType;
       }
     };
-    exports.ZodDefault = ZodDefault2;
-    ZodDefault2.create = (type, params) => {
-      return new ZodDefault2({
+    exports.ZodDefault = ZodDefault3;
+    ZodDefault3.create = (type, params) => {
+      return new ZodDefault3({
         innerType: type,
-        typeName: ZodFirstPartyTypeKind.ZodDefault,
+        typeName: ZodFirstPartyTypeKind2.ZodDefault,
         defaultValue: typeof params.default === "function" ? params.default : () => params.default,
-        ...processCreateParams(params)
+        ...processCreateParams2(params)
       });
     };
-    var ZodCatch2 = class extends ZodType2 {
+    var ZodCatch3 = class extends ZodType3 {
       _parse(input) {
         const { ctx } = this._processInputParams(input);
         const newCtx = {
@@ -10696,16 +10706,16 @@ var require_types2 = __commonJS({
         return this._def.innerType;
       }
     };
-    exports.ZodCatch = ZodCatch2;
-    ZodCatch2.create = (type, params) => {
-      return new ZodCatch2({
+    exports.ZodCatch = ZodCatch3;
+    ZodCatch3.create = (type, params) => {
+      return new ZodCatch3({
         innerType: type,
-        typeName: ZodFirstPartyTypeKind.ZodCatch,
+        typeName: ZodFirstPartyTypeKind2.ZodCatch,
         catchValue: typeof params.catch === "function" ? params.catch : () => params.catch,
-        ...processCreateParams(params)
+        ...processCreateParams2(params)
       });
     };
-    var ZodNaN = class extends ZodType2 {
+    var ZodNaN2 = class extends ZodType3 {
       _parse(input) {
         const parsedType2 = this._getType(input);
         if (parsedType2 !== util_js_1.ZodParsedType.nan) {
@@ -10720,15 +10730,15 @@ var require_types2 = __commonJS({
         return { status: "valid", value: input.data };
       }
     };
-    exports.ZodNaN = ZodNaN;
-    ZodNaN.create = (params) => {
-      return new ZodNaN({
-        typeName: ZodFirstPartyTypeKind.ZodNaN,
-        ...processCreateParams(params)
+    exports.ZodNaN = ZodNaN2;
+    ZodNaN2.create = (params) => {
+      return new ZodNaN2({
+        typeName: ZodFirstPartyTypeKind2.ZodNaN,
+        ...processCreateParams2(params)
       });
     };
     exports.BRAND = /* @__PURE__ */ Symbol("zod_brand");
-    var ZodBranded = class extends ZodType2 {
+    var ZodBranded2 = class extends ZodType3 {
       _parse(input) {
         const { ctx } = this._processInputParams(input);
         const data = ctx.data;
@@ -10742,8 +10752,8 @@ var require_types2 = __commonJS({
         return this._def.type;
       }
     };
-    exports.ZodBranded = ZodBranded;
-    var ZodPipeline = class _ZodPipeline extends ZodType2 {
+    exports.ZodBranded = ZodBranded2;
+    var ZodPipeline2 = class _ZodPipeline extends ZodType3 {
       _parse(input) {
         const { status, ctx } = this._processInputParams(input);
         if (ctx.common.async) {
@@ -10794,12 +10804,12 @@ var require_types2 = __commonJS({
         return new _ZodPipeline({
           in: a,
           out: b,
-          typeName: ZodFirstPartyTypeKind.ZodPipeline
+          typeName: ZodFirstPartyTypeKind2.ZodPipeline
         });
       }
     };
-    exports.ZodPipeline = ZodPipeline;
-    var ZodReadonly2 = class extends ZodType2 {
+    exports.ZodPipeline = ZodPipeline2;
+    var ZodReadonly3 = class extends ZodType3 {
       _parse(input) {
         const result = this._def.innerType._parse(input);
         const freeze = (data) => {
@@ -10814,171 +10824,171 @@ var require_types2 = __commonJS({
         return this._def.innerType;
       }
     };
-    exports.ZodReadonly = ZodReadonly2;
-    ZodReadonly2.create = (type, params) => {
-      return new ZodReadonly2({
+    exports.ZodReadonly = ZodReadonly3;
+    ZodReadonly3.create = (type, params) => {
+      return new ZodReadonly3({
         innerType: type,
-        typeName: ZodFirstPartyTypeKind.ZodReadonly,
-        ...processCreateParams(params)
+        typeName: ZodFirstPartyTypeKind2.ZodReadonly,
+        ...processCreateParams2(params)
       });
     };
-    function cleanParams(params, data) {
+    function cleanParams2(params, data) {
       const p = typeof params === "function" ? params(data) : typeof params === "string" ? { message: params } : params;
       const p2 = typeof p === "string" ? { message: p } : p;
       return p2;
     }
-    function custom2(check2, _params = {}, fatal) {
+    function custom3(check2, _params = {}, fatal) {
       if (check2)
-        return ZodAny.create().superRefine((data, ctx) => {
+        return ZodAny2.create().superRefine((data, ctx) => {
           const r = check2(data);
           if (r instanceof Promise) {
             return r.then((r2) => {
               if (!r2) {
-                const params = cleanParams(_params, data);
+                const params = cleanParams2(_params, data);
                 const _fatal = params.fatal ?? fatal ?? true;
                 ctx.addIssue({ code: "custom", ...params, fatal: _fatal });
               }
             });
           }
           if (!r) {
-            const params = cleanParams(_params, data);
+            const params = cleanParams2(_params, data);
             const _fatal = params.fatal ?? fatal ?? true;
             ctx.addIssue({ code: "custom", ...params, fatal: _fatal });
           }
           return;
         });
-      return ZodAny.create();
+      return ZodAny2.create();
     }
     exports.late = {
-      object: ZodObject2.lazycreate
+      object: ZodObject3.lazycreate
     };
-    var ZodFirstPartyTypeKind;
-    (function(ZodFirstPartyTypeKind2) {
-      ZodFirstPartyTypeKind2["ZodString"] = "ZodString";
-      ZodFirstPartyTypeKind2["ZodNumber"] = "ZodNumber";
-      ZodFirstPartyTypeKind2["ZodNaN"] = "ZodNaN";
-      ZodFirstPartyTypeKind2["ZodBigInt"] = "ZodBigInt";
-      ZodFirstPartyTypeKind2["ZodBoolean"] = "ZodBoolean";
-      ZodFirstPartyTypeKind2["ZodDate"] = "ZodDate";
-      ZodFirstPartyTypeKind2["ZodSymbol"] = "ZodSymbol";
-      ZodFirstPartyTypeKind2["ZodUndefined"] = "ZodUndefined";
-      ZodFirstPartyTypeKind2["ZodNull"] = "ZodNull";
-      ZodFirstPartyTypeKind2["ZodAny"] = "ZodAny";
-      ZodFirstPartyTypeKind2["ZodUnknown"] = "ZodUnknown";
-      ZodFirstPartyTypeKind2["ZodNever"] = "ZodNever";
-      ZodFirstPartyTypeKind2["ZodVoid"] = "ZodVoid";
-      ZodFirstPartyTypeKind2["ZodArray"] = "ZodArray";
-      ZodFirstPartyTypeKind2["ZodObject"] = "ZodObject";
-      ZodFirstPartyTypeKind2["ZodUnion"] = "ZodUnion";
-      ZodFirstPartyTypeKind2["ZodDiscriminatedUnion"] = "ZodDiscriminatedUnion";
-      ZodFirstPartyTypeKind2["ZodIntersection"] = "ZodIntersection";
-      ZodFirstPartyTypeKind2["ZodTuple"] = "ZodTuple";
-      ZodFirstPartyTypeKind2["ZodRecord"] = "ZodRecord";
-      ZodFirstPartyTypeKind2["ZodMap"] = "ZodMap";
-      ZodFirstPartyTypeKind2["ZodSet"] = "ZodSet";
-      ZodFirstPartyTypeKind2["ZodFunction"] = "ZodFunction";
-      ZodFirstPartyTypeKind2["ZodLazy"] = "ZodLazy";
-      ZodFirstPartyTypeKind2["ZodLiteral"] = "ZodLiteral";
-      ZodFirstPartyTypeKind2["ZodEnum"] = "ZodEnum";
-      ZodFirstPartyTypeKind2["ZodEffects"] = "ZodEffects";
-      ZodFirstPartyTypeKind2["ZodNativeEnum"] = "ZodNativeEnum";
-      ZodFirstPartyTypeKind2["ZodOptional"] = "ZodOptional";
-      ZodFirstPartyTypeKind2["ZodNullable"] = "ZodNullable";
-      ZodFirstPartyTypeKind2["ZodDefault"] = "ZodDefault";
-      ZodFirstPartyTypeKind2["ZodCatch"] = "ZodCatch";
-      ZodFirstPartyTypeKind2["ZodPromise"] = "ZodPromise";
-      ZodFirstPartyTypeKind2["ZodBranded"] = "ZodBranded";
-      ZodFirstPartyTypeKind2["ZodPipeline"] = "ZodPipeline";
-      ZodFirstPartyTypeKind2["ZodReadonly"] = "ZodReadonly";
-    })(ZodFirstPartyTypeKind || (exports.ZodFirstPartyTypeKind = ZodFirstPartyTypeKind = {}));
-    var instanceOfType = (cls, params = {
+    var ZodFirstPartyTypeKind2;
+    (function(ZodFirstPartyTypeKind3) {
+      ZodFirstPartyTypeKind3["ZodString"] = "ZodString";
+      ZodFirstPartyTypeKind3["ZodNumber"] = "ZodNumber";
+      ZodFirstPartyTypeKind3["ZodNaN"] = "ZodNaN";
+      ZodFirstPartyTypeKind3["ZodBigInt"] = "ZodBigInt";
+      ZodFirstPartyTypeKind3["ZodBoolean"] = "ZodBoolean";
+      ZodFirstPartyTypeKind3["ZodDate"] = "ZodDate";
+      ZodFirstPartyTypeKind3["ZodSymbol"] = "ZodSymbol";
+      ZodFirstPartyTypeKind3["ZodUndefined"] = "ZodUndefined";
+      ZodFirstPartyTypeKind3["ZodNull"] = "ZodNull";
+      ZodFirstPartyTypeKind3["ZodAny"] = "ZodAny";
+      ZodFirstPartyTypeKind3["ZodUnknown"] = "ZodUnknown";
+      ZodFirstPartyTypeKind3["ZodNever"] = "ZodNever";
+      ZodFirstPartyTypeKind3["ZodVoid"] = "ZodVoid";
+      ZodFirstPartyTypeKind3["ZodArray"] = "ZodArray";
+      ZodFirstPartyTypeKind3["ZodObject"] = "ZodObject";
+      ZodFirstPartyTypeKind3["ZodUnion"] = "ZodUnion";
+      ZodFirstPartyTypeKind3["ZodDiscriminatedUnion"] = "ZodDiscriminatedUnion";
+      ZodFirstPartyTypeKind3["ZodIntersection"] = "ZodIntersection";
+      ZodFirstPartyTypeKind3["ZodTuple"] = "ZodTuple";
+      ZodFirstPartyTypeKind3["ZodRecord"] = "ZodRecord";
+      ZodFirstPartyTypeKind3["ZodMap"] = "ZodMap";
+      ZodFirstPartyTypeKind3["ZodSet"] = "ZodSet";
+      ZodFirstPartyTypeKind3["ZodFunction"] = "ZodFunction";
+      ZodFirstPartyTypeKind3["ZodLazy"] = "ZodLazy";
+      ZodFirstPartyTypeKind3["ZodLiteral"] = "ZodLiteral";
+      ZodFirstPartyTypeKind3["ZodEnum"] = "ZodEnum";
+      ZodFirstPartyTypeKind3["ZodEffects"] = "ZodEffects";
+      ZodFirstPartyTypeKind3["ZodNativeEnum"] = "ZodNativeEnum";
+      ZodFirstPartyTypeKind3["ZodOptional"] = "ZodOptional";
+      ZodFirstPartyTypeKind3["ZodNullable"] = "ZodNullable";
+      ZodFirstPartyTypeKind3["ZodDefault"] = "ZodDefault";
+      ZodFirstPartyTypeKind3["ZodCatch"] = "ZodCatch";
+      ZodFirstPartyTypeKind3["ZodPromise"] = "ZodPromise";
+      ZodFirstPartyTypeKind3["ZodBranded"] = "ZodBranded";
+      ZodFirstPartyTypeKind3["ZodPipeline"] = "ZodPipeline";
+      ZodFirstPartyTypeKind3["ZodReadonly"] = "ZodReadonly";
+    })(ZodFirstPartyTypeKind2 || (exports.ZodFirstPartyTypeKind = ZodFirstPartyTypeKind2 = {}));
+    var instanceOfType2 = (cls, params = {
       message: `Input not instance of ${cls.name}`
-    }) => custom2((data) => data instanceof cls, params);
-    exports.instanceof = instanceOfType;
-    var stringType = ZodString2.create;
-    exports.string = stringType;
-    var numberType = ZodNumber2.create;
-    exports.number = numberType;
-    var nanType = ZodNaN.create;
-    exports.nan = nanType;
-    var bigIntType = ZodBigInt.create;
-    exports.bigint = bigIntType;
-    var booleanType = ZodBoolean2.create;
-    exports.boolean = booleanType;
-    var dateType = ZodDate.create;
-    exports.date = dateType;
-    var symbolType = ZodSymbol.create;
-    exports.symbol = symbolType;
-    var undefinedType = ZodUndefined.create;
-    exports.undefined = undefinedType;
-    var nullType = ZodNull2.create;
-    exports.null = nullType;
-    var anyType = ZodAny.create;
-    exports.any = anyType;
-    var unknownType = ZodUnknown2.create;
-    exports.unknown = unknownType;
-    var neverType = ZodNever2.create;
-    exports.never = neverType;
-    var voidType = ZodVoid.create;
-    exports.void = voidType;
-    var arrayType = ZodArray2.create;
-    exports.array = arrayType;
-    var objectType = ZodObject2.create;
-    exports.object = objectType;
-    var strictObjectType = ZodObject2.strictCreate;
-    exports.strictObject = strictObjectType;
-    var unionType = ZodUnion2.create;
-    exports.union = unionType;
-    var discriminatedUnionType = ZodDiscriminatedUnion2.create;
-    exports.discriminatedUnion = discriminatedUnionType;
-    var intersectionType = ZodIntersection2.create;
-    exports.intersection = intersectionType;
-    var tupleType = ZodTuple.create;
-    exports.tuple = tupleType;
-    var recordType = ZodRecord2.create;
-    exports.record = recordType;
-    var mapType = ZodMap.create;
-    exports.map = mapType;
-    var setType = ZodSet.create;
-    exports.set = setType;
-    var functionType = ZodFunction.create;
-    exports.function = functionType;
-    var lazyType = ZodLazy.create;
-    exports.lazy = lazyType;
-    var literalType = ZodLiteral2.create;
-    exports.literal = literalType;
-    var enumType = ZodEnum2.create;
-    exports.enum = enumType;
-    var nativeEnumType = ZodNativeEnum.create;
-    exports.nativeEnum = nativeEnumType;
-    var promiseType = ZodPromise.create;
-    exports.promise = promiseType;
-    var effectsType = ZodEffects.create;
-    exports.effect = effectsType;
-    exports.transformer = effectsType;
-    var optionalType = ZodOptional2.create;
-    exports.optional = optionalType;
-    var nullableType = ZodNullable2.create;
-    exports.nullable = nullableType;
-    var preprocessType = ZodEffects.createWithPreprocess;
-    exports.preprocess = preprocessType;
-    var pipelineType = ZodPipeline.create;
-    exports.pipeline = pipelineType;
-    var ostring = () => stringType().optional();
-    exports.ostring = ostring;
-    var onumber = () => numberType().optional();
-    exports.onumber = onumber;
-    var oboolean = () => booleanType().optional();
-    exports.oboolean = oboolean;
+    }) => custom3((data) => data instanceof cls, params);
+    exports.instanceof = instanceOfType2;
+    var stringType2 = ZodString3.create;
+    exports.string = stringType2;
+    var numberType2 = ZodNumber3.create;
+    exports.number = numberType2;
+    var nanType2 = ZodNaN2.create;
+    exports.nan = nanType2;
+    var bigIntType2 = ZodBigInt2.create;
+    exports.bigint = bigIntType2;
+    var booleanType2 = ZodBoolean3.create;
+    exports.boolean = booleanType2;
+    var dateType2 = ZodDate2.create;
+    exports.date = dateType2;
+    var symbolType2 = ZodSymbol2.create;
+    exports.symbol = symbolType2;
+    var undefinedType2 = ZodUndefined2.create;
+    exports.undefined = undefinedType2;
+    var nullType2 = ZodNull3.create;
+    exports.null = nullType2;
+    var anyType2 = ZodAny2.create;
+    exports.any = anyType2;
+    var unknownType2 = ZodUnknown3.create;
+    exports.unknown = unknownType2;
+    var neverType2 = ZodNever3.create;
+    exports.never = neverType2;
+    var voidType2 = ZodVoid2.create;
+    exports.void = voidType2;
+    var arrayType2 = ZodArray3.create;
+    exports.array = arrayType2;
+    var objectType2 = ZodObject3.create;
+    exports.object = objectType2;
+    var strictObjectType2 = ZodObject3.strictCreate;
+    exports.strictObject = strictObjectType2;
+    var unionType2 = ZodUnion3.create;
+    exports.union = unionType2;
+    var discriminatedUnionType2 = ZodDiscriminatedUnion3.create;
+    exports.discriminatedUnion = discriminatedUnionType2;
+    var intersectionType2 = ZodIntersection3.create;
+    exports.intersection = intersectionType2;
+    var tupleType2 = ZodTuple2.create;
+    exports.tuple = tupleType2;
+    var recordType2 = ZodRecord3.create;
+    exports.record = recordType2;
+    var mapType2 = ZodMap2.create;
+    exports.map = mapType2;
+    var setType2 = ZodSet2.create;
+    exports.set = setType2;
+    var functionType2 = ZodFunction2.create;
+    exports.function = functionType2;
+    var lazyType2 = ZodLazy2.create;
+    exports.lazy = lazyType2;
+    var literalType2 = ZodLiteral3.create;
+    exports.literal = literalType2;
+    var enumType2 = ZodEnum3.create;
+    exports.enum = enumType2;
+    var nativeEnumType2 = ZodNativeEnum2.create;
+    exports.nativeEnum = nativeEnumType2;
+    var promiseType2 = ZodPromise2.create;
+    exports.promise = promiseType2;
+    var effectsType2 = ZodEffects2.create;
+    exports.effect = effectsType2;
+    exports.transformer = effectsType2;
+    var optionalType2 = ZodOptional3.create;
+    exports.optional = optionalType2;
+    var nullableType2 = ZodNullable3.create;
+    exports.nullable = nullableType2;
+    var preprocessType2 = ZodEffects2.createWithPreprocess;
+    exports.preprocess = preprocessType2;
+    var pipelineType2 = ZodPipeline2.create;
+    exports.pipeline = pipelineType2;
+    var ostring2 = () => stringType2().optional();
+    exports.ostring = ostring2;
+    var onumber2 = () => numberType2().optional();
+    exports.onumber = onumber2;
+    var oboolean2 = () => booleanType2().optional();
+    exports.oboolean = oboolean2;
     exports.coerce = {
-      string: ((arg) => ZodString2.create({ ...arg, coerce: true })),
-      number: ((arg) => ZodNumber2.create({ ...arg, coerce: true })),
-      boolean: ((arg) => ZodBoolean2.create({
+      string: ((arg) => ZodString3.create({ ...arg, coerce: true })),
+      number: ((arg) => ZodNumber3.create({ ...arg, coerce: true })),
+      boolean: ((arg) => ZodBoolean3.create({
         ...arg,
         coerce: true
       })),
-      bigint: ((arg) => ZodBigInt.create({ ...arg, coerce: true })),
-      date: ((arg) => ZodDate.create({ ...arg, coerce: true }))
+      bigint: ((arg) => ZodBigInt2.create({ ...arg, coerce: true })),
+      date: ((arg) => ZodDate2.create({ ...arg, coerce: true }))
     };
     exports.NEVER = parseUtil_js_1.INVALID;
   }
@@ -11088,7 +11098,7 @@ var require_schemas = __commonJS({
       "operational-definition",
       "response-form",
       "evidence-form",
-      "compliance-threshold"
+      "conformance-threshold"
     ]);
     exports.walkriCriterionSchema = zod_1.z.object({
       name: exports.walkriCriterionNameSchema,
@@ -11300,7 +11310,7 @@ var require_walkri = __commonJS({
       return { name, passes: true, gap: null, suggestion: null };
     }
     function checkComplianceThreshold(field) {
-      const name = "compliance-threshold";
+      const name = "conformance-threshold";
       const standardKeywords = [
         "standard",
         "certification",
@@ -11342,7 +11352,7 @@ var require_walkri = __commonJS({
           name,
           passes: false,
           gap: "This field references an external standard but does not specify which components of that standard apply or what constitutes passage.",
-          suggestion: "Add a compliance threshold to the caption or description: name the specific standard version, list which components or clauses apply, provide qualifying examples, provide at least one non-qualifying example, and state the minimum threshold for passage."
+          suggestion: "Add a conformance threshold to the caption or description: name the specific standard version, list which components or clauses apply, provide qualifying examples, provide at least one non-qualifying example, and state the minimum threshold for passage."
         };
       }
       return { name, passes: true, gap: null, suggestion: null };
@@ -11353,7 +11363,7 @@ var require_walkri = __commonJS({
       if (failing.includes("criterion-intent") && failing.includes("operational-definition")) {
         patterns.push("Label-only field: the field has no written measurement intent and no operational definition. It is a bare label that will produce incomparable free-text responses.");
       }
-      if (failing.includes("evidence-form") && failing.includes("compliance-threshold")) {
+      if (failing.includes("evidence-form") && failing.includes("conformance-threshold")) {
         patterns.push("Unverifiable standard reference: the field references a standard but specifies neither what evidence satisfies it nor what passage looks like.");
       }
       if (failing.includes("criterion-intent") && failing.includes("response-form") && failing.includes("evidence-form")) {
@@ -11388,7 +11398,7 @@ var require_cross = __commonJS({
     exports.getGateRequirements = getGateRequirements2;
     exports.validateRoundConfig = validateRoundConfig2;
     exports.classifyObligationMode = classifyObligationMode2;
-    function getGateRequirements2(gateType, obligationMode) {
+    function getGateRequirements2(gateType2, obligationMode2) {
       const shared = [
         { label: "Organizational identity", description: "Five declared fields: legal or registered name, primary operating jurisdiction, primary contact, governance structure type, and organizational history. Field 6 (on-chain identity anchor) is recommended." },
         { label: "Disbursement authority", description: "Named person or mechanism with legal authority to receive and deploy grant funds." }
@@ -11434,11 +11444,11 @@ var require_cross = __commonJS({
       for (const r of shared) {
         requirements.push(`${r.label}: ${r.description}`);
       }
-      const modeRequirements = byMode[obligationMode];
+      const modeRequirements = byMode[obligationMode2];
       for (const r of modeRequirements) {
         requirements.push(`${r.label}: ${r.description}`);
       }
-      const gateRequirements = byGate[gateType] ?? [];
+      const gateRequirements = byGate[gateType2] ?? [];
       for (const r of gateRequirements) {
         requirements.push(`${r.label}: ${r.description}`);
       }
@@ -11580,771 +11590,1176 @@ var require_primitives = __commonJS({
   "packages/core/dist/primitives.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.PRIMITIVES = void 0;
+    exports.PRIMITIVES = exports.PRIMITIVES_FOUNDATION_DATE = exports.PRIMITIVES_FOUNDATION_VERSION = void 0;
     exports.getPrimitiveByName = getPrimitiveByName;
     exports.getPrimitivesByLayer = getPrimitivesByLayer;
     exports.searchPrimitives = searchPrimitives2;
+    exports.PRIMITIVES_FOUNDATION_VERSION = "0.2.3";
+    exports.PRIMITIVES_FOUNDATION_DATE = "2026-06-08";
     exports.PRIMITIVES = [
-      // ---------------------------------------------------------------------------
-      // Layer 1: Methodological Primitives
-      // ---------------------------------------------------------------------------
       {
         name: "Bidirectional Precision",
         layer: "methodological",
         description: "The same operational definition rigor that obligation standards require of applicants specifying indicators must be applied by funders to the fields they use to collect those specifications. Precision obligations run in both directions: from funder to applicant and from applicant to funder.",
-        relationships: [
-          "Generates criterion specification elements (Layer 5)",
-          "Constrains gate criterion specification in CROSS",
-          "Foundational principle of the WALKRI field instrument architecture"
-        ],
-        applications: [
-          "Every WALKRI criterion specification requirement",
-          "Every CROSS gate criterion specification requirement",
-          "The applicant identity field specification in WALKRI"
-        ]
+        relationships: "Generates the criterion specification requirement in WALKRI. Constrains gate criterion specification in CROSS Part IV. Is the foundational principle of WALKRI's entire field instrument architecture. Expresses the bidirectional precision obligation of the Precision-First Design Standard: the same operational definition rigor the standard requires of applicants specifying indicators must also be applied by funders to the fields used to collect those specifications. Neither direction is derivable from the other. Failure in the funder direction (under-specified fields) produces the same precision deficit as failure in the applicant direction (under-specified indicators), and both produce the same evaluation outcome: findings that cannot be independently verified. The precision obligation is architecturally prior to every Layer 3 through Layer 7 primitive.",
+        applications: "Every WALKRI criterion specification requirement. Every CROSS gate criterion specification requirement. The applicant identity field specification (Section 3.7 of WALKRI)."
       },
       {
         name: "Transclusion",
         layer: "methodological",
-        description: "A primitive defined once in a canonical location is included by reference wherever it applies, rather than restated. Restatement produces definitional drift; reference preserves consistency.",
-        relationships: [
-          "Governs how primitives relate to provisions",
-          "Enables the standards to grow without redundancy"
-        ],
-        applications: [
-          "Every provision in CROSS and WALKRI that references a concept defined in the Primitives Foundation"
-        ]
+        description: "A primitive defined once in a canonical location is included by reference wherever it applies, rather than restated. Restatement produces definitional drift; reference preserves consistency. This document exists to enable transclusion across CROSS and WALKRI.",
+        relationships: "Determines how primitives relate to provisions. Enables the standards to grow without redundancy.",
+        applications: "Every provision in CROSS and WALKRI that references a concept defined here rather than re-defining it."
       },
       {
-        name: "Frame Language: Pre-Replacement Admissibility",
+        name: "Frame Language Inheritance",
         layer: "methodological",
-        description: "A Frame 1 term is admissible without replacement in seven cases: citation use, detection use, contextual description use, developmental bridge use, naming the stage, communication medium use, and documentary record use. In all other cases, replacement is required.",
-        relationships: [
-          "Governs which terms require replacement in the standards and in applicant-facing documents",
-          "Pairs with the Frame 2 functioning check"
-        ],
-        applications: [
-          "Term selection in CROSS and WALKRI provisions",
-          "Evaluation of applicant language in proposal narratives"
-        ]
-      },
-      {
-        name: "Frame Language: Replacement Procedure Categories",
-        layer: "methodological",
-        description: "When a Frame 1 term requires replacement, the replacement falls into one of four procedure categories: plain-English mechanism specification, technical corpus vocabulary, deference claims, or relational inversion.",
-        relationships: [
-          "Pairs with pre-replacement admissibility",
-          "Generates specific replacement decisions for individual terms"
-        ],
-        applications: [
-          "CROSS and WALKRI provision drafting",
-          "Frame Language skill"
-        ]
-      },
-      {
-        name: "Frame Language: Frame 2 Functioning Check",
-        layer: "methodological",
-        description: "A term expressed in Frame 2 vocabulary may still fail to function as Frame 2 in one of eight ways: Transcendence Claim, Declaration Exploit, Precision Facade, Partial Instantiation, Direction Without Destination, Vocabulary Without Architecture, Correct Map/Wrong Territory, and Frozen Map.",
-        relationships: [
-          "Applies after replacement procedure has been applied",
-          "Catches provisions that use correct vocabulary but fail to function as intended"
-        ],
-        applications: [
-          "Quality check on all CROSS and WALKRI provisions",
-          "Evaluation of applicant specification language"
-        ]
+        description: "Frame Language is a foundational standard upstream of this Foundation, not a primitive defined here. Its naming and admissibility discipline, the pre-replacement admissibility test, the four replacement procedure categories, and the eight-mode Frame 2 functioning check, is defined once in the Frame Language standard and applied here by reference, in keeping with the Transclusion primitive above. This Foundation does not restate that procedure; it inherits it and applies it through the Frame Language naming check used when admitting and naming every primitive in this document.",
+        relationships: "Inherited from the Frame Language standard, which itself inherits from the Coordination Structural Integrity Suite. The canonical procedure and tools live in the Frame Language standard and its server (the check admissibility, Frame 2 functioning check, watchlist, audit, and three-frames lookup operations). Constrains term selection and naming across CROSS and WALKRI provisions and the admissibility of every primitive promoted to this Foundation.",
+        applications: "The naming and admissibility check applied to every primitive in this Foundation. Term selection in CROSS and WALKRI provisions. Evaluation of applicant language in proposal narratives."
       },
       {
         name: "Format Agnosticism",
         layer: "methodological",
-        description: "A methodological commitment that conformance is content-based rather than format-based. Any infrastructure meeting the content requirements specified by the relevant primitives satisfies conformance, regardless of the format the infrastructure uses. Format prescription is excluded from the standards except where format is itself a primitive requirement (SPDX identifier in Access Condition; published-URL requirement in Attestation Corpus). Different methodologies producing the same content are equivalent.",
-        relationships: [
-          "Foundational methodological primitive alongside Bidirectional Precision and Transclusion",
-          "Generates CROSS Part I content-vs-format separation",
-          "Constrains every Layer 4 Evidence primitive (evidence requirement specifies what must be evidenced, not the format)",
-          "Cross-references Modularity Preservation: format agnosticism allows drop-in adoption across heterogeneous infrastructure"
-        ],
-        applications: [
-          "CROSS Part I content-vs-format separation",
-          "Every compatibility statement that maps a source framework specific format onto CROSS content requirements",
-          "Te Puni Kokiri Effectiveness for Maori (tikanga methodologies satisfy content requirements)",
-          "AAOIFI Islamic finance standards (jurisprudential reporting formats satisfy content requirements)",
-          "Hypercerts integration (on-chain attestation format satisfies attestation content requirements)"
-        ]
+        description: "A methodological commitment that conformance is content-based rather than format-based: any infrastructure meeting the content requirements specified by the relevant primitives satisfies conformance, regardless of the format the infrastructure uses to meet those requirements. Format prescription is excluded from the standards except where format is itself a primitive requirement (for example the SPDX identifier in Access Condition, or the published-URL requirement in Attestation Corpus). Different methodologies that produce the same content (signed institutional documents, on-chain attestations, narrative reports under defined templates, tikanga-aligned Maori methodologies, AAOIFI-aligned accounting standards) are equivalent for conformance purposes if they meet the content specification.",
+        relationships: `Foundational methodological primitive alongside Bidirectional Precision and Transclusion. Generates CROSS Part I's "specifies what must be done, not how it must be done" position. Constrains every Layer 4 Evidence primitive (the evidence requirement specifies what must be evidenced, not the format the evidence takes). Cross-references Modularity Preservation in the Evolution Rules: format agnosticism is what allows drop-in adoption across heterogeneous infrastructure.`,
+        applications: "CROSS Part I content-vs-format separation. Every compatibility statement that maps a source framework's specific format onto CROSS's content requirements. Te Puni Kokiri Effectiveness for Maori (tikanga methodologies satisfy content requirements without conforming to settler-state evaluation formats). AAOIFI Islamic finance standards (jurisprudential reporting formats satisfy content requirements without conforming to Anglo-American accounting formats). Hypercerts integration (on-chain attestation format satisfies attestation content requirements)."
       },
       {
         name: "Independent Verifiability from Sources Outside the Applicant's Control",
         layer: "methodological",
-        description: "A methodological commitment that every checkable claim in the standards must be verifiable from a source outside the claimant control. The applicant cannot serve as the sole verifier of their own claims. The verifying source must be independently queryable (Attestation Corpus, published registries, regulatory filings, independent reviewers, third-party data sources, affected-population participation under Affected Population Verification Gate). Structural counterpart to Falsifiability: falsifiability says claims must be checkable; independent verifiability says the checking source must lie outside the claimant.",
-        relationships: [
-          "Foundational methodological primitive alongside Bidirectional Precision, Transclusion, Format Agnosticism, and the Frame Language primitives",
-          "Constrains every Layer 4 Evidence primitive: evidence form must specify the source of verification outside the applicant",
-          "Connects to Falsifiability (Commitment 1 in Evolution Rules)"
-        ],
-        applications: [
-          `Every appearance of "independently verifiable" or "from a source outside the applicant's control" across the Primitives Foundation and the CROSS schema`,
-          "Development Stage state declarations",
-          "Sufficiency declarations",
-          "Obligation Fulfillment Record",
-          "Attestation Corpus by definition",
-          "Public Benefit Mechanism access condition verification",
-          "Every Evidence Strength level above self-report"
-        ]
+        description: "A methodological commitment that every checkable claim in the standards must be verifiable from a source outside the claimant's control. The applicant cannot serve as the sole verifier of their own claims. The verifying source must be independently queryable (Attestation Corpus, published registries, regulatory filings, independent reviewers, third-party data sources, affected-population participation under Affected Population Verification Gate). This is the structural counterpart to Falsifiability: falsifiability says claims must be checkable; independent verifiability says the checking source must lie outside the claimant.",
+        relationships: "Foundational methodological primitive alongside Bidirectional Precision, Transclusion, Format Agnosticism, and the Frame Language primitives. Constrains every Layer 4 Evidence primitive: the evidence form must specify the source of verification, and that source must be outside the applicant. Connects to Falsifiability as named in the Evolution Rules (Commitment 1): the two primitives operate together, with Falsifiability specifying that claims be checkable and Independent Verifiability specifying that the checking source is outside the claimant. Expresses Corollary 7 (external falsifiability) of the Precision-First Design Standard. Corollary 7 requires that no structural mechanism in a specification prevent an independent observer's challenge from reaching the underlying evidence: the checking must be reachable from outside the system that made the claim, not only confirmable by those inside it. The Foundation applies this at the evidence layer. The source used to verify a claim must lie outside the applicant's control because that structural condition is what makes the claim challengeable at all, not merely a procedural preference for rigor. An applicant who controls the verification source can satisfy the outward form of independent verification while structurally blocking any challenge from reaching the evidence behind it. The evidence form requirement names the source; independence of the source is what makes the naming operationally meaningful.",
+        applications: `Every appearance of "independently verifiable," "from a source outside the applicant's control," "publicly accessible from a source outside the team," or "queryable independently" across the Primitives Foundation and the CROSS schema. Development Stage state declarations. Sufficiency declarations. Obligation Fulfillment Record. Attestation Corpus by definition. Public Benefit Mechanism access condition verification. Every Evidence Strength level above self-report.`
       },
-      // ---------------------------------------------------------------------------
-      // Layer 2: Identity Primitives
-      // ---------------------------------------------------------------------------
+      {
+        name: "Declared-Absent Configuration Value",
+        layer: "methodological",
+        description: "A methodological convention by which a structure's deliberate absence is expressed as a declared value rather than a silent omission. Under it, a program states, for example, that it runs no completion gate by design, as a published commitment, rather than leaving the completion-gate configuration empty. The convention formalizes the null declaration GRAIN already performs implicitly in several places: post-gate monitoring defaulting to discharge at gate passage, the conditional-continuation default, and the unbounded retroactive window. A deliberate absence declared as a value is legible to affected parties, while an empty configuration is indistinguishable from an omission, which is why the distinction is a precision and CRAFT pedagogical-legibility requirement rather than a formality.",
+        relationships: 'Methodological (Layer 1) convention applying across every primitive whose configuration can be set to absent. Its first named instance in GRAIN is the Domain-Open Entry Configuration (Layer 5), whose own text states it is "not the absence of a configuration choice; it is a positive commitment." Connects to Independent Verifiability (Layer 1): a declared-absent value must still rest on a verifiable basis where it substitutes for a structure others rely on.',
+        applications: "MacKenzie Scott and Yield Giving (no application, no completion gate, no reporting, each declared absent by design rather than omitted). Validated by recomposition against that program."
+      },
       {
         name: "Entity Boundary",
         layer: "identity",
-        description: "The declared boundary of a legal, operational, or organizational entity that determines what is inside (attributable to that entity) versus outside. Three states: applying entity, contributing entity, and affiliated entity.",
-        relationships: [
-          "Generates organizational identity declaration",
-          "Generates prior work attribution statement",
-          "Generates applicant identity instrument in WALKRI",
-          "Constrains scope (scope cannot exceed entity boundary)",
-          "Constrains sufficiency (sufficiency is measured within a declared entity boundary)"
-        ],
-        applications: [
-          "CROSS organizational identity declaration",
-          "CROSS prior work attribution statement",
-          "WALKRI applicant identity instruments",
-          "Conflict of interest Tier 1 and Tier 2 classifications"
-        ]
+        description: "The declared boundary of a legal, operational, or organizational entity that determines what is inside (attributable to that entity) versus outside (attributable to other entities). Every identity, attribution, and scope question in CROSS+WALKRI is a question about entity boundaries.\n\nEntity boundary has three states that must be declared:\n\nThe **applying entity**: the legal person or registered organization that carries named delivery obligations and receives disbursement. Its boundary is defined by its legal registration, declared decision-standing rules, and scope of control over the work being proposed.\n\nThe **contributing entity**: the entity under whose resources, declared decision-standing rules, or employment prior work was performed. Where a contributor exits an entity and subsequently applies for funding that cites work performed within that entity, the contributing entity's boundary is distinct from the applying entity's boundary. This distinction must be declared.\n\nThe **affiliated entity**: any entity that shares the applying entity's name, brand, key personnel, codebase, or user base without being legally identical to it. Affiliated entities may include parent organizations, chapters, working groups, spin-offs, or organizations that chose the same name independently.",
+        relationships: "Generates the organizational identity declaration, the prior work attribution statement, and the applicant identity instrument in WALKRI. Constrains scope (you cannot claim scope beyond your entity boundary). Constrains sufficiency (sufficiency is measured within a declared entity boundary).",
+        applications: "CROSS organizational identity declaration. CROSS prior work attribution statement. WALKRI Section 3.7 applicant identity instruments. Conflict of interest Tier 1 and Tier 2 classifications."
       },
       {
         name: "Scope",
         layer: "identity",
-        description: "The declared portion of an entity's full program or work portfolio that a specific application, grant, or obligation covers. Scope is always relative to an entity boundary. A scope hierarchy runs from specific deliverable to specific program to full entity operation.",
-        relationships: [
-          "Requires entity boundary to be declared first",
-          "Determines what falls within concurrent funding disclosure",
-          "Constrains additionality (additionality is assessed at the declared scope)",
-          "Determines sufficiency position (sufficiency is assessed at the declared scope)"
-        ],
-        applications: [
-          "CROSS concurrent funding disclosure",
-          "CROSS additionality declaration",
-          "CROSS scope attribution",
-          "Funding ask field in any application",
-          "WALKRI applicant identity instruments"
-        ]
+        description: "The declared portion of an entity's full program or work portfolio that a specific application, grant, or obligation covers. Scope is always relative to an entity boundary: an entity may have multiple programs; a grant funds a specific scope within that entity.\n\nScope determines what outputs, outcomes, and evidence are attributable to a specific grant rather than to the entity's full operation. When an organization applies for funding of a specific aspect of its work (a particular program, a sub-entity, a specific deliverable within a larger effort), the scope of that application must be declared explicitly. Without a declared scope, evaluators cannot assess additionality, attribute outcomes, or determine whether multiple applications from related entities cover the same scope or different scopes.\n\nScope has a hierarchy: a grant may fund a specific deliverable (narrow scope) within a specific program (medium scope) within an entity's full operation (full scope). Declaring which level a grant covers determines what evidence is appropriate at the completion gate.",
+        relationships: "Requires entity boundary to be declared first (you cannot declare scope without a declared entity). Determines what falls within concurrent funding disclosure (other sources covering the same scope). Constrains additionality (additionality is assessed at the declared scope, not at the entity level). Determines sufficiency position (sufficiency is assessed at the declared scope).",
+        applications: "CROSS concurrent funding disclosure. CROSS additionality declaration. CROSS scope attribution. Funding ask field in any application. WALKRI applicant identity instruments."
       },
       {
         name: "Sufficiency",
         layer: "identity",
-        description: "The relationship between an entity's current resources at a declared scope and the resources required to fulfill the obligations at that scope completely. Four positions: critical gap, partial, approaching, and surplus.",
-        relationships: [
-          "Requires scope to be declared first",
-          "Connects to the continuation gate sustainability assessment",
-          "Connects to the additionality declaration",
-          "Connects to portfolio analysis sufficiency dimension"
-        ],
-        applications: [
-          "Funding ask field (what gap does this grant address at this scope)",
-          "Continuation gate sufficiency assessment",
-          "Portfolio analysis sufficiency dimension",
-          "Additionality declaration"
-        ]
+        description: "The relationship between an entity's current resources at a declared scope and the resources required to fulfill the obligations at that scope completely. Sufficiency is a ratio, not a binary: a program may be at 40% sufficiency, approaching sufficiency, at sufficiency, or at surplus.\n\nSufficiency is declared per scope, not per entity overall. An entity operating multiple programs may be at sufficiency for some and critically underfunded for others. No grant program provides sufficiency on its own; organizations pursue sufficiency across multiple funding sources with different eligibility criteria, which is why partial-scope applications are valid and expected rather than signs of gaming. The sufficiency primitive gives organizations a standard form for declaring this architecture.\n\nSufficiency has four declared positions: **critical gap** (current resources cover less than half of what full scope operation requires, and the program's viability depends on closing this gap), **partial** (resources cover more than half but the program operates below intended capacity), **approaching** (resources are sufficient for current operations but not for the next intended scope expansion), and **surplus** (resources exceed current scope requirements and the entity is able to sustain the program without additional funding in the current period).",
+        relationships: "Requires scope to be declared first. Connects to the continuation gate (sustainability assessment at continuation asks whether outcomes are sustained, conditional, or dependent, which is a downstream consequence of sufficiency position). Connects to the additionality declaration (what a grant adds to sufficiency at a declared scope). Connects to portfolio analysis (the sufficiency distribution across a funder's portfolio).",
+        applications: "Funding ask field (what gap does this grant address at this scope). Continuation gate sufficiency assessment. Portfolio analysis sufficiency dimension. Additionality declaration."
       },
       {
         name: "Revenue Architecture",
         layer: "identity",
-        description: "The declared model by which the applying entity generates income outside of grants and donations. Four types: grant-only, fee-for-service, commercial, and hybrid.",
-        relationships: [
-          "Determines what additionality means for this applicant",
-          "Commercial entities must delineate non-commercial scope for the additionality argument",
-          "Distinct from sufficiency position and concurrent funding disclosure"
-        ],
-        applications: [
-          "CROSS Part II revenue architecture dimension",
-          "CROSS Part IV sufficiency architecture declaration",
-          "CROSS Part VI-A additionality declaration",
-          "Evaluator sufficiency assessment"
-        ]
+        description: "The declared model by which the applying entity generates income outside of grants and donations. Four types:\n\n**Grant-only**: the entity has no commercial revenue model and operates entirely from grants and donations. No fees are charged for access to outputs or services.\n\n**Fee-for-service**: the entity charges fees for access to outputs or services, but these fees are below a level that constitutes a commercially self-sustaining revenue stream. The entity remains grant-dependent for its primary operational funding.\n\n**Commercial**: the entity generates material income through a commercial revenue model, whether licensing, subscription fees, per-transaction fees, advertising, or equivalent mechanisms. The entity is commercially viable independent of grant funding for at least some portion of its operations.\n\n**Hybrid**: the entity operates a commercial revenue stream and a public goods program in one of two configurations.\n\nIn the separate-scope configuration, the commercial product or revenue stream addresses a different beneficiary population or use case from the public goods program. The grant application covers specifically the non-commercial scope, which the commercial revenue does not fund.\n\nIn the single-output/dual-market configuration, the same funded development is made available to two distinct market segments at different prices: commercial pricing in high-income or commercially capable markets, and affordable or at-cost pricing in target beneficiary markets. Commercial revenue from the high-income segment cross-subsidizes the access commitment to the beneficiary segment. The grant application covers the access commitment component of the development cost, which the commercial revenue stream alone would not fund at the required beneficiary price level.",
+        relationships: "Revenue architecture determines what additionality means for this applicant. A grant-only entity has full additionality for any non-duplicative grant: the grant funds work that would not otherwise occur. A commercial entity must specifically delineate the public goods scope that commercial revenue does not cover, because the additionality argument cannot rest on grant-only logic when commercial revenue exists. This is the anchor for the additionality declaration in CROSS Part VI-A. Revenue architecture is distinct from sufficiency position (which describes the current resource level at a declared scope) and from concurrent funding disclosure (which lists specific prior grants and investments). A commercially viable entity may hold a surplus sufficiency position from commercial revenue while still having a valid public goods grant ask for a specifically non-commercial scope.",
+        applications: "CROSS Part II revenue architecture dimension. CROSS Part IV sufficiency architecture declaration (revenue architecture is required alongside the four sufficiency elements). CROSS Part VI-A additionality declaration (commercial and hybrid entities must specifically delineate the non-commercial scope). Evaluator sufficiency assessment."
       },
       {
         name: "Disbursement Authority",
         layer: "identity",
-        description: "The named person or persons who have legal authority to receive grant funds on behalf of the applying entity and approve their deployment. Three states: individual, governed, and delegated.",
-        relationships: [
-          "Derived from the entity boundary primitive",
-          "The operational anchor of the accountability relationship"
-        ],
-        applications: [
-          "CROSS Part IV organizational identity declaration (fifth required field)",
-          "WALKRI legal entity instrument (evidence form for disbursement authority confirmation)"
-        ]
+        description: "The named person or persons who have legal authority to receive grant funds on behalf of the applying entity and approve their deployment, together with the mechanism by which that authority is exercised. Three states:\n\n**Individual**: a single named person holds full authority to receive and deploy funds on behalf of the entity, acting on their own judgment without a required approval mechanism.\n\n**Collective**: authority is held collectively by a named decision-standing mechanism (multisig, board vote, DAO governance vote, committee decision), with the current key holders or decision makers named and the quorum or threshold for decisions stated.\n\n**Delegated**: authority is held by a named role rather than a specific person, with the current holder of that role named, the scope of their delegated authority stated, and the transfer mechanism stated (who appoints successors and under what conditions).",
+        relationships: "Derived from the entity boundary primitive. The applying entity's named delivery obligation can only be acted on if the person or mechanism receiving funds can be independently identified and contacted. An entity without a declarable disbursement authority cannot satisfy the organizational identity declaration. The disbursement authority is the operational anchor of the organizational identity relationship: without it, the organizational identity declaration identifies who is applying but not who will act. For DAO applicants without a legal wrapper, the disbursement authority declaration must name the specific wallet address and the decision-standing mechanism that controls it, with the current holders of governance tokens above the specified materiality threshold named where possible.",
+        applications: "CROSS Part IV organizational identity declaration (fifth required field). WALKRI legal entity instrument (evidence form for disbursement authority confirmation)."
       },
       {
         name: "Continuity Capacity",
         layer: "identity",
-        description: "The declared capacity of the applying entity to continue operating in its stated form if the primary contributor or key personnel become unavailable. Three states: single, partial, and resilient. Renamed at Primitives Foundation v0.1.7 from Governance Resilience per Frame Language audit; the rename specifies the structural capacity the primitive measures without importing Frame 1 vocabulary.",
-        relationships: [
-          "Derived from entity boundary and scope",
-          "Constrains what sustainability stance is credible at the continuation gate",
-          "Single-point-of-failure continuity is a disclosure, not a disqualifier"
-        ],
-        applications: [
-          "CROSS Part II continuity capacity dimension",
-          "CROSS Part IV continuation specification gate assessment",
-          "Sustainability stance constraint at continuation"
-        ]
+        description: "The declared capacity of the applying entity to continue operating in its stated form if the primary contributor or key personnel become unavailable. Three states:\n\n**Single**: one person is essential to the entity's continued operation and no succession plan or backup capacity exists. An entity in single-point-of-failure continuity state must acknowledge this explicitly, name the person on whom continuation depends, and state what would happen to active grants and funded deliverables if that person became unavailable during the grant period.\n\n**Partial**: the primary contributor is essential for direction and decision-making, but backup capacity exists for execution. At least one named secondary contributor is ready to continue core operational functions if the primary becomes unavailable, though strategic direction would be interrupted.\n\n**Resilient**: multiple contributors each hold documented responsibility for specific functions, succession mechanisms are documented, and the entity can continue operating without any single named individual. No person's departure would halt active grant obligations.",
+        relationships: "Derived from entity boundary and scope. Continuity capacity constrains what sustainability stance is credible at the continuation gate. An entity with single-point-of-failure continuity cannot credibly declare a sustained sustainability stance without a named succession mechanism. Single-point-of-failure continuity is a disclosure, not a disqualifier: some genuine public goods projects are maintained by one person, and disclosure of that fact is more useful than denial of it. The appropriate funder response is to configure continuity capacity as a completion gate condition for grants above a threshold, requiring evidence of partial or resilient continuity before final disbursement.",
+        applications: "CROSS Part II continuity capacity dimension. CROSS Part IV continuation specification gate assessment. Sustainability stance constraint at continuation."
+      },
+      {
+        name: "Allocator Enfranchisement Credential",
+        layer: "identity",
+        description: "The credential that admits a party to the allocator position in the relational quartet: a badge, a locked-token stake, a panel appointment, or an electoral franchise. It is the allocator-side counterpart of the applicant identity instruments, and it is what a program declares to say who may decide the distribution. Held-weak pending a second source beyond the web3 cases.",
+        relationships: "Identity (Layer 2) primitive attaching to the allocator position (Foundational Structural Anchors). Connects to the Allocation Rule (Layer 3): the credential determines who may be the declared runner of the rule. Connects to Conflict of Interest (Layer 3): the credential is the surface at which allocator-grantee and allocator-evaluator overlaps are detected.",
+        applications: "Optimism Retroactive Public Goods Funding (badgeholder franchise); Octant (locked-token stake scaled by a Sybil score); Gitcoin Grants (contributing-donor participation). Held-weak."
+      },
+      {
+        name: "Constituency-Constituted Applicant Body",
+        layer: "identity",
+        description: "An applicant whose identity is a multi-party body that the funder requires, by design, to be composed of named constituencies, rather than a single legal person or registered organization. The applying entity is constituted as a coordinating body whose membership is set by published composition requirements: it must include representatives of specified sectors and of the population affected by the funded work, and it cannot be admitted as an applicant until that composition is demonstrated. Its applying authority derives from the declared multi-party composition itself, not from legal registration.\n\nThis is distinct from Entity Boundary (Layer 2), which defines the applying entity as a legal person or registered organization with a boundary fixed by legal registration, declared decision-standing rules, and scope of control. A constituency-constituted body has none of those anchors in the ordinary sense: it is not a single legal entity, its composition is set externally by the funder, and its scope of control is a whole national or sectoral response rather than a program it independently operates. It is also distinct from the Beneficiary Validation Mechanism (Layer 3), which has parties drawn from the affected population validate the claims of a separate applying entity at the entry gate; here the requirement is structurally prior, placing affected-population representatives inside the applying entity itself. The body selects the implementing organizations that carry out the work; those implementers are downstream of the applicant, not identical to it.",
+        relationships: "Extends Entity Boundary (Layer 2) by adding an applying-entity type whose boundary is constituted by funder-set composition rather than legal registration. Connects to Disbursement Authority (Layer 2): a constituency-constituted body commonly exercises receipt and deployment through the implementing organizations it selects, so its disbursement authority is declared at one of that primitive's collective or delegated states rather than the individual state. Sits upstream of the Beneficiary Validation Mechanism (Layer 3), since affected-population representation is folded into the applicant's composition rather than supplied as an external check. Constrains Scope (Layer 2): the declared scope of such a body is the coordinated response it applies on behalf of, not a single operated program.",
+        applications: "The Global Fund to Fight AIDS, Tuberculosis and Malaria requires each eligible country to constitute a Country Coordinating Mechanism that includes government, non-governmental organizations, the private sector, faith communities, and people living with the targeted diseases; the Country Coordinating Mechanism is the applicant of record, submits the funding request, and selects the Principal Recipients who implement (Global Fund Country Coordinating Mechanism Guidelines). Gavi, the Vaccine Alliance uses a comparable country-coordination body for national immunization applications (Gavi Alliance program documentation)."
+      },
+      {
+        name: "Classified Track Eligibility Condition",
+        layer: "identity",
+        description: "An eligibility condition that admits an applicant to a specific named funding track or classification within a program, rather than to the program at large. The condition operates at the identity layer: it turns on a status the applicant holds before applying, and it sorts an otherwise unified applicant pool into tracks with different access. An applicant of equal technical merit may qualify for one track and not another solely because of the held status the condition tests, not because of any deficiency in the proposed work.\n\nThis is distinct from the Entry Specification Gate (under Gate Type, Layer 3), which sets what every applicant must demonstrate to enter a round; the classified track condition does not decide entry to the program but routes an admitted applicant to a track defined by a pre-held credential or recognized status. It is distinct from the Downstream-Use Restriction (Layer 3), which constrains how outputs may be used after delivery; the track condition constrains entry, not use. The held status it tests is a pre-existing credential or recognized standing (a clearance, an accreditation, a recognized partnership status), so the condition is an identity property of the applicant, which is why it sits in Layer 2 rather than in the obligation layer.",
+        relationships: "Sits within Entity Boundary (Layer 2) as a status the applying entity either holds or does not, and routes the applicant to a track. Composes with Scope (Layer 2): the track an applicant is admitted to bounds the scope of work the application may cover. Distinct from Gate Type (Layer 3), which times assessments in the lifecycle, where the track condition fixes which track the applicant occupies before those gates apply.",
+        applications: "The Defense Advanced Research Projects Agency operates classified and unclassified research tracks; participation in a classified track requires a facility clearance at the appropriate level, which the agency may sponsor, so the clearance status admits an applicant to the classified track rather than to the agency at large (Defense Advanced Research Projects Agency classified small business notice, 2022). Te Puni Kokiri, the Ministry of Maori Development, treats Maori-as-Treaty-partner standing as a pre-held condition that routes how a program engages a recognized party, a recognition-based track condition outside the defense context (Te Puni Kokiri Effectiveness for Maori Measurement and Reporting Framework)."
+      },
+      {
+        name: "Catalytic Anchor Capital Role Declaration",
+        layer: "identity",
+        description: "A declared identity role in which a funder positions its own capital to draw in other capital, by taking a first-loss, lead, or convening position within a larger financing arrangement. The declaration states three things: the named structural position of the funder's capital (the concessionary, subordinate, guarantee, or first-in position that makes other parties' participation viable); the named conditions under which the other parties commit (so that any leverage claim is checkable); and the basis on which a leverage ratio is computed, including the period and what counts as mobilized capital. This consolidates the catalytic-capital role (capital deployed to make later commercial capital viable) and the anchor-capital role (first capital in that gives subsequent funders the confidence to follow) into one declared role, since both name the same structural move: the funder's capital occupies an enabling position relative to capital it does not itself provide.\n\nThis is distinct from Revenue Architecture (Layer 2), which describes the applying entity's own income model; the role declaration describes the funder's own capital position within a multi-party stack. It is distinct from Sufficiency (Layer 2), which states the applicant's resource position at a declared scope; the role declaration states how the funder's capital is positioned to unlock other capital, not what the applicant currently holds. The leverage figure is a claim and carries the same evidential treatment as any contribution claim: a declared role with a stated position and stated unlock conditions is what makes the figure checkable rather than asserted.",
+        relationships: "Identity (Layer 2) role attaching to the funder position. Pairs with Sufficiency (Layer 2) on the applicant side: the funder's enabling position is the counterpart to the applicant's declared resource gap. Connects to the Allocation Rule (Layer 3): the declared role shapes what the funder commits to and on what terms. Bears on Portfolio analysis (Layer 7): a stated leverage basis is what lets a leverage claim be aggregated and checked across a portfolio.",
+        applications: "The Rockefeller Foundation deploys concessionary capital through its Zero Gap Fund in a first-loss, de-risking position designed to make later commercial investment viable, and reports a leverage ratio against mobilized partner capital (Rockefeller Foundation, Zero Gap Fund portfolio documentation). The Ford Foundation structures program-related investments as anchor funding, the first capital in, positioned to give other investors the confidence to co-invest, with a reported leverage ratio on its Catalyst Fund (Ford Foundation, program-related investment documentation)."
+      },
+      {
+        name: "Funding Classification Identity Gate",
+        layer: "identity",
+        description: "An identity gate that classifies the funding itself, not the applicant or the work, and uses that classification to determine what the instrument may fund and from which budget. The gate tests the declared primary purpose of the money against a statutory or policy classification and returns a binary result: either the funding qualifies for the classification and may draw on the corresponding budget line, or it does not and must be funded from another stream. The classification turns on the declared purpose of the spending, so it is a property of the funding's identity rather than of the recipient or the deliverable, and it operates before any program design or delivery mechanism is set.\n\nThis is distinct from the Downstream-Use Restriction (Layer 3), which constrains how outputs may be used after delivery; this gate constrains, before delivery, which budget classification the money carries and therefore what it may fund. It is distinct from Obligation Mode (Layer 3), which classifies the type of commitment a grant creates; the classification gate does not classify the commitment but the spending itself. It is distinct from the Classified Track Eligibility Condition above, which sorts the applicant; here it is the money that is sorted. Location alone does not satisfy the gate: a program in an eligible location whose primary purpose falls outside the classification fails, and a program whose primary purpose is within the classification may pass even when carried out partly outside the usual location.",
+        relationships: "Identity (Layer 2) gate attaching to the funding instrument rather than to the applying entity. Logically prior to Obligation Mode (Layer 3) and to every obligation primitive, since the budget classification of the money is settled before the commitment it funds is designed. Connects to Scope (Layer 2): where an instrument blends classified and unclassified streams, the classification determines how scope is attributed across the streams.",
+        applications: "The United Kingdom Foreign, Commonwealth and Development Office applies a statutory official development assistance primary-purpose test under the International Development Act 2002: before a program may draw on the official development assistance budget, the economic development and welfare of developing countries must be its main objective, and a program whose primary purpose is commercial or security interest is not eligible even where it produces development benefits (Foreign, Commonwealth and Development Office Programme Operating Framework, Rule 2; International Development Act 2002, section 1)."
+      },
+      {
+        name: "Fund-Holder Separation",
+        layer: "identity",
+        description: "A structural configuration in which the entity that holds the funds and is the recipient of record with the funder is a different legal identity from the entity that operates the funded work. It adds a fourth boundary state to Entity Boundary (Layer 2): alongside the applying, contributing, and affiliated entities, the fund-holding entity is the legal person who receives and holds the funds and answers to the funder, while the program-operating entity conducts the activities, reports to the fund-holder, and has no direct legal relationship with the funder. Where the fund-holder and the program operator are the same legal person, this configuration is absent and the ordinary applying-entity model applies.\n\nThis is distinct from Entity Boundary (Layer 2) in its base form, which presupposes that the applying entity is both the fund-receiver and the doer of the work; fund-holder separation splits those two positions and names which entity answers to the funder and which delivers. It is distinct from Disbursement Authority (Layer 2), which names who within an entity may receive and deploy funds; here the split is between two entities, with the fund-holder retaining the decision over whether to release held funds to the operator. The configuration is grantee-side: it concerns the relationship between the fund-holding entity and the program operator within a single grant, which is why it is derived from Entity Boundary at Layer 2 rather than from the funder-side capital-custody primitive at Layer 4.",
+        relationships: "Derived from Entity Boundary (Layer 2) as a fourth boundary state. Distinct from Capital-Layer and Allocation-Authority Separation (Layer 2), which is funder-side (the capital-holding function versus the allocation-decision authority within the funder); fund-holder separation is grantee-side (the fund-holding entity versus the program operator within one grant). Connects to Disbursement Authority (Layer 2): in this configuration the fund-holder holds the decision to release funds to the operator. Bears gate consequences: in a fund-holder separation arrangement the fund-holder is the applying entity for the gate obligations, and the operator's reporting runs to the fund-holder.",
+        applications: "Fiscal sponsorship as set out by the National Network of Fiscal Sponsors: a tax-exempt fiscal sponsor holds funds and is the grantee of record while the sponsored project operates the work and reports to the sponsor, with the sponsor retaining the decision over disbursement to the project (National Network of Fiscal Sponsors, About Fiscal Sponsorship). Open Collective implements the same split through fiscal hosts that hold a collective's funds and handle financial administration while the collective's contributors run the work (Open Collective, Fiscal Hosts documentation)."
+      },
+      {
+        name: "Dual-Trigger Phase Entry with Smoothed Exit",
+        layer: "identity",
+        description: "An eligibility configuration in which moving into the next funding phase requires two independent triggers to be satisfied at once, and in which exit from funding is structured as a gradual phase-down rather than a single cliff. The two triggers combine a measured-position condition with a demonstrated-behavior condition: the applicant must cross an externally measured threshold and must independently reach a stated minimum of its own contribution before the phase change fires. The smoothing applies on both sides: the entry threshold is tested against a multi-year average so a single anomalous year cannot trigger the change, and the exit from funding runs down over a declared multi-year period rather than ending at once.\n\nThis is distinct from a single income-threshold eligibility cutoff, which fires on one measured condition; the dual-trigger form makes the phase change contingent on something the applicant must actively achieve in addition to the measured threshold, so a party that crosses the measured threshold but has not reached the behavioral minimum does not advance. It is distinct from the Continuation Specification Gate (Gate Type, Layer 3), which sets what a project must demonstrate to continue; here the configuration sets phase entry and the shape of exit at the eligibility layer, with the smoothing as its defining feature.\n\nHeld weak: the configuration rests on a single source, and the conjunctive entry paired with smoothed exit is recorded provisionally pending a second program that pairs a measured-position trigger with a demonstrated-behavior trigger and a phased exit.",
+        relationships: "Identity (Layer 2) configuration extending eligibility classification with a conjunctive entry condition and a phased exit. Connects to Sufficiency (Layer 2): the behavioral trigger is a demonstrated contribution level, which bears on the applicant's resource position. Distinct from the Continuation Specification Gate (Gate Type, Layer 3), which assesses continuation at the obligation layer rather than setting phase eligibility. Held weak.",
+        applications: "Gavi, the Vaccine Alliance moves a country into accelerated transition only when both its three-year-average gross national income per capita surpasses the eligibility threshold and its co-financing share has reached at least the stated minimum, after which support phases down over a declared multi-year period (Gavi Alliance Eligibility and Transition Policy). Held weak."
+      },
+      {
+        name: "Dividend-Constrained Philanthropic Budget",
+        layer: "identity",
+        description: "A funder identity whose grantmaking budget is bounded by the dividend yield of a commercial holding it owns, rather than by an endowment draw-down or by fundraising. The total grantmaking and program budget available in any period is a derived quantity: it is whatever the owned commercial holding pays out as dividends in that period, so the funder's capacity is coupled to the profitability of a single commercial entity and varies with it. The funder does not raise funds from other parties and does not draw down an independent endowment to set its budget.\n\nThis is distinct from Sufficiency (Layer 2), which states the relationship between an applicant's resources and what its scope requires; the dividend-constrained budget is a funder-side source constraint on the total pool, not an applicant-side resource position. It is distinct from Revenue Architecture (Layer 2), which classifies how an applying entity earns income outside grants; here the structure describes the source architecture of a funder's own budget. The structural consequence is that recipients cannot assume a stable multi-year funding volume from this funder, because the available pool tracks the owned holding's annual performance.\n\nHeld weak: the structure rests on a single funder. It is recorded provisionally pending a second funder whose grantmaking budget is constitutively coupled to the dividend yield of an owned commercial holding.",
+        relationships: "Identity (Layer 2) primitive describing a funder's budget-source architecture. Bears on Sufficiency (Layer 2) on the applicant side, since a variable funder pool affects what multi-year sufficiency a recipient can credibly plan against. Distinct from Revenue Architecture (Layer 2), which describes applicant income models rather than funder budget sources. Held weak.",
+        applications: "The Robert Bosch Stiftung channels the dividends it receives as majority shareholder in Robert Bosch GmbH into its philanthropic programs, does not fundraise from other parties, and does not draw down an independent endowment, so its annual grantmaking volume is set by the company's dividend payout and varies with company performance (Robert Bosch Stiftung charter documents and annual reports). Held weak."
+      },
+      {
+        name: "Exploratory Mechanism Prohibition on Preliminary Data",
+        layer: "identity",
+        description: "An eligibility condition for an exploratory funding mechanism that bars the inclusion of preliminary data, defining the track by what applicants may not bring. The mechanism is scoped to early-stage work, and the condition directs reviewers not to treat the absence of preliminary data as a deficiency, which is stronger than making such data optional: an optional criterion may still be weighted up when present and down when absent, whereas this condition removes the absence from negative weighting entirely. The mechanism typically pairs the condition with duration and budget ceilings that hold the early-stage scope, so the track is defined jointly by its early-stage character and by the evidentiary expectation it explicitly removes.\n\nThis is distinct from Development Stage (Layer 2), which the applicant declares to locate the maturity of its own work; this condition is a funder-set property of the track that fixes how a maturity-related criterion is applied, independent of any single applicant's declared stage. It is distinct from the Entry Specification Gate (Gate Type, Layer 3), which sets what every applicant must demonstrate; here the defining move is a stated prohibition on a class of evidence rather than a demonstration requirement. Defining a track by an excluded criterion is the structural feature that no maturity-declaration or entry-demonstration primitive captures.\n\nHeld weak: the condition rests on a single source. It is recorded provisionally pending a second mechanism that defines an exploratory track by explicitly removing a class of evidence from negative evaluation.",
+        relationships: "Identity (Layer 2) condition on an exploratory track, adjacent to Development Stage (Layer 2) but inverting its usual direction: where Development Stage rewards accumulated evidence at higher stages, this condition removes the penalty for its absence at an early-stage track. Distinct from the Entry Specification Gate (Gate Type, Layer 3). Held weak.",
+        applications: "The National Institutes of Health Exploratory/Developmental Research Grant (the R21 mechanism) states that preliminary data are not required and directs reviewers not to penalize an application for the absence of preliminary data where the proposed research is appropriately exploratory, paired with a two-year duration cap and a total direct-cost ceiling (National Institutes of Health R21 funding opportunity and review guidance). Held weak."
+      },
+      {
+        name: "Apex Coordination Body with Distributed Disbursement Authority",
+        layer: "identity",
+        description: "An identity in which a single apex body holds the coordination and approval role for a program while the authority to disburse funds is distributed across multiple implementing channels. The apex body sets the shared planning framework, reviews and approves the plan that all channels must jointly develop, and holds the data system through which their performance is reported, but it does not itself disburse to implementers. The funds are disbursed by the several implementing channels, each managing its own awards under its own procedures, so coordinative authority and disbursement authority are held by structurally distinct entities bound together by one shared planning instrument.\n\nThis is distinct from Disbursement Authority (Layer 2), which names who receives and deploys funds on the applying-entity side; this primitive describes the funder side, where the body that coordinates and approves is not the body that pays. It is distinct from Determination Body Separation (Layer 4), which requires a determination body structurally outside program management; the apex body is not outside the program but is its coordinating center. It is distinct from the Constituency-Constituted Applicant Body above: that body is a multi-party applicant, whereas this is a funder-side architecture in which one coordinator sits over several disbursing channels.\n\nHeld weak: the architecture rests on a single program. It is recorded provisionally pending a second program in which an apex coordinator holds planning and approval authority while disbursement is distributed across multiple implementing channels.",
+        relationships: "Identity (Layer 2) primitive describing a funder-side architecture, distinct from the applicant-side Disbursement Authority (Layer 2). Connects to the Entry Specification Gate (Gate Type, Layer 3): the apex body's plan approval functions as a portfolio-level entry gate across all channels. Distinct from Determination Body Separation (Layer 4). Held weak.",
+        applications: "The United States President's Emergency Plan for AIDS Relief is coordinated by the Office of the U.S. Global AIDS Coordinator, which issues the planning guidance, reviews and approves each country's interagency operating plan, and holds the shared reporting system, while the appropriated funds are disbursed by separate implementing agencies that each manage their own awards (PEPFAR Country Operating Plan guidance; National Academies Evaluation of PEPFAR). Held weak."
+      },
+      {
+        name: "Catalytic Scope Ceiling",
+        layer: "identity",
+        description: "An identity-level ceiling that caps a funder's role to the catalytic scope, declared so that the funder does not become the at-scale payer. The funder positions each investment at the minimum size required to create the conditions for scale-up by others, and declares that the obligation object is condition-creation rather than delivery at scale. The ceiling is set at the design stage, before outcomes are produced: it fixes what the funder is and is not responsible for achieving, scoping the ask to condition-creation and setting the completion evidence to evidence of conditions created rather than coverage delivered.\n\nThis is distinct from Scope (Layer 2), which declares the portion of an applicant's portfolio a grant covers; the catalytic scope ceiling is a funder-side cap on the funder's own role, declaring a deliberate stop before scale-up. It is distinct from the Sustainability Stance (Layer 6), which the grantee declares about whether outcomes persist after the grant ends; the ceiling operates earlier, fixing at design time that scale-up is not this funder's obligation. It bears on additionality: under a catalytic scope ceiling a grant adds conditions rather than delivered coverage, which is a different additionality basis from a delivery grant.\n\nHeld weak: the ceiling rests on a single funder. It is recorded provisionally, with the funder token dropped from the name, pending a second funder that caps its own role to condition-creation and declares a deliberate stop before at-scale payment.",
+        relationships: "Identity (Layer 2) ceiling on the funder's role, a funder-side counterpart to Scope (Layer 2) on the applicant side. Connects to the Catalytic Anchor Capital Role Declaration (Layer 2): both position a funder relative to capital and effort it does not itself supply, the role declaration naming the enabling capital position and the scope ceiling naming the deliberate stop before scale. Distinct from the Sustainability Stance (Layer 6), which is grantee-declared and post-outcome. Held weak.",
+        applications: "Unitaid declares its role as catalytic, funding investments scoped to the minimum required to create the conditions for scale-up by others (countries, the Global Fund, the President's Emergency Plan for AIDS Relief) and explicitly stating that it does not itself scale up innovations (Unitaid Scalability Framework; Unitaid Strategy 2023-2027). Held weak."
+      },
+      {
+        name: "Capital-Layer and Allocation-Authority Separation",
+        layer: "identity",
+        description: "A funder-side structural separation between two functions that an uninspected funder treats as one: the capital-holding function (the body that holds, invests, and has custody of the funds) and the allocation-decision authority (the body that decides which applicants receive what). In a separated configuration these two functions sit in structurally distinct bodies, so that the entity holding the money is not the entity deciding where it goes. The separation is declared at the funder level and is a property of how the funder is constituted, independent of any single grant.\n\nThis is distinct from Fund-Holder Separation (Layer 2), which is grantee-side: that primitive splits the fund-holding entity from the program-operating entity within a single grant transaction, whereas this primitive splits the capital-holding function from the allocation-decision function within the funder. The two are different genera, not one structure named twice: they sit on opposite sides of the funding relationship, pair different functions, and inherit from different places. It is also distinct from Disbursement Authority (Layer 2), which names who within an applying entity may receive and deploy funds; here the separation is between two funder-side bodies, one holding capital and one deciding allocation.\n\nThe separation extends Determination Body Separation (Layer 4) from the gate-determination context into the capital-custody context: where Determination Body Separation requires the body making a completion determination to sit outside program management, this primitive requires the body deciding allocation to sit apart from the body holding the capital. Where the two functions are held by the same body, the configuration is absent and the funder holds and allocates as one.",
+        relationships: "Identity (Layer 2) primitive, funder-side, extending Determination Body Separation (Layer 4) into capital custody. Distinct from Fund-Holder Separation (Layer 2), its grantee-side counterpart: capital-holding-versus-allocation-decision within the funder, against fund-holding-versus-operating within one grant. Instantiated in the pooled context by Shared Capital Pool with Multiple Grantmaking Program Types (Layer 7), whose investment-authority-versus-grantmaking-authority bifurcation is this separation applied to a multi-program pool. Connects to Disbursement Authority (Layer 2): the held-capital body's release of funds to the decided recipients runs through a declared disbursement authority. Connects to the allocator position in the relational quartet (Foundational Structural Anchors): the allocation-decision body is the allocator, separated here from the capital holder.",
+        applications: "United Way (the capital-holding federated body distinct from the local allocation-deciding panels). United States community foundations (a single invested endowment held under one investment policy, with allocation decided by separate program staff, donor advisors, and selection committees). Octant version two (the capital-holding layer distinct from the allocation-decision layer). Any funder constituted so that the body holding the capital is not the body deciding its allocation."
       },
       {
         name: "On-chain Identity Anchor",
         layer: "identity",
-        description: "A wallet address (externally owned account or smart contract) that serves as the canonical verifiable identity root for an entity's blockchain interactions. Distinguished from Disbursement Authority by being the identity root rather than the fund receipt mechanism.",
-        relationships: [
-          "Derived from the entity boundary primitive",
-          "Distinct from Disbursement Authority",
-          "Feeds the Attestation Corpus primitive (Layer 4)"
-        ],
-        applications: [
-          "CROSS Part IV organizational identity declaration (sixth required field)",
-          "Cross-program identity matching",
-          "Attestation Corpus query input",
-          "Cohort Position assessment"
-        ]
+        description: "A wallet address (externally owned account or smart contract) that serves as the canonical verifiable identity root for an entity's blockchain interactions. Distinguished from Disbursement Authority (which specifies who receives and deploys funds) by being the identity root rather than the fund receipt mechanism. An entity may have one Disbursement Authority and multiple on-chain addresses; the On-chain Identity Anchor is the address against which cross-program identity matching is performed. For DAO applicants without legal wrappers, the On-chain Identity Anchor and the Disbursement Authority may be the same address. For incorporated entities, they are often distinct.",
+        relationships: "Derived from Entity Boundary (Layer 2). The On-chain Identity Anchor is the blockchain-layer expression of the applying entity's identity, distinct from the Disbursement Authority (which is the fund receipt mechanism). The anchor enables cross-program identity matching: it is the address that grant databases, attestation registries, and Attestation Corpus queries use to retrieve records associated with a given entity. Where the On-chain Identity Anchor and the Disbursement Authority are the same address, that fact must be stated explicitly; conflation without declaration is a non-disclosure risk equivalent to omitting the affiliated entity field. The On-chain Identity Anchor feeds the Attestation Corpus primitive (Layer 4): the corpus is queried against this address.",
+        applications: "CROSS Part IV organizational identity declaration (sixth required field). Cross-program identity matching. Attestation Corpus query input. Cohort Position assessment (Layer 7)."
       },
-      // ---------------------------------------------------------------------------
-      // Layer 3: Obligation Primitives
-      // ---------------------------------------------------------------------------
       {
         name: "Obligation Mode",
         layer: "obligation",
-        description: "The classification of what type of commitment a grant creates. Three modes: build obligation (deliver a specified artifact), change obligation (produce a measurable shift in a condition), and retroactive obligation (reward demonstrated past contribution).",
-        relationships: [
-          "Determines what the entry specification gate asks",
-          "Determines what evidence scope is appropriate at the completion gate",
-          "Determines whether Theory of Build is correct (build mode) or a failure mode (change mode)",
-          "Maps to the ToC hierarchy: build at Output layer, change at Outcome layers"
-        ],
-        applications: [
-          "CROSS round configuration",
-          "Entry gate content determination",
-          "Completion gate evidence scope setting"
-        ]
+        description: "The classification of what type of commitment a grant creates. An obligation mode declaration must specify three structural elements: the obligation object (what the funder is committing the applicant to produce, achieve, demonstrate, or transition), the evidence scope appropriate at the completion gate to verify fulfillment of that obligation, and the Theory of Change layer at which the obligation operates. Three named modes are provided as reference patterns grounded in observed programs. When no named mode accurately describes the obligation structure being declared, a novel mode must be declared using these three structural elements explicitly.\n\n**Build obligation**: the funded work must produce a specified deliverable with independently verifiable completion criteria. The obligation object is the deliverable itself. Evidence scope at completion is output evidence at minimum. Theory of Build is the correct and complete specification within this mode.\n\n**Change obligation**: the funded work must produce a measurable shift in a specified condition in a defined population, from a declared FROM state to a declared TO state. The obligation object is the measured change. Evidence scope at completion is outcome evidence at minimum. Theory of Build is a failure mode in this context: an application that describes building without specifying the condition it addresses cannot satisfy the change-obligation entry specification.\n\n**Retroactive obligation**: the funded work has already been performed and the funding rewards demonstrated past contribution. The obligation object is the prior contribution, assessed against the program's published criteria. Evidence scope at the entry gate is the primary substantive requirement; forward completion evidence is configured by the funder as a condition of the award rather than an entry requirement.\n\nWhen a program's obligation structure requires a mode not accurately described by any of the three named patterns, the declaration must state the novel mode's name, specify the obligation object precisely, identify the completion evidence scope, and identify the Theory of Change layer at which the obligation operates. Named modes are reference patterns that carry this structure by shorthand. Novel declarations carry the same structure explicitly.",
+        relationships: "Determines what the entry specification gate asks. Determines what evidence scope is appropriate at the completion gate. Determines whether Theory of Build is correct (build mode) or a failure mode (change mode). Maps to the Theory of Change hierarchy: build obligation operates at the Output layer, change obligation at the Outcome layers, retroactive obligation at the Output or Outcome layer depending on the nature of the prior contribution being recognized. Novel mode declarations must specify their Theory of Change layer as part of the declaration.\n\n**Configuration recorded here:** the Disciplinary Transition Obligation is a novel-mode configuration of Obligation Mode (the funded transition of an organization or field from one disciplinary or operating state to another, declared with its obligation object, its completion evidence scope, and its Theory of Change layer per the novel-mode procedure above), recorded here rather than as a standalone primitive.",
+        applications: ""
       },
       {
         name: "Development Stage",
         layer: "obligation",
-        description: "The declared position of the applying work on a five-position maturity scale. Stages: proof of concept, early adoption, growth, established infrastructure, and retroactive recognition.",
-        relationships: [
-          "Constrains coherent obligation mode assignment",
-          "Declared stage must be consistent with available evidence at entry gate",
-          "Funder round configurations declare which stages are within scope"
-        ],
-        applications: [
-          "CROSS Part II development stage dimension",
-          "CROSS Part IV entry gate declaration",
-          "CROSS round configuration stage targeting",
-          "Evaluator assessment of stage-evidence alignment"
-        ]
+        description: "The declared position of the applying work on a five-position maturity scale, reflecting what has been built, proven, and adopted at the time of application. The development stage is declared by the applicant and must be supported by evidence from sources outside the applicant's control.\n\nFive stages:\n\n**Stage 1: Proof of concept.** Something demonstrably exists and has been tested in controlled or internal conditions. Code has been written or a prototype produced. No external users outside the team have used it in production conditions. Completion evidence at this stage is output evidence: the artifact exists, is publicly accessible, and meets stated completion criteria. A project at Stage 1 cannot credibly commit to usage or outcome evidence at the completion gate.\n\n**Stage 2: Early adoption.** External users have used the work in real conditions. Feedback exists from parties outside the team. Adoption is small but independently verifiable from sources outside the applicant's control. Completion evidence at this stage is usage evidence at minimum: adoption by named external parties at a level verifiable from public sources.\n\n**Stage 3: Growth.** A growing user base is independently verifiable from public sources. Demonstrated value has been documented by parties outside the team. The trajectory of adoption is visible in independently accessible data. Completion evidence at this stage is outcome evidence against a declared baseline: a measurable change from a sourced starting point, documented by an independent party.\n\n**Stage 4: Established infrastructure.** Sustained operation with demonstrated community value has been documented over at least 12 months. The central question is continuation rather than validation. The obligation object is maintained operation at declared service standards, not a new deliverable or a measured change from a baseline. Completion evidence at this stage is usage evidence at maintained scale plus a sustainability stance declaration. A project at Stage 4 that declares a build obligation is claiming to add new functionality, not merely maintain existing function; this distinction must be explicit in the entry gate submission.\n\n**Stage 5: Retroactive recognition.** The contribution is complete and its value is demonstrable from historical evidence. The question is recognition of prior contribution, not support for future activity. The entry submission consists of prior contribution evidence. A forward commitment may be configured by the funder as a condition of the award but is not an entry requirement.",
+        relationships: "Development stage constrains coherent obligation mode assignment. A Stage 1 project committing to outcome evidence at the completion gate is misrepresenting its stage; the completion gate cannot require evidence the project cannot yet produce. A Stage 4 project applying in a build-obligation round is either adding new functionality (valid) or using build framing to avoid change-obligation evidentiary requirements (a framing misrepresentation). The declared stage must be consistent with the evidence the applicant provides at the entry gate. Funder round configurations declare which stages are within scope, allowing programs to target specific maturity cohorts without requiring a narrative description of their targeting criteria.",
+        applications: "CROSS Part II development stage dimension. CROSS Part IV entry gate declaration. CROSS round configuration stage targeting. Dashboard configurator stage selector. Evaluator assessment of stage-evidence alignment."
       },
       {
         name: "Gate Type",
         layer: "obligation",
-        description: "The classification of when in the funding lifecycle an assessment occurs. Four types: entry specification gate, progress verification gate, completion verification gate, and continuation specification gate.",
-        relationships: [
-          "Gate character (developmental vs summative) is determined by gate type",
-          "Evidence scope and evidence strength requirements are configured per gate type",
-          "Organizational identity declaration is required at the entry specification gate"
-        ],
-        applications: [
-          "CROSS four-gate sequence",
-          "Evidence configuration per gate",
-          "Grantee rights determination (iteration vs redress)"
-        ]
+        description: "The classification of when in the funding lifecycle an assessment occurs. Four gate types are named as reference patterns. Novel gate types are permitted where none of the four named types captures the structural position of an assessment in a program's lifecycle; any novel gate type declaration must specify the lifecycle position, the trigger, the gate character (developmental or summative, under the Gate Character primitive), and the grantee or program operator rights at that gate.\n\n**Entry specification gate**: what an applicant must demonstrate before entering the round. Content determined by obligation mode.\n\n**Progress verification gate**: what a grantee must demonstrate to trigger mid-funding disbursement. Developmental in character.\n\n**Completion verification gate**: what a grantee must demonstrate to receive final payment. Summative in character.\n\nA post-gate monitoring configuration may be declared on any completion verification gate. The configuration specifies: whether funder monitoring obligations persist after the formal gate fires, the duration of the post-gate monitoring period, and the mechanism (reporting cycles, site visits, access-verification audits, or continuous public-data monitoring). Programs declaring post-gate monitoring must also specify whether monitoring findings can trigger post-gate remediation obligations and whether the grantee's obligations are fully discharged at gate passage or remain contingent during the monitoring period. If no post-gate monitoring configuration is declared, obligations are discharged at gate passage.\n\n**Continuation specification gate**: the gate structure that determines whether a project advances between stages or receives funding in a subsequent round. Configured at the program level, not the round level. Two named configurations:\n\n*Conditional continuation*: the program requires demonstration of specified criteria at each continuation cycle before advancement is authorized. What the project must demonstrate is declared in the continuation criterion specification. This is the default configuration when the program's obligation architecture does not explicitly declare otherwise.\n\n*Committed continuation*: the program's published obligation architecture commits to continuation as a constitutive element of the program's design, with no per-cycle re-demonstration requirement. This configuration is only available where the program has published its continuation commitment as part of the program's obligation architecture at or before the selection event. A committed continuation declaration must specify: the selection criteria that determine initial entry (the categorical gate for committed continuation programs), the conditions under which committed continuation may be suspended or terminated if any exist, and the evidence form by which the program's published continuation commitment itself can be independently verified.",
+        relationships: "Gate character (developmental vs. summative) is determined by gate type. Evidence scope and evidence strength requirements are configured per gate type. The organizational identity declaration and prior work attribution statement are required at the entry specification gate. For committed continuation programs, the selection criteria that determine initial entry carry the full evidential weight that conditional continuation programs distribute across multiple continuation cycles; evaluators assessing committed continuation programs should apply heightened scrutiny to the entry specification gate accordingly.\n\n**Configurations recorded here:** several positions that an earlier pass carried as standalone gates are configurations of Gate Type, recorded here rather than as separate primitives. The Hypothesis Testing Gate is a pre-award hypothesis-testing position, paired with a feasibility-or-learning obligation mode and a hypothesis-resolution criterion. The Mid-Cycle Course Correction Instruction is a mid-cycle gate position. The Two-Layer Supplemental Eligibility Assessment is two gates composed at a single position. The Applicant-Pool Peer Review Stage is a peer-review stage position, whose reviewer-integrity aspect is the fourth tier of Conflict of Interest (Layer 3). The Potential Indicator Assessment is a pre-award assessment of an indicator's potential, cross-layer from Evidence (Layer 4). The Domain-Open Entry Configuration is an entry gate that admits any subject domain, cross-layer from Specification (Layer 5).",
+        applications: ""
       },
       {
         name: "Gate Character",
         layer: "obligation",
-        description: "The functional classification of a gate that determines grantee rights and funder obligations during assessment. Developmental (progress verification) gates give iteration rights; summative (completion) gates give redress rights.",
-        relationships: [
-          "Derived from gate type",
-          "Determines whether grantee iteration rights apply",
-          "Constrains funder behavior during assessment"
-        ],
-        applications: [
-          "Funder posture determination (formative vs final)",
-          "Grantee rights in assessment"
-        ]
+        description: "The functional classification of a gate that determines grantee rights and funder obligations during assessment.\n\n**Developmental**: progress verification gates. Purpose is to surface what needs to change before the next gate. Grantees retain iteration rights. The appropriate funder posture is formative.\n\n**Summative**: completion verification gates. Purpose is to render a documented determination of whether the obligation was met. Grantees have redress rights, not iteration rights. The appropriate funder posture is final.",
+        relationships: "Derived from gate type. Determines whether grantee iteration rights apply. Constrains funder behavior during assessment.\n\n**Configuration recorded here:** the Continuous Embedded Evaluation Mode (a developmental gate operated continuously across the funded period rather than at discrete checkpoints) is a configuration of Gate Character, recorded here rather than as a standalone primitive.",
+        applications: ""
       },
       {
         name: "Obligation Fulfillment Record",
         layer: "obligation",
-        description: "The documented history of commitments made under prior grants and whether those commitments were met. Three states per prior obligation: fulfilled, partially fulfilled, and unfulfilled.",
-        relationships: [
-          "Required for returning applicants at the entry gate",
-          "Required when citing prior work as capability evidence",
-          "Primary track record evidence at the continuation gate"
-        ],
-        applications: [
-          "CROSS Part IV entry specification gate (returning applicants)",
-          "CROSS Part IV continuation specification gate",
-          "CROSS prior work attribution statement activation",
-          "Returning applicant eligibility assessment"
-        ]
+        description: "The documented history of commitments made under prior grants and whether those commitments were met, for any entity applying on the basis of prior work or prior funding relationships. Three states per prior obligation:\n\n**Fulfilled**: the committed deliverable was produced, the committed change was measured, or the committed contribution was verified, and the documentation is publicly accessible from a source outside the applicant's control.\n\n**Partially fulfilled**: work began and some progress was made. The record must include specific documentation of what was produced and what was not, and a stated explanation of why full fulfillment did not occur.\n\n**Unfulfilled**: the commitment was not met, no deliverable or measurable change was produced, and no satisfactory explanation exists in public records.",
+        relationships: "The obligation fulfillment record is required in three cases: when the applying entity has received prior grants from the same funder and is applying again; when the applying entity cites prior work as evidence of capability at the entry gate; and when the applying entity's prior round history includes unresolved KarmaGAP milestones or open gate conditions from prior rounds. The obligation fulfillment record activates the prior work attribution statement (Layer 5) when prior work performed under a different entity is cited. For continuation gate assessment, the obligation fulfillment record is the primary evidence of track record. A returning applicant who cannot provide an obligation fulfillment record for prior grants received from the same funder, or whose prior record shows unfulfilled commitments without adequate explanation, has not established the track record the continuation gate requires.",
+        applications: "CROSS Part IV entry specification gate (returning applicants). CROSS Part IV continuation specification gate. CROSS prior work attribution statement activation. Returning applicant eligibility assessment."
       },
       {
         name: "Conflict of Interest",
         layer: "obligation",
-        description: "The classification of a relationship between a reviewer and an applicant that affects review integrity. Three tiers: categorical bar (Tier 1), disclosure required with qualified waiver (Tier 2), and disclosure encouraged (Tier 3).",
-        relationships: [
-          "Governs reviewer access to applications",
-          "Generates the conflict of interest declaration requirement at the reviewer entry gate"
-        ],
-        applications: [
-          "Reviewer eligibility determination",
-          "Conflict of interest declaration in reviewer process"
-        ]
+        description: "The classification of a condition of the reviewer that compromises review integrity. The definition covers not only a relationship between a reviewer and an applicant but any condition of the reviewer that compromises the integrity of review. Four tiers:\n\n**Tier 1 (categorical bar)**: financial interest, employment relationship, or familial relationship. No waiver possible; reviewer must be replaced.\n\n**Tier 2 (disclosure required, qualified waiver possible)**: prior collaboration, public advocacy, or prior funder-grantee relationship. Disclosure required; waiver requires documented justification and program administrator approval.\n\n**Tier 3 (disclosure encouraged)**: professional acquaintance or network overlap. Reasonable third-party standard applies.\n\n**Tier 4 (structural-position or competing-stake condition)**: a structural position or competing stake that compromises review integrity independent of any relationship to a specific applicant, such as a reviewer who occupies a position in the program from which they stand to benefit by the review's outcome. The response is declared structural safeguards rather than disclosure and waiver. The Applicant-Pool Peer Review Stage (recorded as a Gate Type configuration) is the position whose reviewer-integrity condition this tier classifies.",
+        relationships: "Covers reviewer access to applications. Generates the conflict of interest declaration requirement at the entry gate of the reviewers process. With the relational quartet, Conflict of Interest also classifies two allocator-position conditions: allocator-grantee overlap, where a party that decides the distribution is also eligible to receive from it, and allocator-evaluator overlap, where the deciding body and the assessing body share members. Both are structural-position conditions calling for declared structural safeguards rather than categorical bars.",
+        applications: ""
       },
       {
         name: "Public Benefit Mechanism",
         layer: "obligation",
-        description: "The declared mechanism by which the funded work produces benefit to parties outside the applicant's organization, in a form that is non-excludable or non-rivalrous at the point of delivery. Four types: output production, access provision, condition change, and ecosystem shift.",
-        relationships: [
-          "Derived from Evidence Scope (Layer 4)",
-          "Determines which access condition type is required",
-          "Mechanism type declared at entry determines evidence scope required at completion"
-        ],
-        applications: [
-          "CROSS eligibility declaration",
-          "CROSS entry gate public benefit mechanism declaration",
-          "WALKRI output license declaration, access provision declaration, beneficiary population instrument"
-        ]
+        description: "The declared mechanism by which the funded work produces benefit to parties outside the applicant's organization, in a form that is non-excludable or non-rivalrous at the point of delivery. Eligibility claims in public goods programs are grounded in the following four mechanism types, presented as reference patterns each corresponding to one of the four evidence scope levels defined in Layer 4. When no named mechanism type accurately describes the program's public benefit mechanism, a novel mechanism declaration must specify the class of beneficiaries, the mechanism by which benefit is produced and reaches that class, the access condition applicable to the declared mechanism, and the evidence scope required at the completion gate to verify that the mechanism operated as declared.\n\n**Output production** corresponds to output evidence scope. The funded work produces an artifact, infrastructure, protocol, or resource that others can use. The mechanism is the existence and accessibility of the artifact. The access condition is the license or access terms under which any party can use, copy, modify, or distribute it.\n\n**Access provision** corresponds to usage evidence scope. The funded work makes something accessible to a population that otherwise lacks access, at a scale verifiable from sources outside the applicant's control. The mechanism is the delivery of access to a defined population. The access condition is the access mechanism (how beneficiaries reach the resource), the cost structure (zero cost, subsidized, or sliding scale), and the non-excludability mechanism (how access is maintained for the target population).\n\n**Condition change** corresponds to outcome evidence scope. The funded work shifts a measurable condition in a defined population from a declared FROM state toward a declared TO state. The mechanism is the causal pathway from the funded activity to the measured change. The access condition is the beneficiary population definition and the intervention mechanism.\n\n**Ecosystem shift** corresponds to impact evidence scope. The funded work contributes to systemic or structural change in a field, protocol, or ecosystem. The mechanism is an argued causal contribution to change at a level above the individual project. The access condition is the named causal pathway, the named co-factors, and the basis for the contribution claim.",
+        relationships: "Derived from Evidence Scope (Layer 4). Determines which access condition type is required (see Access Condition, below). Connects to the eligibility pathway logic in CROSS Part II. The mechanism type declared at entry determines what evidence scope is required at the completion gate: output production claims require output evidence at minimum; access provision claims require usage evidence; condition change claims require outcome evidence; ecosystem shift claims require impact evidence or a documented contribution argument. This constraint prevents applicants from claiming a high-level mechanism (ecosystem shift) while committing only to low-level evidence (output evidence). Novel mechanism declarations must satisfy the same constraint: the declared mechanism must be paired with an evidence scope that can verify the mechanism's operation, and the pairing must be stated explicitly in the declaration.\n\n**Funder-side pole recorded here:** the Round-Level Scope Declaration is the funder-side reciprocal of the Public Benefit Mechanism, generated by bidirectional precision: the applicant declares what benefit they produce, the funder declares what benefit it rewards at the round level, and the gate assesses the match. It is recorded here as the funder-side pole rather than as a standalone primitive; its scope authority decomposes to Layered Configuration Authority (Layer 3) and its binding mechanism to a Gate Type and criterion configuration.",
+        applications: "CROSS eligibility declaration in Part II. CROSS entry gate public benefit mechanism declaration in Part IV. WALKRI output license declaration (for output production mechanism). WALKRI access provision declaration (for access provision mechanism). WALKRI beneficiary population instrument (for condition change and ecosystem shift mechanisms)."
       },
       {
         name: "Access Condition",
         layer: "obligation",
-        description: "The declared terms under which the public benefit mechanism holds and can be independently verified. Specifies the mechanism-specific terms, the evidence form for confirmation, and whether the terms apply at application time, at reporting time, or both.",
-        relationships: [
-          "Derived from Public Benefit Mechanism (Layer 3) and Evidence Form (Layer 5)",
-          "Specifies the evidence form for the public benefit mechanism claim"
-        ],
-        applications: [
-          "CROSS Part II public benefit mechanism dimension",
-          "CROSS Part IV entry gate access condition declaration",
-          "WALKRI output license declaration, access provision declaration"
-        ]
+        description: "The declared terms under which the public benefit mechanism holds and can be independently verified. Every public benefit mechanism claim must be paired with an access condition declaration that specifies (1) the mechanism-specific terms that enable the benefit to reach the stated population, (2) the evidence form by which those terms can be confirmed by an independent party at the appropriate gate, and (3) whether the terms apply at the time of application, at the time of reporting, or at both times.\n\nFor output production: the access condition is the named SPDX license identifier, the location of the license file in the repository or attached to the artifact, and confirmation that the license applies to the output at the time of reporting, not only at the time of application. A copyright notice that permits free access without granting modification or redistribution rights does not satisfy the output production access condition.\n\nThe output production access condition has two structural directions. The restriction direction specifies a minimum permissiveness floor the license must meet or exceed. The permissiveness-floor direction declares maximum permissiveness as the default and requires affirmative exception declaration for any departure. Three required elements for the permissiveness-floor direction: the declared default permissiveness standard, the named categories of permitted exception (for example patent-related publication delay, commercial confidentiality period, or classification constraint), and the declaration procedure by which exceptions must be invoked, documented, and verified. This direction is used when the funder's remit requires open release as a baseline and the structural task is managing justified departures rather than requiring a minimum threshold. If neither direction is explicitly declared, the restriction direction is assumed.\n\nFor access provision: the access condition is the named access mechanism (URL, API, physical location, service delivery channel), the cost structure at the point of access for the target population, and the declared rule or policy mechanism that prevents exclusion of the stated population.\n\nFor condition change: the access condition is the FROM state baseline established from a named independent source, the population definition that determines who the change is measured for, and the named intervention mechanism connecting the funded activities to the expected change.\n\nFor ecosystem shift: the access condition is the named causal pathway connecting the funded work to the ecosystem change, the list of acknowledged co-factors, and the basis on which the funded work's contribution is claimed to be material rather than incidental.\n\nWhere the funder holds equity positions in commercial entities that may benefit from outputs released under the access conditions required by this program, the access condition declaration must include a funder equity disclosure: the named equity positions, the mechanism by which those positions are disclosed to applicants before the entry gate, and the structural safeguard separating the equity benefit from the access condition requirement. This element applies across all mechanism types; it is not specific to output production programs. Absence of this disclosure when equity positions exist is a conformance gap, not a permitted default.",
+        relationships: "Derived from Public Benefit Mechanism (Layer 3) and the Evidence Form criterion specification element (Layer 5). The access condition specifies the evidence form for the public benefit mechanism claim. Without a declared access condition, a public benefit mechanism claim is an assertion without a verification path.",
+        applications: "CROSS Part II public benefit mechanism dimension. CROSS Part IV entry gate access condition declaration. WALKRI output license declaration field (reference implementation for output production mechanism). WALKRI access provision declaration field. All application forms in CROSS-conformant programs where eligibility includes a public goods claim."
       },
       {
         name: "Pre-Award Indicator Confirmation Stage",
         layer: "obligation",
-        description: "A structured stage between funder selection of an applicant and the start of disbursement, during which the funder and the selected applicant finalize the indicator definitions, milestone bindings, and evidence form specifications that will govern subsequent gate assessments. The written confirmation produced at the close of this stage is the operative specification for the round; subsequent gate determinations are made against the confirmed specification, not against the applicant's original entry-gate submission. Distinguished from the Entry Specification Gate (which selects among applicants) and from the Progress Verification Gate (which assesses delivery against a specification already in force).",
-        relationships: [
-          "Configured at Layer 3 alongside Gate Type and Gate Character",
-          "References Criterion Specification Elements (Layer 5) for the substantive content of the confirmation",
-          "Output binds subsequent gate assessments under the Attestation Corpus and the Obligation Fulfillment Record"
-        ],
-        applications: [
-          "CROSS Part XII (OTF program-manager negotiation; Sovereign Tech Fund scoping phase; What Works Cities Rigorous Evaluations criterion; CDC Program Evaluation Framework Step 3)",
-          "Any program where the entry gate selects on competitive criteria that differ from the operative measurement specification at completion"
-        ]
+        description: "A structured stage between funder selection of an applicant and the start of disbursement, during which the funder and the selected applicant finalize the indicator definitions, milestone bindings, and evidence form specifications that subsequent gate assessments will be made against. The written confirmation produced at the close of this stage is the operative specification for the round; subsequent gate determinations are made against the confirmed specification, not against the applicant's original entry-gate submission.\n\nDistinguished from the Entry Specification Gate (which selects among applicants) and from the Progress Verification Gate (which assesses delivery against a specification already in force) by sitting between them: a stage where no work has begun but where the specification is no longer in the entry-gate's competitive form. Distinguished from contract negotiation (which is administrative) by being substantive: the stage produces measurement specifications, not legal terms.\n\nThe Pre-Award Indicator Confirmation Stage addresses a recurring gap between what funders write in calls for proposals and what they end up measuring after award. Without this stage, the entry-gate specification (often written for competitive comparability across applicants) carries through to the completion gate, where it may not match what either the funder or the applicant actually intends to measure. The confirmation stage names this gap and resolves it before disbursement.",
+        relationships: "Configured at Layer 3 alongside Gate Type and Gate Character. References Criterion Specification Elements (Layer 5) for the substantive content of the confirmation. The stage's output binds subsequent gate assessments under the Attestation Corpus and the Obligation Fulfillment Record.",
+        applications: "CROSS Part XII (OTF program-manager negotiation; Sovereign Tech Fund scoping phase; What Works Cities Rigorous Evaluations criterion; CDC Program Evaluation Framework Step 3). Any program where the entry gate selects on competitive criteria that differ from the operative measurement specification at completion."
       },
       {
         name: "Downstream-Use Restriction",
         layer: "obligation",
-        description: "A funder-published declared restriction on the intended use or downstream application of grant outputs, operationalized as a categorical eligibility condition at the entry gate. The restriction names a class of uses, applications, or deployment contexts that disqualify an otherwise license-conformant output from being supported by the program. Distinct from Access Condition (which specifies how the output is made available) by constraining what the output may be built for. Three configuration elements: restriction predicate, verification mechanism, disclosure obligation.",
-        relationships: [
-          "Layer 3 primitive sitting alongside Access Condition and Public Benefit Mechanism",
-          "Declared in CROSS Part IV round configuration",
-          "WALKRI Section 3 criterion specification applies to the disclosure obligation field"
-        ],
-        applications: [
-          "CROSS Part XII (NLnet Foundation peaceful-and-humane-use clause; OTF statutory open-source-and-audit mandate per 22 U.S.C. \xA7 6208a; IPAF Free Prior and Informed Consent requirement; Wikimedia Universal Code of Conduct compliance condition)",
-          "Any program whose mandate restricts downstream use of funded outputs by named conditions"
-        ]
+        description: "A funder-published declared restriction on the intended use or downstream application of grant outputs, operationalized as a categorical eligibility condition at the entry gate. The restriction names a class of uses, applications, or deployment contexts that disqualify an otherwise license-conformant output from being supported by the program. Distinct from Access Condition (which specifies how the output is made available) by constraining what the output may be built for, not how it is released. Distinct from Conflict of Interest (which classifies reviewer-applicant relationships) by binding the applicant's intended use rather than the reviewer's assessment.\n\nThree configuration elements: the restriction predicate (the named class of use, application, or deployment context that disqualifies, for example military application, mass surveillance infrastructure, autonomous targeting), the verification mechanism (how the applicant's intended use is checked against the restriction at the entry gate), and the disclosure obligation (what the applicant must declare about intended use in the application).\n\nThe Downstream-Use Restriction addresses a gap in the standard license-and-access vocabulary: a permissive open-source license alone cannot encode use restrictions without ceasing to be OSI-conformant. The restriction operates as a separate eligibility filter at the entry gate, allowing the funder to bind the applicant's intended use without compromising the output's downstream licensing posture.",
+        relationships: "Layer 3 primitive sitting alongside Access Condition and Public Benefit Mechanism. The restriction is declared in CROSS Part IV round configuration. WALKRI Section 3 criterion specification applies to the disclosure obligation field that captures the applicant's intended use.",
+        applications: "CROSS Part XII (NLnet Foundation peaceful-and-humane-use clause; OTF statutory open-source-and-audit mandate per 22 U.S.C. \xA7 6208a; IPAF Free Prior and Informed Consent requirement; Wikimedia Universal Code of Conduct compliance condition). Any program whose remit restricts downstream use of funded outputs by named conditions."
       },
       {
         name: "Beneficiary Validation Mechanism",
         layer: "obligation",
-        description: "A structural mechanism by which the claimed FROM state, population definition, or need claim of an applying entity is independently validated by parties drawn from or bound by obligation directions to the affected population at the entry specification gate. Distinct from the Affected Population Verification Gate (Layer 4), which operates at completion to verify what was delivered. Beneficiary Validation Mechanism operates at entry, before disbursement, to confirm that the applying entity's characterization of the population, the need, and the FROM state is grounded in the affected population's own assessment rather than imposed from outside. Three configuration elements: validating parties, validation procedure, disqualification condition.",
-        relationships: [
-          "Layer 3 primitive operating alongside Public Benefit Mechanism and Affected Population Verification Gate as a three-part architecture for population-anchored programs (validation at entry, mechanism declaration at entry, verification at completion)",
-          "Connects to Independent Verifiability (Layer 1): validating parties must be structurally outside the applicant",
-          "Cross-references the Te Puni Kokiri Treaty partnership pattern and the IPAF co-management structure"
-        ],
-        applications: [
-          "CROSS Part XII (Te Puni Kokiri Effectiveness for Maori framework; IPAF FIMI/Samburu Women Trust/Tebtebba co-management; CRS ProPack baseline community validation; Hopkins Opioid Litigation Principles Principle 5 affected-community input; Core Humanitarian Standard Commitments 1-4 community engagement requirements)",
-          "Any program claiming a condition change or access provision public benefit mechanism in a named population"
-        ]
+        description: "A structural mechanism by which the claimed FROM state, population definition, or need claim of an applying entity is independently validated by parties drawn from or bound by obligation directions to the affected population at the entry specification gate. Distinct from the Affected Population Verification Gate (Layer 4), which operates at completion to verify what was delivered. Beneficiary Validation Mechanism operates at entry, before disbursement, to confirm that the applying entity's characterization of the population, the need, and the FROM state is grounded in the affected population's own assessment rather than imposed from outside it.\n\nThree configuration elements: the validating parties (named bodies or representatives drawn from or answerable to the population, e.g., Indigenous Treaty partners, community-elected representatives, peer organizations within the same population), the validation procedure (how the validating parties' assessment is collected and documented), and the disqualification condition (what validation result prevents the applying entity from proceeding to disbursement, e.g., insufficient evidence that the population endorses the characterization).\n\nDistinguished from Affected Population Verification Gate (Layer 4) by temporal position: this primitive operates at entry, Affected Population Verification Gate at completion. Distinguished from Conflict of Interest by addressing population validation rather than reviewer-applicant relationships. Distinguished from Public Benefit Mechanism by validating the FROM state and population characterization rather than declaring what mechanism produces benefit.",
+        relationships: "Layer 3 primitive operating alongside Public Benefit Mechanism and Affected Population Verification Gate as a three-part architecture for population-anchored programs (validation at entry, mechanism declaration at entry, verification at completion). Connects to Independent Verifiability (Layer 1): the validating parties must be structurally outside the applicant. Cross-references the Te Puni Kokiri Treaty partnership pattern and the IPAF co-management structure.",
+        applications: "CROSS Part XII (Te Puni Kokiri Effectiveness for Maori framework; IPAF FIMI/Samburu Women Trust/Tebtebba co-management; CRS ProPack baseline community validation; Hopkins Opioid Litigation Principles Principle 5 affected-community input; Core Humanitarian Standard Commitments 1-4 community engagement requirements). Any program claiming a condition change or access provision public benefit mechanism in a named population."
       },
-      // ---------------------------------------------------------------------------
-      // Layer 4: Evidence Primitives
-      // ---------------------------------------------------------------------------
+      {
+        name: "Layered Configuration Authority",
+        layer: "obligation",
+        description: "A multi-tier configuration structure in which each tier holds rule-setting authority over a defined set of configuration dimensions, and in which that authority is bounded above by the configuration already established at the tier above. The tier above sets the outer frame; each lower tier configures what remains unconstrained by the frame it received. A lower tier cannot override or expand what a higher tier has already set, but may constrain it further for its own operational scope.\n\nThe structural condition this primitive names is not merely the existence of multiple configuration tiers but the specific relationship between them: each tier's authority is scoped and bounded by prior configuration from above, making the full configuration of any capital pool the product of all tiers simultaneously. In the European Union structural funds framework, the Commission approves programme documents that set co-financing rates, thematic priorities, and enabling conditions; the Managing Authority configures programme implementation within those bounds; Intermediate Bodies operate within the space the Managing Authority has defined. No Intermediate Body can configure a dimension the Managing Authority has already set, and the Managing Authority cannot override what the Commission has established in the programme decision.\n\nThis primitive is distinct from Delegated Configuration Hierarchy, which addresses within-a-round parameter setting by a program operator, because Layered Configuration Authority addresses the permanent tiered configuration structure across rounds: the tiers and their relative scoping authority are constitutive of the program's existence, not choices made within a single round. It is also distinct from Disbursement Authority (Layer 2), which identifies who receives and deploys funds, because Layered Configuration Authority addresses who sets rules, not who handles money. A single program may have one Disbursement Authority and three distinct tiers of configuration authority simultaneously.\n\nThe primitive applies wherever a capital pool is structured by a constitutional stack of rule-setting tiers: United States federal grants (Office of Management and Budget guidance, agency regulations, program-specific requirements, subaward terms), philanthropic regranting structures (foundation strategic framework, intermediary program design, individual grant terms), and the Octant framework (Golem Foundation outer policy, epoch-level rules, individual project eligibility). In each case, a lower tier's round-level domain restriction or eligibility criterion is valid only within the space the tier above has already bounded.",
+        relationships: "Sits alongside Gate Type (Layer 3) and Obligation Mode (Layer 3) as a structural precondition for round configuration: a program operator configuring gates and obligation modes is acting within an already-bounded space defined by Layered Configuration Authority. Connects to Downstream-Use Restriction (Layer 3): restrictions the originating tier places on use travel downward through the configuration stack and cannot be overridden by lower tiers. Connects to Scope (Layer 2): each tier's configuration scope is the portion of the total configuration space that the tier above has not pre-committed.",
+        applications: "European Union structural funds (Commission, Managing Authority, Intermediate Body configuration stack; Regulation (EU) 2021/1060, Recitals 12, 55, 60; Articles 2(8), 71-72). United States federal grants under the Uniform Guidance. Philanthropic regranting chains subject to Internal Revenue Code Section 4945. Octant epoch-level rules within Golem Foundation outer policy."
+      },
+      {
+        name: "Retained Obligation After Task Delegation",
+        layer: "obligation",
+        description: "The structural condition in which an entity that has delegated a task to a lower-tier body retains full legal and operational obligation for that task's proper execution. Delegation transfers the execution of a task; it does not transfer the originating entity's obligation to ensure the task is properly executed. The delegate acquires its own obligation to the delegator, but the delegator's obligation to the tier above does not diminish as a consequence of the delegation.\n\nThe directionality is what makes this primitive structurally distinct: task execution flows downward through the delegation; obligation runs upward and persists at the origin regardless of how the task is distributed. In the European Union structural funds framework, when a Managing Authority delegates management verification functions to an Intermediate Body, the Managing Authority remains responsible for the proper functioning of the management and control system. The Managing Authority's obligation to the Commission does not flow to the Intermediate Body; the Intermediate Body acquires only an obligation to the Managing Authority. At every tier, the obligation to the tier above remains with the delegating body.\n\nThis primitive is distinct from Non-Delegable Obligation Retention, which specifies which particular obligations at the originating tier cannot be delegated at all. Retained Obligation After Task Delegation applies to what happens to the delegating entity's obligation status after delegation has occurred, even for tasks that are permissible to delegate. Where Non-Delegable Obligation Retention names the ceiling of delegation, Retained Obligation After Task Delegation names the persistence condition: the delegating entity's obligation persists in full for everything it has delegated, not only for what it could not delegate.\n\nThe principle recurs across multi-tier grantmaking structures with consistent structural content: fiscal sponsorship (the sponsor retains the legal obligation to the Internal Revenue Service for purpose-conformant use and reporting on the project's expenditure even when the project executes the work), community foundations (the foundation retains obligation to the donor for purpose-conformant deployment of advised funds even when it follows donor recommendations), and development finance (an implementing government retains obligation for project outcome delivery to the multilateral funder even when subnational authorities execute field delivery). The Retained Obligation After Task Delegation primitive names this recurrent structural rule rather than any single instance of it.",
+        relationships: "Connects to Layered Configuration Authority: where configuration authority is tiered, obligation is similarly tiered, and Retained Obligation After Task Delegation specifies how the obligation relationship at each tier behaves when tasks are delegated downward. Connects to Delegation Scope Agreement: the agreement that defines the scope of delegated tasks should make explicit which obligations travel with the delegation and which remain at the origin (which, under this primitive, is all of them). Connects to Obligation Fulfillment Record (Layer 3): when the delegating entity submits an Obligation Fulfillment Record, that record covers obligations that were executed by delegates as fully as obligations executed directly.",
+        applications: "European Union structural funds, Managing Authority retained responsibility after delegation to Intermediate Bodies (Article 72(2)(b), Regulation (EU) 2021/1060). Interreg management verification responsibilities delegated to national controllers (Interact management verifications guidance). United States fiscal sponsorship structures under Internal Revenue Code Section 501(c)(3). IFAD programme implementation by subnational government authorities on behalf of national government. MacArthur Foundation expenditure responsibility under Internal Revenue Code Section 4945 in regranting arrangements."
+      },
+      {
+        name: "Delegation Scope Agreement",
+        layer: "obligation",
+        description: "A written instrument by which one configuration tier formally transfers a defined scope of tasks to a lower-tier body, specifying the boundaries of what is delegated and what is excluded, the documented basis on which the delegating body is satisfied that the receiving body has sufficient resources and expertise to execute the named tasks, the delegating body's supervision mechanism, and the reporting obligations flowing from the receiving body back to the delegating body. The agreement gives the delegation legal effect; without it, the lower-tier body has no defined authority to act and the delegating body has no documented supervision basis.\n\nThe required elements of a Delegation Scope Agreement are four. First, the scope declaration: the named tasks transferred, specified with sufficient precision to distinguish delegated functions from retained functions. Second, the receiving body qualification record: the documented basis on which the delegating body is satisfied that the receiving body has the resources, expertise, and institutional standing to execute the named tasks. Third, the supervision mechanism: how the delegating body will monitor task execution and what intervention rights it retains. Fourth, the reporting obligation: what the receiving body must report to the delegating body, at what frequency, and in what form.\n\nThis primitive is distinct from the Disbursement Authority primitive (Layer 2), which identifies who holds authority to receive and deploy grant funds, in three respects. Disbursement Authority concerns fund receipt and deployment; Delegation Scope Agreement concerns the delegation of administrative, operational, and verification tasks. Disbursement Authority specifies a current-holder and a transfer mechanism; Delegation Scope Agreement specifies an ongoing operational relationship with supervision terms that persist throughout the delegation period. A program may have a single Disbursement Authority and multiple Delegation Scope Agreements covering distinct task areas simultaneously.\n\nDelegation Scope Agreements recur wherever a program operator distributes functions across institutional bodies: United States Agency for International Development sub-awards specifying which program activities a sub-recipient may execute; Global Fund grant-agent agreements specifying the boundary between principal recipient and sub-recipient functions; MacArthur Foundation sub-grant agreements specifying what an intermediary may distribute and what it must retain; community foundation donor-advised fund service agreements. In every case the agreement serves the same structural function: it makes the scope of the delegation precise enough that the delegating body can exercise supervision and the receiving body can act without exceeding its authority.",
+        relationships: "Connects to Retained Obligation After Task Delegation: the Delegation Scope Agreement is the instrument through which a delegation is effected, and Retained Obligation After Task Delegation specifies that the delegating entity's obligation persists regardless of what the agreement transfers. The two primitives are structurally paired: the agreement defines what tasks are delegated; the retained obligation rule specifies that the delegation does not reduce the delegator's own obligation status. Connects to Layered Configuration Authority: within a multi-tier configuration authority structure, Delegation Scope Agreements formalize the operational relationships between tiers. Connects to Non-Delegable Obligation Retention: a well-formed Delegation Scope Agreement should be explicit about which obligations are retained at the origin and not delegated through this instrument.",
+        applications: "European Union structural funds, formal designation of Intermediate Bodies with written task delegation instruments (Article 71, Regulation (EU) 2021/1060; Questions and Answers on Designation of Intermediate Bodies, European Commission guidance). Interreg programme management delegation to national controllers. United States Agency for International Development sub-award scope definitions. IFAD country programme agreements between IFAD and implementing governments. Millennium Challenge Corporation compact implementation agreements between Millennium Challenge Corporation and partner country governments."
+      },
+      {
+        name: "Payment Suspension Trigger",
+        layer: "obligation",
+        description: "A pre-specified threshold or event that, when detected by the funding authority during an active program period, suspends ongoing disbursements pending investigation and remedy. The suspension fires mid-implementation, not at a scheduled gate; it is a reactive mechanism activated by an identified failure state rather than a planned assessment cycle. The trigger conditions, the notification procedure, and the remedy pathway are all pre-specified before the program period opens.\n\nThree structural elements define a Payment Suspension Trigger. The trigger condition names the class of deficiency or failure that activates suspension: serious deficiencies in management or control systems, irregularities that have not been adequately addressed by the implementing body, failure to provide required documentation or reporting. The notification obligation requires the funding authority to inform the implementing body of the grounds for suspension and to provide a defined opportunity to remedy the identified deficiency before the suspension takes full effect or escalates. The remedy pathway specifies what the implementing body must demonstrate to lift the suspension and resume normal disbursement.\n\nThis primitive is distinct from a completion verification gate failure because a gate failure occurs at a scheduled assessment point within the planned lifecycle, and its consequence is non-advancement or non-payment at a pre-planned decision point. The Payment Suspension Trigger can fire at any point during implementation, including long before any gate would be reached; it responds to a detected condition, not to a planned assessment. It is also distinct from the Financial Correction by External Funder primitive because suspension holds future disbursement while investigation and remedy occur, while financial correction addresses amounts already disbursed or committed. The two primitives form a temporal pair covering the full response-to-non-conformance lifecycle: the suspension primitive addresses future funds; the financial correction primitive addresses past funds.\n\nThe mechanism recurs across public-sector grant programs with consistent structural elements: United States Agency for International Development stop-work orders on finding of breach of special award conditions, Global Fund grant suspension procedures on identification of financial irregularity, Millennium Challenge Corporation compact suspension under constraint provisions. The European Union structural funds framework is the most explicitly codified instance, specifying in Article 97(1) of Regulation (EU) 2021/1060 three trigger conditions, requiring Commission notification and a remedy opportunity, and allowing escalation to decommitment where remedy is not achieved.",
+        relationships: "Connects to Completion Verification Gate (via Gate Type, Layer 3): a suspension is distinct from a gate failure in temporal position and trigger logic, but both interrupt the disbursement flow pending a determination. Connects to Financial Correction by External Funder: the two primitives form the non-conformance response pair for a multilateral or multi-tier funding relationship. Connects to Obligation Fulfillment Record (Layer 3): a suspension event and its resolution are part of the implementing body's documented obligation history and are disclosed in its Obligation Fulfillment Record. Connects to Retained Obligation After Task Delegation: where functions have been delegated, a deficiency in the delegate's execution can trigger suspension at the delegating body's level, because that body retains obligation for the delegate's performance.",
+        applications: "European Union structural funds (Article 97(1)-(2), Regulation (EU) 2021/1060; Commission authority to suspend interim payments on identification of serious deficiencies or unaddressed irregularities). United States Agency for International Development stop-work orders under Federal Acquisition Regulations. Global Fund grant suspension on finding of financial irregularity. Millennium Challenge Corporation compact suspension under constraint provisions. World Bank investment project financing suspension on identified financial-management risk."
+      },
+      {
+        name: "Financial Correction by External Funder",
+        layer: "obligation",
+        description: "A mechanism by which a superior funding authority imposes a financial correction on a member entity in response to verified irregularities or systemic deficiencies, reducing future disbursements or requiring recovery of amounts already disbursed, in proportion to the scope of the identified deficiency. The correction is distinguished from grant closure or decommitment by being a targeted remedy applied to a specific deficiency finding, not a termination of the entire program relationship. Proportionality is a structural requirement: the correction must correspond to the nature and extent of the identified deficiency, with methods ranging from precise quantification to flat-rate or statistically extrapolated calculation where precise amounts cannot be determined.\n\nThe Financial Correction by External Funder addresses irregularities already materialized in disbursed funds. It is temporally downstream from the Payment Suspension Trigger, which holds future disbursements pending investigation; the financial correction operates once the investigation has produced findings that warrant recovery or offset. Together the two primitives constitute a complete response architecture for multi-tier funding programs, covering the investigation period and the recovery action: the suspension primitive covers the period between deficiency detection and finding; the financial correction primitive covers the recovery action that follows a verified finding.\n\nFinancial corrections may be initiated by the member entity itself, where the member entity identifies and corrects its own irregularities before a superior authority's audit does so, or by the superior authority where the member entity has not corrected identified deficiencies. Both directions are structural elements of the same mechanism: the member entity-initiated correction demonstrates that the management and control system is functioning; the superior authority-initiated correction is the backstop when the member entity's system has failed. In the European Union structural funds framework, Article 103 of Regulation (EU) 2021/1060 establishes member state-initiated corrections; Article 104 establishes Commission-initiated corrections with authority to use flat-rate or statistically extrapolated methods where precise quantification is not possible.\n\nThe mechanism recurs across multilateral funding relationships: United States Agency for International Development special conditions and clawback provisions in assistance agreements, Millennium Challenge Corporation compact financial remedies for non-performance or misuse findings, International Fund for Agricultural Development administrative procedures for irregularity findings, Global Fund recovery procedures following financial audits. In every instance the structural elements are consistent: a verified finding of irregularity or deficiency, a proportionality calculation matching the correction to the scope of the finding, a recovery or offset mechanism, and a right of the member entity to respond before final determination.",
+        relationships: "Connects to Payment Suspension Trigger: the two primitives form the temporal non-conformance response pair, with suspension covering the investigation period and financial correction covering the recovery action following a verified finding. Connects to Obligation Fulfillment Record (Layer 3): a financial correction imposed on an entity is a material entry in that entity's Obligation Fulfillment Record and is relevant evidence at any subsequent continuation gate assessment. Connects to Layered Configuration Authority: the power to impose financial corrections is held by the superior tier of the configuration stack and cannot be contracted away by a lower tier's own declared decision-standing rules.",
+        applications: "European Union structural funds (Article 103 member state-initiated corrections; Article 104 Commission-initiated corrections with flat-rate and extrapolated methods; Regulation (EU) 2021/1060; confirmed operative after programme closure per European Commission closure guidelines). United States Agency for International Development clawback provisions. Millennium Challenge Corporation compact financial remedies. International Fund for Agricultural Development audit-based recovery procedures. Global Fund financial recovery following audit findings."
+      },
+      {
+        name: "Non-Delegable Obligation Retention",
+        layer: "obligation",
+        description: "A structural rule specifying which funder-level obligations remain at the originating funder and cannot be transferred to any downstream grantee or sub-grantee even when regranting authority is delegated. These obligations persist at the originating funder regardless of how many tiers the capital passes through and regardless of what the intermediary agreements specify. The originating funder cannot satisfy these obligations by relying on an intermediary's documentation or reports; it must independently maintain its own records, conduct its own verification, and make its own reports to the applicable regulatory body.\n\nThe obligations that are non-delegable are those that exist between the originating funder and a party external to the grant chain itself: a regulatory body, a tax authority, or a principal donor whose requirements bind the originating funder as a matter of law or grant agreement. In the United States philanthropic context, a private foundation's expenditure responsibility obligations under Internal Revenue Code Section 4945 are the paradigmatic case: the foundation must verify that funds are used solely for the purposes for which the grant was made, maintain documentation of that verification, and report to the Internal Revenue Service. These obligations run between the foundation and the Internal Revenue Service; no intermediate party can stand in for the foundation on this obligation, and the foundation cannot satisfy it by pointing to the intermediary's own records.\n\nThis primitive is distinct from Retained Obligation After Task Delegation, which addresses what happens to a delegating entity's obligation status when it delegates permissible tasks: the delegation does not reduce that status. Non-Delegable Obligation Retention addresses a specific subset of obligations that cannot be delegated at all, because they are constituted by the relationship between the originating funder and an external party, not by the task the funder is performing. Retained Obligation After Task Delegation answers the question: what is the status of the delegator's obligation after a permissible delegation? Non-Delegable Obligation Retention answers the prior question: which obligations cannot be the subject of delegation in the first place?\n\nThe principle also fills the structural gap between Delegation Scope Agreement, which covers what is delegated, and the ceiling of permissible delegation: Non-Delegable Obligation Retention names what explicitly cannot appear in any Delegation Scope Agreement. A Delegation Scope Agreement that purports to transfer a non-delegable obligation to an intermediary is void with respect to that provision; the originating funder's obligation persists regardless. In practice this means the originating funder must build its own monitoring and reporting resources for non-delegable obligations, not substitute the intermediary's resources.",
+        relationships: "Connects to Delegation Scope Agreement: Non-Delegable Obligation Retention defines the ceiling of what a Delegation Scope Agreement can validly transfer. Connects to Retained Obligation After Task Delegation: the two primitives address different questions within the delegation relationship; together they define the full obligation architecture of multi-tier grant chains. Connects to Layered Configuration Authority: in a tiered configuration structure, certain obligations at the originating tier are constituted by the relationship with the tier above or with an external regulatory body, and these cannot be re-assigned within the configuration stack below.",
+        applications: "United States private foundation expenditure responsibility under Internal Revenue Code Section 4945 (the foundation's obligation to verify purpose-conformant use, maintain documentation, and report to the Internal Revenue Service cannot be contracted away to an intermediary; Council on Foundations re-grants by international intermediaries guidance). MacArthur Foundation regranting through Lever for Change (retained monitoring and reporting obligations to the MacArthur Board and to regulators regardless of intermediary arrangements). European Union structural funds (the Commission's obligation to the European Parliament for Union budget execution cannot be transferred to Member States despite shared management; each Member State's obligation to the Commission persists regardless of delegation to Intermediate Bodies). International Fund for Agricultural Development retained obligation for project evaluation to the Board regardless of subnational implementation arrangements."
+      },
+      {
+        name: "Safe Feedback Receipt Mechanism",
+        layer: "obligation",
+        description: `A structurally independent, continuously available channel through which affected populations can submit concerns, complaints, and feedback to the implementing organization at any point during the grant period, distinct from gate-specific participation mechanisms. The channel must satisfy four configuration elements: a safety condition (the channel protects submitters from retaliation and permits confidential or anonymous submission where safety requires it), an accessibility condition (all population subgroups including hard-to-reach groups can use it without the channel requiring literacy, connectivity, or resources that systematically exclude any group), a processing obligation (each submission received through the channel must be managed, investigated, addressed, or referred to an appropriate party, with the disposition of each submission documented), and a referral pathway (complaints outside the implementing organization's scope must be forwarded to a party with authority to act on them, with the submitter informed of the referral).
+
+The Safe Feedback Receipt Mechanism is not a gate. It does not operate at a specified moment in the grant lifecycle; it is a persistent infrastructure requirement that must exist before the grant period begins and must remain operational through the grant's close. It differs structurally from the Affected Population Verification Gate (Layer 4), which requires affected-population participation at a specific completion assessment, by being continuous and submitter-initiated rather than scheduled and implementing-organization-initiated. It differs from the Beneficiary Validation Mechanism (Layer 3) by operating throughout the program period rather than at entry, and by receiving incoming communications from the population rather than organizing outgoing consultation with it.
+
+The mechanism must maintain a documented record of all submissions received, the processing steps taken for each, and the disposition. This record is independently verifiable evidence that the channel operated during the grant period. An implementing organization that operates a feedback channel but cannot produce submission records with dispositions has not satisfied the mechanism's processing obligation; the existence of a channel without evidence of use and response does not satisfy the requirement.
+
+Three source frameworks independently produce this structural form. The Core Humanitarian Standard (2024) Commitment 5 specifies: "Organisations must plan and implement safe, accessible and appropriate ways for all groups in a community to provide feedback, report concerns and complaints" and "manage, investigate, address and/or appropriately refer complaints." World Vision Learning through Evaluation with Accountability and Planning requires a formal Accountability to Affected Populations complaint response system and a feedback and complaint tracking database as named components of the required project monitoring, evaluation, accountability, and learning architecture. Catholic Relief Services has developed a dedicated Feedback, Complaints and Response Mechanisms Guide specifying quality standards and lifecycle requirements for that guide's design, start-up, implementation, and close-out. The recurrence across these three independently developed humanitarian frameworks, each reaching the same four structural elements through different methodological traditions, grounds the primitive.`,
+        relationships: "Distinct from Affected Population Verification Gate (Layer 4) by temporal position (continuous, not gate-specific) and directionality (submitter-initiated, not scheduled). Distinct from Beneficiary Validation Mechanism (Layer 3) by operating throughout the program period rather than at entry, and by receiving communications rather than soliciting validation. Connects to Obligation Fulfillment Record (Layer 3): the submission record and disposition log are activity evidence at progress and completion gates. Connects to Independent Verifiability from Sources Outside the Applicant's Control (Layer 1): the record must be independently accessible, not only held by the implementing organization. Generates the Feedback-Driven Program Adaptation primitive (defined below): the mechanism produces inputs that the adaptation obligation acts on.",
+        applications: "Core Humanitarian Standard Commitment 5 (safe, accessible complaint channel with investigation and referral). World Vision Learning through Evaluation with Accountability and Planning Accountability to Affected Populations system (complaint response system and feedback and complaint tracking database). Catholic Relief Services Feedback, Complaints and Response Mechanisms Guide (lifecycle specification with decision tree and twelve implementation tools). Any program implementing a condition change or access provision public benefit mechanism in a named affected population where the grant period extends beyond a single assessment cycle."
+      },
+      {
+        name: "Feedback-Driven Program Adaptation",
+        layer: "obligation",
+        description: `A structural obligation that feedback and monitoring data received during the grant period produce documented changes to program design or delivery, with the connection between specific feedback inputs and each adaptation decision recorded in a form accessible to the affected population and other relevant parties. The mechanism has two distinct components that must both be satisfied: the closed-loop component (feedback data must demonstrably change program decisions, not only be collected and filed) and the disclosure component (adaptations made in response to feedback must be shared back to the population from which the feedback was received, identifying what changed and what information drove the change).
+
+The closed-loop component requires that each adaptation decision reference the feedback or monitoring data that prompted it, so that an independent reviewer can trace the path from data collection through analysis to program change. A program that collects feedback comprehensively but makes no program modifications cannot satisfy this requirement: the obligation is not to receive feedback but to act on it. A program that modifies its design for unrelated operational reasons and subsequently characterizes those modifications as feedback-driven has not satisfied the requirement either, because the connection between feedback data and the specific adaptation must be documentable.
+
+The disclosure component requires that affected populations receive information about what changed and why. This goes beyond publishing an internal learning document: it requires that the people who provided feedback can determine whether and how their input influenced the program. The format of the sharing must be accessible to the population (which may require translation, oral communication, or community meetings rather than written reports), but the substantive requirement is that the connection between feedback input and program response be communicated, not only that a general progress update be provided.
+
+The Feedback-Driven Program Adaptation obligation is not derivable from the Safe Feedback Receipt Mechanism alone. The receipt mechanism specifies that feedback is collected and each submission processed; it does not require that the aggregate of feedback produce changes to the program. A program could satisfy the Safe Feedback Receipt Mechanism by managing and closing every individual complaint without using the pattern of those complaints to change what it does. The adaptation obligation addresses the systematic function: the channel produces data that modifies the program. Together the two primitives constitute a two-stage closed loop: the mechanism receives inputs, and the adaptation obligation converts those inputs into program changes that are communicated back. The Core Humanitarian Standard Commitment 7 provides the clearest source passage for the adaptation obligation: "Use data from monitoring, feedback, complaints and learning to guide decision making, and to improve programmes and the organisation's ways of working" paired with "Share the analysis and learning from feedback and monitoring and any related changes with people and communities supported by the organisation and with relevant stakeholders."`,
+        relationships: "Requires the Safe Feedback Receipt Mechanism to be in place, since the adaptation obligation presupposes a channel producing feedback data. Distinct from the Inter-cycle Reflection Stage (Layer 7) by operating continuously within the grant period rather than at cycle boundaries, and by requiring that adaptations be communicated back to affected populations rather than documented in a funder-facing reflection artifact. Connects to Evidence Type (Layer 4): documentation of the feedback-to-adaptation connection constitutes activity evidence (what happened, when, and what change it produced). Connects to Affected Population Verification Gate (Layer 4): programs that operate a feedback-driven adaptation cycle produce a richer evidentiary record for population participation in verification at the completion gate.",
+        applications: "Core Humanitarian Standard Commitment 7 (data from feedback and monitoring guides decision-making; learning shared with communities). World Vision Learning through Evaluation with Accountability and Planning evaluation and reflection phase requirements (community input incorporated into all program cycle phases including monitoring and evaluation, with learning shared before transition to next cycle). Any change-obligation program in which the affected population is the primary evidence source for whether the program's condition-change mechanism is working as intended."
+      },
+      {
+        name: "Staff and Volunteer Competency Declaration",
+        layer: "obligation",
+        description: `A required institutional declaration, verifiable from sources outside the applying organization, that persons delivering the funded program hold documented competencies in the program's subject matter, and that the implementing organization maintains a defined process for assessing those competencies before deployment and for supporting their development and maintenance over the program period. The declaration has two components: a role-level competency specification (each named role in the funded program carries a stated set of required skills and knowledge, defined precisely enough that it can be independently assessed) and an organizational stewardship obligation (the implementing organization must demonstrate that it has a process for confirming that persons in those roles meet the specification before they deliver program activities, and for providing support when gaps are identified).
+
+The Staff and Volunteer Competency Declaration is distinct from Evidence Type standing evidence (Layer 4), which attests to organizational-level accreditation or institutional membership. Standing evidence operates at the organization level; the competency declaration operates at the individual role level within the organization. An organization may hold relevant accreditation while employing persons in delivery roles who do not individually meet the competency specification; the primitive addresses the gap between organizational credential and individual role qualification.
+
+The competency declaration is also distinct from Continuity Capacity (Layer 2), which addresses whether the organization can continue operating if key personnel become unavailable. Continuity Capacity addresses succession; the Staff and Volunteer Competency Declaration addresses whether the persons currently in delivery roles are qualified to deliver the program activities the grant funds. Both are required, and neither substitutes for the other.
+
+Three humanitarian frameworks produce this structural requirement. The Core Humanitarian Standard Commitment 8 specifies that "all staff and volunteers must have the necessary support, skills and competencies to fulfil their roles" and that affected populations "interact with staff and volunteers that are respectful, competent, and well-managed." World Vision Learning through Evaluation with Accountability and Planning requires role-specific competency specifications in project design documentation and incorporates staff development obligations into program implementation requirements. Catholic Relief Services ProPack monitoring, evaluation, accountability, and learning documentation requires a responsible-party specification for each indicator in the program's monitoring system, which is a role-competency specification at the measurement function level. The consistent cross-framework requirement, covering program delivery roles and measurement function roles, grounds the primitive at Layer 3 as an obligation rather than at Layer 2 as an identity declaration.`,
+        relationships: "Distinct from Evidence Type standing evidence (Layer 4) by operating at the role level rather than the organizational level. Distinct from Continuity Capacity (Layer 2) by addressing current delivery qualification rather than succession capacity. Connects to Criterion Specification Elements (Layer 5): the role-level competency specification for each delivery role is a criterion specification for that role's qualifying conditions, and the evidence form must specify what documentation demonstrates that a person in that role meets the specification. Connects to Obligation Fulfillment Record (Layer 3) for returning programs: a prior program's delivery record can serve as evidence that the implementing organization's competency processes functioned in practice.",
+        applications: "Core Humanitarian Standard Commitment 8 (staff and volunteers have necessary support, skills, and competencies; organizational responsibility for staff development). World Vision Learning through Evaluation with Accountability and Planning project design documentation (role-specific competency requirements in program design; staff development obligations in implementation). Catholic Relief Services ProPack monitoring, evaluation, accountability, and learning responsible-party specification for each logframe indicator (role-level competency specification for measurement function). Any program delivering direct services to an affected population in which service quality is contingent on individual delivery competency."
+      },
+      {
+        name: "Activation Threshold Gate",
+        layer: "obligation",
+        description: "A gate condition that fires specifically when one or more quantitative floors are satisfied, triggering disbursement, eligibility, or an obligation that would not arise below the threshold. The gate requires a stated quantitative measure, a stated floor value for that measure, and a consequence specification (what occurs when the floor is met and what occurs when it is not). The consequence structure is binary with respect to threshold crossing: the gate fires at the threshold and does not fire below it, regardless of how close to the threshold the measure falls. A project receiving ninety percent of the threshold receives the same consequence as a project receiving zero; partial passage does not exist for an Activation Threshold Gate.\n\nThree domains independently produce this structural form, each with distinct structural content that the primitive must accommodate. The Octant minimum funding threshold requires that a project receive community donations exceeding a formula-derived floor (one divided by twice the number of shortlisted projects, applied to the total donation pool) before it is eligible to receive disbursement; projects falling below return their allocation to the matching pool. The Accounting and Auditing Organisation for Islamic Financial Institutions nisab condition in Sharia Standard No. 35 requires that net assets reach the equivalent of 85 grams of gold before the Zakat disbursement obligation activates, with an additional holding-period condition: both the quantitative floor and a one-year holding period (the hawl) must be satisfied before the obligation fires. The Millennium Challenge Corporation Economic Rate of Return hurdle rate requires that a project's estimated economic rate of return, calculated through the standardized cost-benefit analysis methodology over a 20-year horizon, meet or exceed 10 percent before the project is approved for compact investment. Below this floor, projects are not approved regardless of how close their return estimate falls.\n\nThe Accounting and Auditing Organisation for Islamic Financial Institutions nisab condition introduces a structural elaboration that the one-dimensional Octant and Millennium Challenge Corporation forms do not require: a two-dimensional activation condition in which both a quantitative floor and a temporal floor must be satisfied simultaneously before the gate fires. The hawl requirement means that an asset portfolio that crosses the nisab floor on day one of a lunar year does not trigger the obligation until it has remained above the floor for the full year. This two-dimensional variant (amount threshold and duration threshold must both be satisfied) adds structural content not derivable from the one-dimensional threshold alone. Programs that require both a minimum scale and a minimum sustained duration before a gate fires should declare the two-dimensional configuration explicitly, following the Accounting and Auditing Organisation for Islamic Financial Institutions model.\n\nThe gate differs from the Progress Verification Gate (Layer 3) in that it is triggered by a quantified measure reaching a floor, not by the grantee demonstrating delivery against pre-declared criteria. It differs from the Entry Specification Gate in that it may fire at any point in the funding lifecycle when the quantified condition is met, not only at the beginning of a round. It differs from Sufficiency (Layer 2) in that Sufficiency is a declared position on a ratio scale (the applicant's self-assessed resource adequacy), while the Activation Threshold Gate is a funder-configured floor that activates a consequence based on an observable measure.",
+        relationships: "The one-dimensional form (quantitative floor only) covers the Octant and Millennium Challenge Corporation configurations. The two-dimensional form (quantitative floor plus duration floor) covers the Accounting and Auditing Organisation for Islamic Financial Institutions configuration; programs adopting the two-dimensional variant must declare both the amount threshold and the duration threshold as part of the gate specification. Distinct from Sufficiency (Layer 2), which is applicant-declared and ratio-based. Distinct from Progress Verification Gate (Gate Type, Layer 3), which assesses delivery performance rather than a quantified activation condition. Connects to Criterion Specification Elements (Layer 5): the threshold floor and the measurement methodology (how the quantitative measure is calculated) must satisfy the operational definition and conformance threshold elements. Connects to the Milestone Payment Gate (defined below): a milestone payment gate may incorporate an activation threshold condition as one of its completion criteria.",
+        applications: "Octant minimum funding threshold (disbursement activates when a project receives community donations exceeding one divided by twice the shortlist count applied to the total donation pool; below threshold, funds return to matching pool). Accounting and Auditing Organisation for Islamic Financial Institutions Sharia Standard No. 35 nisab condition (Zakat obligation activates when net assets exceed 85 grams of gold equivalent and have been held for one full lunar year; below either floor, no obligation). Millennium Challenge Corporation Economic Rate of Return hurdle rate (compact project approval activates when estimated Economic Rate of Return meets or exceeds 10 percent over a 20-year horizon; below this floor, projects are not approved). Any program that conditions disbursement, eligibility, or an obligation on a quantified measure reaching a named floor, including community-funding programs with minimum thresholds, Islamic finance instruments with nisab conditions, and development finance programs with investment return requirements."
+      },
+      {
+        name: "Milestone Payment Gate",
+        layer: "obligation",
+        description: `A progress gate structured around the documented completion of a named technical or operational milestone, where each milestone carries its own payment amount specified at award time, and where non-completion of a milestone suspends or reduces disbursement for that milestone's associated payment without affecting payment for other milestones that are completed. The gate has four required configuration elements: the milestone name and a precise completion criterion (stated as a verifiable condition, deliverable, demonstration, or test result), the payment amount associated with that milestone, an acceptance procedure specifying how the funder confirms completion (including the review window within which the funder must accept or reject a submitted milestone), and a cure process specifying what happens when a submitted milestone is rejected (what deficiencies must be corrected, what timeline applies for correction, and what the consequence is if the cure is not completed within that timeline).
+
+The Milestone Payment Gate differs from the Progress Verification Gate (Gate Type, Layer 3) in one structural respect that the existing Gate Type taxonomy does not name: each milestone carries a specific payment amount as part of its definition. In a standard Progress Verification Gate, the gate determines whether the grantee proceeds toward final disbursement; the disbursement amount is not associated with the individual gate. In a Milestone Payment Gate, each gate is paired with a named payment: completion of the milestone releases that payment, non-completion suspends it, and the sequence of payments corresponds to the sequence of milestones across the performance period. The disbursement-trigger function is therefore built into the gate definition at the milestone level, not at the program level.
+
+The cure process is a structural element that distinguishes the Milestone Payment Gate from the binary pass-fail structure of standard completion gates. When a funder rejects a submitted milestone, the grantee retains the right to cure the deficiency and resubmit within the cure window; the payment is suspended, not cancelled, during the cure period. This cure right is a specific procedural form of the iteration right that the Gate Character (Layer 3) developmental gate assigns to grantees, but it is more precisely specified: the funder must identify the specific deficiencies in writing within the acceptance window, and the grantee has a named period in which to address them before the payment is definitively suspended or the agreement action is escalated. The Advanced Research Projects Agency for Health sample Other Transaction agreement specifies a 14-calendar-day review window for the Agreement Officer's Representative to accept or reject a submitted milestone.
+
+A Milestone Payment Gate schedule is a sequential series of these gates across the performance period, each with its own completion criterion, payment amount, and cure procedure. The schedule is negotiated and finalized at the Pre-Award Indicator Confirmation Stage (Layer 3) and is the operative payment specification for the agreement. Subsequent disbursement determinations are made against the confirmed schedule, not against the original entry-gate submission. The Advanced Research Projects Agency for Health formulation is the clearest source: "The Performer shall be paid a fixed amount for each milestone accomplished in accordance with the Schedule of Milestones and Payments" and "Milestone descriptions include completion criteria that articulate the basis for receiving payments and may include deliverables such as reports, demonstrations, tests, etc."`,
+        relationships: "Extends Gate Type (Layer 3) with the disbursement-per-milestone binding that standard progress verification gates do not carry. Distinct from Progress Verification Gate in that each gate carries a named payment rather than contributing to a single end-of-period disbursement. Distinct from Activation Threshold Gate in that the gate fires on documented completion of a named deliverable, not on a quantified measure reaching a floor. Connects to Pre-Award Indicator Confirmation Stage (Layer 3): the milestone schedule and payment amounts are finalized at the confirmation stage and determine all subsequent disbursements. Connects to Gate Character (Layer 3): the Milestone Payment Gate has a developmental character with cure rights, but those rights are procedurally specified (written deficiency notice within the acceptance window, named cure period) rather than open-ended. Connects to Criterion Specification Elements (Layer 5): the completion criterion for each milestone must satisfy the operational definition, evidence form, and conformance threshold elements to be independently verifiable.",
+        applications: "Advanced Research Projects Agency for Health Other Transaction agreements (fixed payment per milestone from a negotiated Schedule of Milestones and Payments; 14-day acceptance window; written notice of deficiencies required for rejection; cure rights for grantees). Defense Advanced Research Projects Agency Other Transaction agreements (same milestone payment architecture, from which the Advanced Research Projects Agency for Health model derives). Small Business Innovation Research and Small Business Technology Transfer Phase I-to-Phase II transitions (phase completion milestones tied to phase payment). Any program in which disbursement is structured as a sequence of payments each tied to the verified completion of a named technical or operational milestone, rather than as a single end-of-period payment or a tranche released by a performance rating."
+      },
+      {
+        name: "Downselection Gate",
+        layer: "obligation",
+        description: `A structured gate at which a funder actively reduces the number of programs or performers continuing from an initial cohort into the next phase, based on performance against explicitly declared selection criteria, where some performers may be eliminated from continued funding even if they met absolute minimum performance thresholds, because program resources support only a fraction of the cohort through the next phase. The gate is competitive in character: continuation decisions are made comparatively across the cohort, not independently per performer. A performer's continuation eligibility depends not only on its own performance against stated criteria but also on its relative position within the cohort at the gate.
+
+The Downselection Gate is structurally distinct from the Continuation Specification Gate (Gate Type, Layer 3) in one respect the existing Gate Type taxonomy does not name: the continuation gate assesses each grantee independently against pre-declared criteria, while the Downselection Gate assesses performers comparatively and selects a subset for continuation. In a standard conditional continuation gate, a grantee that meets the stated criteria continues regardless of what other grantees do; in a Downselection Gate, a grantee that meets minimum criteria may still be eliminated if other performers met them more fully and program funding covers only a portion of the cohort through the next phase. The funder's active reduction of the cohort, rather than individual grantees failing absolute thresholds, is the defining structural element.
+
+The gate requires three configuration elements: the selection criteria (the published standards against which performers are assessed at the gate, specified precisely enough that any performer can calculate their likely continuation position before the gate fires), the cohort fraction (the proportion of the current cohort that will continue, either as a named number of performers or as a formula based on available resources and phase requirements), and the determination procedure (how the funder ranks performers against each other, what data sources are used, and what rights performers have to contest a downselection determination). Without a published cohort fraction, the gate cannot satisfy the criterion specification requirements: performers cannot prepare for or contest a gate whose selection formula is undisclosed.
+
+The Advanced Research Projects Agency for Health formulation is the primary source: the GLIDE program Innovative Solution Opening specifies "Failure to meet the metrics within each phase may result in downselection from GLIDE" with phase-specific continuation criteria, and "Performers must meet all agreed upon efficacy targets and successfully submit all end of Phase I deliverables. Continuation into Phase II will be determined by Advanced Research Projects Agency for Health and will be based on technical progress made in prior phases and available funding." The Advanced Research Projects Agency for Health THRIVE program adds a scoring model in which "Low scoring teams may be downselected over the course of the program," with scores accumulated across a modular structure. Both formulations confirm that continuation is a comparative determination, not an independent one.`,
+        relationships: "Extends Gate Type (Layer 3) with the cohort-comparative dimension that standard continuation gates do not carry. Distinct from Continuation Specification Gate in that continuation depends on relative cohort position, not only on absolute performance against criteria. Distinct from Cohort Position, which covers cross-applicant boundary verification checks at the entry gate, not comparative performance selection at phase boundaries. Connects to Portfolio-level Continuation Benchmark (Layer 7): a program using Downselection Gates implicitly benchmarks the cohort against each other; the program-level continuation benchmark sets what overall cohort performance the program requires to justify its next phase. Connects to Gate Character (Layer 3): the Downselection Gate has a summative character, since the determination reduces the funded cohort; redress rights apply to performers who are downselected. Connects to Bidirectional Precision (Layer 1): the selection criteria and cohort fraction must be published before the gate fires to satisfy the bidirectional precision obligation; a funder cannot apply undisclosed competitive criteria at a downselection event.",
+        applications: "Advanced Research Projects Agency for Health GLIDE program (phase-boundary downselection based on technical progress metrics; explicit statement that failure to meet metrics may result in downselection; continuation into Phase II conditioned on prior-phase performance and available funding). Advanced Research Projects Agency for Health THRIVE program (points-based scoring across modules; low-scoring teams subject to downselection over the program period). Defense Advanced Research Projects Agency programs (phase gates with competitive performer reduction, the model from which Advanced Research Projects Agency for Health derives its program management structure). Small Business Innovation Research and Small Business Technology Transfer Phase I-to-Phase II transitions where program budget covers fewer Phase II awards than Phase I awardees."
+      },
+      {
+        name: "Affected Population Decision-Making Participation Threshold",
+        layer: "obligation",
+        description: `A structural requirement that a named minimum fraction of a standing decision-making body consist of persons who currently receive or have received the services being funded, operationalized as a minimum membership proportion stated in the body's constituting instrument, so that the participation requirement is independently verifiable and cannot be satisfied by advisory roles, observer status, or consultation mechanisms that carry no decision-making authority within the body.
+
+The Affected Population Decision-Making Participation Threshold addresses a structural gap between three related existing primitives. The Beneficiary Validation Mechanism (Layer 3) operates at the entry gate: it requires that the applying organization's characterization of the affected population and its needs be validated by parties drawn from that population. The Affected Population Verification Gate (Layer 4) operates at completion: it requires that the population participate in verifying what was delivered. Determination Body Separation (Layer 4) requires that the body making gate determinations be structurally outside program management. None of these specifies a minimum-proportion membership requirement for a standing body that holds ongoing decision-making authority over resource allocation across the program's active period. The participation threshold addresses the standing-body composition dimension that the other three primitives do not reach.
+
+The minimum-fraction requirement is the structurally operative element. A body that includes service recipients as members satisfies a weaker form of this concept; a body that requires that service recipients constitute at least a stated minimum fraction of its membership satisfies the threshold. The threshold cannot be met by appointing service recipients to advisory roles, consultation panels, or non-voting observer positions: the requirement is for decision-making authority held in the specified minimum proportion, not for presence within the body's deliberative environment. The Ryan White Program, cited in the Hopkins Opioid Litigation Principles, provides the clearest quantified formulation: the Community Planning Councils that allocate funds to treatment providers must have at least one-third of their members be persons who currently receive Ryan White Program services themselves.
+
+The constituting instrument of the body must state the minimum-fraction requirement so that it is independently verifiable. A program that informally includes service recipients but has no published minimum-fraction provision in the body's constituting document has not satisfied this primitive: the requirement must be a structural condition of the body's composition, not an administrative practice that can be revised without changing the constituting instrument. This makes the composition requirement independently checkable: a reviewer can confirm whether the body's constituting document specifies the minimum fraction, and whether the current membership satisfies it, without relying on the program operator's characterization.
+
+The Hopkins Opioid Litigation Principles provide the primary source citation, specifically Principle 5: "Jurisdictions should be sure to include people with lived experience, including those receiving medications as part of their treatment, as part of the decision-making process. The Ryan White Program, which distributes HIV funds to affected communities, demonstrates one way to do this; at least one-third of the members of the community Planning Councils that allocate funds to treatment providers must receive program services themselves." The Ryan White Program is the source of the one-third floor; the Hopkins Principles extend the model to opioid settlement fund allocation decisions. The structural concept is cross-domain: any program allocating funds to services for a defined population may configure a standing allocation body using this primitive.`,
+        relationships: "Distinct from Beneficiary Validation Mechanism (Layer 3), which operates at entry and validates the population characterization rather than specifying body composition during the program period. Distinct from Affected Population Verification Gate (Layer 4), which operates at completion for a specific gate rather than over ongoing decision-making authority. Distinct from Determination Body Separation (Layer 4), which specifies structural separation from program management but not membership composition requirements. Connects to Independent Verifiability from Sources Outside the Applicant's Control (Layer 1): the body's constituting instrument must be publicly accessible, since the minimum-fraction requirement must be independently checkable. Connects to Disbursement Authority (Layer 2): where the standing body holds disbursement authority, the body's composition requirement adds a service-recipient participation condition to the disbursement authority architecture. Connects to Conflict of Interest (Layer 3): the composition requirement creates a category of body members (service recipients) whose interests are structurally aligned with the persons the funding program serves; any conflict of interest framework applying to the body must address how the participation threshold interacts with its conflict of interest classifications for body members.",
+        applications: "Ryan White Program Community Planning Councils (at least one-third of members must currently receive Ryan White Program services; provision in the program's statutory and regulatory instruments). Hopkins Opioid Litigation Principles, Principle 5 (the Ryan White model applied to opioid settlement fund allocation decision-making bodies; inclusion of persons receiving medications as part of treatment in the decision-making process). Any program that constitutes a standing body with ongoing allocation or decision-standing authority over services to a defined population and wishes to require that a specified minimum fraction of that body's members be service recipients."
+      },
+      {
+        name: "Round-Level Domain Restriction",
+        layer: "obligation",
+        description: `A funder-published declaration made before any application opens that limits the subject matter eligible for a given round to one or more named domains, sectors, or contribution categories. The restriction operates at the round configuration level: it constrains which applicants may participate in a round at all, prior to and independent of any assessment of individual applications. It is structurally distinct from Eligibility Specification, which specifies the characteristics of who may apply (entity type, development stage, jurisdiction, license posture), because a Round-Level Domain Restriction names what the application must be about, not what the applying entity must be. It is equally distinct from Downstream-Use Restriction, which constrains how grant outputs may be used after award; the domain restriction constrains what the work addresses before award.
+
+The restriction is declared by the funder as part of the round's published obligation architecture at or before the entry specification gate opens. Three configuration elements structure the declaration: the domain predicate (the named subject matter, sector, or contribution category within which eligible applications must fall, for example "direct protocol improvements, shared infrastructure, open dashboards and datasets, and protocol-level research and specification work" as published in Octant Epoch 8, or the four categories OP Stack, Collective Governance, Developer Ecosystem, and End User Experience published in Optimism Retro Funding Round 3); the predicate binding (whether the named categories are exhaustive, so that work outside them is categorically ineligible, or whether they are guidance that badgeholders or reviewers apply with discretion); and the verification mechanism (how an applicant's subject matter is assessed against the declared predicate at the entry gate, for example reviewer determination against stated category descriptions, or self-declaration by applicants of their category affiliation checked by reviewers).
+
+The Round-Level Domain Restriction serves a portfolio-level function that complements but does not replicate the Obligation Mode or Public Benefit Mechanism declarations. A program operating a retroactive obligation mode can further restrict which retroactive contributions it will reward to those in a specified domain (as Optimism's Round 4 and Round 5 category structures demonstrate). A program operating a build obligation mode can restrict eligible builds to those in specified technical areas (as Octant Epoch 8's four-category structure demonstrates). The domain restriction operates orthogonally to mode, mechanism, and stage: it is a content-scope filter that applies before any of those other assessments run.`,
+        relationships: `Operates at Layer 3 alongside Obligation Mode and Gate Type. The domain restriction is declared at the entry specification gate (Gate Type, Layer 3) as part of the round configuration but sits upstream of the entry gate's individual applicant assessment: it determines whether an applicant may enter before the gate's substantive criteria are applied. Connects to Round-Level Scope Declaration (below): the two primitives address related but distinct funder-side declarations. Round-Level Domain Restriction names the subject matter constraint; Round-Level Scope Declaration names the funder's commitment about what outputs and outcomes the round will reward. A program may operate both simultaneously or neither. Connects to Development Stage (Layer 3): Octant Epoch 7's minimum-age requirement ("Projects must be at least 1 year old") combines a development stage constraint with a subject matter domain restriction in the same entry gate configuration; the two constraints are independently specified and should be declared separately.`,
+        applications: "Octant Epoch 7 (climate domain with named sub-categories: infrastructure, nature and ocean solutions, climate adaptation and resilience, renewable energy). Octant Epoch 8 (Ethereum advancement in four named technical areas). Octant Epoch 9 (Ethereum storytelling, journalism, and content creation domain). Optimism Retro Funding Rounds 2, 3, 4, 5 (named contribution categories with explicit binding as the basis for badgeholder evaluation and, in Rounds 4 and 5, voter subgroup assignment). Any program that publishes named categories before its application window opens and uses those categories to determine which applications fall within scope."
+      },
+      {
+        name: "Per-Recipient Allocation Bounds",
+        layer: "obligation",
+        description: "A round-level minimum and maximum disbursement declared by the funder or round operator before evaluation begins, bounding what any single applicant may receive from the round regardless of the applicant's individual evaluation outcome. The upper bound (cap) prevents any one recipient from receiving more than a specified share of the total round allocation; the lower bound (floor) prevents disbursement of amounts too small to justify the operational cost of processing them or to constitute a meaningful award. Both bounds apply across the entire cohort as a portfolio-level distribution constraint, independent of any individual applicant's evaluation result.\n\nThe upper bound is configured as either an absolute amount (a named currency sum that no single recipient may exceed) or as a percentage of the total round allocation (a proportional ceiling that scales with round size). The lower bound is an absolute amount below which no disbursement is made; applicants whose computed allocation falls below this floor are typically excluded from the disbursement pool, with their allocation redistributed proportionally to the remaining recipients. Three independently designed programs have published per-recipient bounds: Octant (20 percent of Matched Rewards pool as the cap); Optimism Retro Funding Round 4 (500,000 OP absolute cap; 1,000 OP floor with redistribution for sub-floor recipients); and Gitcoin Grants (operator-configurable matching cap from 2.5 percent to 20 percent of the matching pool, with a recommended minimum donation threshold operating analogously at the donor level).\n\nPer-Recipient Allocation Bounds are not expressible as a combination of Sufficiency (Layer 2), which concerns the applicant-side resource position at a declared scope, or of Gate Type (Layer 3), which sets when assessment events occur in the grant lifecycle. The bounds are neither a grantee eligibility condition nor a completion gate: they are distribution-shaping constraints that the funder or operator commits to before any evaluation occurs and that apply to the final allocation step, after all individual assessments are complete. They are most precisely a portfolio-level primitive operating at the allocation step, bounding the Allocation Rule's output, comparable to Portfolio-level Continuation Benchmark (Layer 7) in that they hold the round configuration to a structural distribution rule rather than holding any individual grantee to a delivery obligation.",
+        relationships: "Layer 3 primitive operating at the round configuration level alongside Obligation Mode and Gate Type. The bounds are declared as part of the round's published obligation architecture at the Commit stage of the CLEAR lifecycle, before applications open. Connects to Sufficiency (Layer 2): the cap does not assess whether a specific grant amount is sufficient for a specific scope; it constrains the maximum amount the round will disburse to any one entity regardless of sufficiency arguments. Connects to Round Operator Configuration Authority (below): in Gitcoin Grants Stack programs, the matching cap is an operator-configured parameter, not a platform-level rule; the authority to configure the bounds is held by the named round operator within published platform-level limits. Connects to Portfolio Analysis Outputs (Layer 7): the bounds' primary function is portfolio-shaping rather than individual gate determination, placing this primitive at the intersection of Layer 3 (where it is declared) and Layer 7 (where its distributional effects are felt).",
+        applications: "Octant (20 percent Matched Rewards pool cap per project, published at epoch configuration). Optimism Retro Funding Round 4 (500,000 OP per-project maximum with proportional redistribution of excess; 1,000 OP per-project minimum with proportional redistribution of sub-floor allocations). Optimism Retro Funding Round 5 (12.5 percent of total round allocation per-project maximum). Gitcoin Grants (round operator-configured matching cap, 2.5 percent to 20 percent of matching pool). Any round deploying a community-voting or metric-driven allocation mechanism where concentration prevention and operational-cost reduction at the micro-grant floor are joint design requirements."
+      },
+      {
+        name: "Retroactive Impact Window",
+        layer: "obligation",
+        description: `A declared time boundary specifying how far back into prior work a retroactive obligation round will consider for reward. The window bounds the corpus of eligible contribution: work occurring before the declared start date falls outside the window and cannot be rewarded in this round regardless of its quality or relevance; work occurring after the declared end date is not yet eligible as retroactive contribution and must await a future round. The window is declared by the funder as part of the round's published obligation architecture, before applications open.
+
+The primitive has two configuration states. In the bounded configuration, the funder names a specific start date and end date defining the contribution period the round will assess. Optimism Retro Funding Round 5 declared "Impact Period: October 1st, 2023 - August 1st, 2024"; Round 4 declared a window from June 2023 to January 2024. These named periods mean that a contribution occurring in 2021, regardless of its impact on the Optimism ecosystem, could not be rewarded in Round 5, and evaluators were explicitly asked to assess only impact within the declared window. In the unbounded configuration, the funder makes no temporal restriction on prior contribution, so that all historical contribution relevant to the program's scope is eligible. Optimism Retro Funding Round 3 operated in this configuration: "All contributions that have supported the development and adoption of Optimism are considered, no matter when they took place."
+
+The contrast between bounded and unbounded configurations carries significant structural consequences for what applicants are rewarded for. An unbounded window rewards the full history of a contributor's relevance to the ecosystem, favoring established contributors with long records. A bounded window rewards recent contribution within the specified period, creating a more level basis between long-standing and newer contributors and making the allocation more responsive to recent ecosystem conditions. The choice between configurations is therefore not a technical detail but a design decision with distributional implications for the cohort, and it must be declared as part of the round's published obligation architecture rather than left implicit.
+
+The Retroactive Impact Window is not derivable from the Obligation Mode's retroactive type, which declares that funding rewards demonstrated past contribution but does not specify which past period. It is also not derivable from Development Stage, which classifies the maturity of the applicant's work but does not restrict which time period of that work is eligible for retroactive recognition. The window is a distinct temporal configuration parameter that constrains the entry specification gate of retroactive rounds independently of both mode and stage.`,
+        relationships: "Layer 3 primitive operating as a configuration element of the Retroactive Obligation Mode's entry specification gate. A retroactive obligation round that declares a Retroactive Impact Window is configuring the temporal scope of eligible contribution; a round without such a declaration operates in unbounded mode (all historical contribution in scope). Cross-references Work-Impact Temporal Separation (Layer 6, Hypercerts dossier candidate, separately under review): the funder's declared impact window and the contributor's declared time-of-impact and time-of-work fields are structurally paired. In a program using Hypercerts for attribution, the Retroactive Impact Window constrains which hypercerts are eligible by cross-referencing the contributor's declared time-of-work and time-of-impact against the round's declared window. Connects to Gate Type (Layer 3): the window operates as a temporal filter applied at the entry specification gate, removing from consideration any contribution whose time-of-work falls outside the declared period.",
+        applications: "Optimism Retro Funding Round 3 (unbounded: all historical contribution in scope). Optimism Retro Funding Round 4 (bounded: June 2023 to January 2024). Optimism Retro Funding Round 5 (bounded: October 1st, 2023 to August 1st, 2024). Gitcoin Grants retrospective rounds using prior-round matching history as the evidence base (implicit bounded window defined by which prior rounds' data is included). Any retroactive obligation round where the funder must communicate to applicants and evaluators which historical period of contribution is under assessment."
+      },
+      {
+        name: "Round Operator Configuration Authority",
+        layer: "obligation",
+        description: `A structural permission layer granting a named party, the round operator, authority to configure round-level parameters within published platform-level constraints, for a specific funding round. The round operator is neither the capital provider (the funder whose pool finances the awards) nor the applying entity (the grantee seeking funding), but a distinct structural position that sits between them at the round-configuration level. The operator holds delegated authority to specify the entry gate criteria, the matching parameters, the review process, the eligibility posture, the round timeline, and the disbursement configuration for the specific round they operate, subject to the platform provider's published upper and lower bounds on those parameters.
+
+The authority is explicit, published, and grant-specific. In Gitcoin Grants Stack, the operator authority is documented in the round setup flow: operators specify the round name, application timeline, payout token, matching pool size, matching cap, minimum donation threshold, Sybil defense configuration, and eligibility criteria. The platform provider (Allo Protocol and Gitcoin) publishes the bounds within which these parameters may be configured; the operator's published round documentation constitutes the specific authority as exercised for that round. In the Gitcoin Community Rounds model, operators must pass an operator eligibility gate before they may configure a round, demonstrating experience, mission alignment, and proof of matching pool fundraising. In the GG24 Domain Allocator model, domain operators "independently design, manage, and evaluate rounds within designated problem areas," with Gitcoin retaining responsibility for only a small subset of domains.
+
+The Round Operator Configuration Authority is structurally distinct from the Delegated Configuration Hierarchy candidate (referenced in the dossiers as a separate potential primitive addressing multi-tier platform delegation) because the operator authority is an explicit published grant for a specific round rather than an implicit inheritance from a hierarchical configuration structure. The operator knows the scope of their authority from a published document, not from inference; the applying entity knows who configured the round and within what bounds; and the platform provider can audit whether the operator's configuration fell within the declared permissible range. Three structural elements structure the declaration: the named operator or operators; the scope of configuration authority (which round parameters the operator may set and within what ranges); and the platform-level constraints that bound the operator's discretion (the published upper and lower limits set by the capital provider or platform provider that the operator may not exceed).`,
+        relationships: "Layer 3 primitive sitting alongside Gate Type and Obligation Mode, introducing the round operator as a named structural position within the round lifecycle. The operator's configuration authority at the Commit stage of the CLEAR lifecycle precedes and sets the entry specification gate: the operator's published eligibility criteria are the content of the entry gate. Connects to Per-Recipient Allocation Bounds (above): in operator-configured rounds, the matching cap is an operator-selected parameter within platform bounds, not a funder-level rule. Connects to Determination Body Separation (Layer 4): where the operator conducts reviews, the structural separation between the operator (who configured the round) and the evaluators (who assess applications) must be declared. Connects to Conflict of Interest (Layer 3): operator-reviewer overlap is a conflict-of-interest condition requiring declared procedures for that category of body member.",
+        applications: "Gitcoin Grants Stack Community Rounds (GG20-GG24): operators configure all round parameters after passing the operator eligibility gate; operators are named publicly and their configuration choices are published before the application window opens. Gitcoin GG24 Domain Allocators: six domain operators independently design and manage rounds within the GG24 program cycle. Allo Protocol-based programs where any deploying address creates a pool with a named strategy: the pool creator holds configuration authority for the parameters specified at pool creation. Any program using a protocol-as-infrastructure architecture where the party who raises the matching pool and configures the evaluation rules is distinct from the capital protocol provider."
+      },
+      {
+        name: "Allocation Rule",
+        layer: "obligation",
+        description: "The declared procedure by which a round resolves its assessment into a distribution of the pool, determining which recipients receive how much. It is the allocation act itself, the function that maps the assessment outputs to a distribution, declared at the round-configuration level before the round opens. It is distinct from Per-Recipient Allocation Bounds (Layer 3), which bounds the output of this procedure, and from the Post-Allocation Integrity Adjustment Stage (Layer 3), which reviews that output before disbursement. Both of those primitives refer to this act in their own definitions, naming it the allocation mechanism, the allocation event, and whatever mechanism produces the raw results; the Allocation Rule is that named-but-previously-unseated act.\n\nConfiguration values are reference patterns, not a closed list, each a procedure a program may declare: quadratic funding contribution-weighted with a matching pool; weighted-metric vote tally by an enfranchised body; collective decision rule such as consensus, ranked choice, or majority by a constituted body; performance-weighted formula distributing a fixed pool, the multilateral performance-based allocation formula; peer-review merit score mapped to a budget with declared operator discretion; winner-take-pool or single-award competition; outcome-contingent function, in which the per-recipient amount resolves at outcome verification and the payment-gate primitives execute the payout; and random draw among the eligible.\n\nConfiguration elements that any declared Allocation Rule must specify: the inputs it consumes from the assessment; the mapping or aggregation function that turns those inputs into a distribution; the pool and whether it is fixed so that one recipient's share reduces another's; the form of the per-recipient output; the handling of ties, deadlocks, and the case where no recipient qualifies; the declared runner, which is the allocator (the fourth relational position, fused with the funder by default and distinct where separated); and its relationship to Per-Recipient Allocation Bounds and the Post-Allocation Integrity Adjustment Stage.\n\nThe Allocation Rule's claim object is composite-aggregate under CRAFT Condition 1: a stipulated weighted combination of inputs to which validity does not apply, declared by its inputs, its weighting, and what the composite represents. Its non-self-adjudication under CRAFT Section 7.2 is satisfied by an ex-post challenge resolving whether the declared rule was applied to the declared inputs, which the Post-Allocation Integrity Adjustment Stage instantiates, with high-consequence allocation requiring ex-ante designated attestation. It carries the served-population risk-bearer from Condition 1, since a misallocation increases that population's exposure to the harm the funding was meant to reduce. For the coupled configurations, quadratic funding and participatory allocation, where the assessment is itself the allocation, CRAFT Condition 5's coupled evaluation-intervention requirements apply: the assessment scope and the allocation scope are declared separately though one act performs both.",
+        relationships: "Layer 3 primitive declared at the round-configuration level alongside Obligation Mode and Gate Type, with a reciprocal in Portfolio (Layer 7) where its distributional effects are felt, paralleling Per-Recipient Allocation Bounds. Connects to Per-Recipient Allocation Bounds (Layer 3): the bounds clip the rule's output. Connects to the Post-Allocation Integrity Adjustment Stage (Layer 3): the stage reviews the rule's output before disbursement and is its ex-post non-self-adjudication realization. Connects to the allocator position in the relational quartet (Foundational Structural Anchors): the rule's declared runner is the allocator. The act sits in the CLEAR lifecycle as the resolution of the Evaluate slot, surfaced at the A letter where a program declares its A as Allocation rather than Attestation.",
+        applications: "Gitcoin Grants and Octant (quadratic funding); Optimism Retroactive Public Goods Funding (weighted-metric vote tally); participatory grantmaking (collective decision rule); the World Bank International Development Association and the African Development Fund (performance-weighted formula over a fixed pool); the National Science Foundation (peer-review score mapped to a budget with operator discretion); the MacArthur Foundation 100andChange (winner-take-pool); social impact bonds and pay-for-success (outcome-contingent function); the Health Research Council of New Zealand Explorer Grants (random draw). Required by nine structurally unrelated programs and recomposition-validated across all eight configuration forms."
+      },
+      {
+        name: "Post-Allocation Integrity Adjustment Stage",
+        layer: "obligation",
+        description: `A structured stage in the round lifecycle that occurs after the allocation mechanism has produced its raw results but before final disbursement is authorized, during which the program operator applies documented review of the allocation outputs for accuracy and eligibility, removes ineligible claims, corrects errors, and adjusts results to reflect post-round findings before funds are distributed. The stage is funder-side: it is the program operator's review of the mechanism's output, not a grantee's submission of evidence. Its character is summative with respect to the mechanism output and protective with respect to the accuracy of disbursement: it ensures that what was computed by the allocation mechanism, whether quadratic funding, metric weighting, or direct scoring, reflects the population of eligible, correctly identified, non-duplicate recipients before money moves.
+
+Three documented functions operate within this stage. First, Sybil and duplication removal: allocation results computed against a full contributor pool are adjusted to remove contributions that post-round analysis identifies as non-human, coordinated, or duplicated. In Gitcoin Grants GG23, this function was served by the Connection-Oriented Cluster Matching calculation applied after the round closed: the raw quadratic funding results were adjusted by a cluster-matching algorithm before being published. Second, wallet and recipient error correction: recipients who provided incorrect addresses, whose wallets failed verification, or who are identified as the same entity under multiple submissions are corrected or merged before disbursement. In Optimism Retro Funding Round 4, "following results calculation, all projects who receive less than 1,000 OP will not be eligible to receive rewards... the OP allocation of these projects were proportionally allocated to remaining projects." Third, community ratification: adjusted results are published for a community comment period before payouts are authorized, allowing participants to raise errors or eligibility concerns before funds move. Gitcoin's GG23 process published Connection-Oriented Cluster Matching-adjusted results to the governance forum for seven days of community comment before payouts proceeded.
+
+The Post-Allocation Integrity Adjustment Stage is not expressible as any of the four existing Gate Type definitions. It is not the completion verification gate (which assesses individual grantee obligation fulfillment against stated criteria) because its subject is the mechanism output as a whole rather than any individual grantee's delivery. It is not the entry specification gate (which determines eligibility before applications are assessed) because it operates after allocation is computed. It is not the progress verification gate (which is developmental in character) because its character is summative and protective. It is a fifth named stage type that operates on the allocation results themselves before disbursement, distinct from all four existing gate types, and it is properly located within the funder-side obligation architecture alongside Determination Body Separation and Inter-cycle Reflection Stage.`,
+        relationships: "Layer 3 primitive within the funder-side obligation architecture. Sits between the Allocation Rule (Layer 3), the act that produces the raw results, and disbursement execution by the payment-gate primitives, reviewing the rule's output before funds move; it is the ex-post non-self-adjudication realization for the Allocation Rule under CRAFT Section 7.2. Disbursement is execution, not a lifecycle stage. Connects to Gate Type (Layer 3): the Post-Allocation Integrity Adjustment Stage is a distinct stage type operating on allocation results before disbursement, with no exact equivalent among the four existing gate types. Connects to Determination Body Separation (Layer 4): where the allocation output review is conducted by a body separate from program management, Determination Body Separation specifies that separation; the Post-Allocation Integrity Adjustment Stage names the stage; both must be declared. Connects to Per-Recipient Allocation Bounds (above): the floor bound's redistribution mechanism (sub-floor allocations redistributed proportionally to remaining recipients) is one of the adjustments the stage may apply.",
+        applications: "Gitcoin Grants GG23 (three-step finalization sequence: raw quadratic funding results, Connection-Oriented Cluster Matching adjustment producing adjusted results, seven-day community comment period on the governance forum before payouts). Optimism Retro Funding Round 4 (post-results removal of sub-floor projects with proportional redistribution). Any round using a community-voting or algorithmic allocation mechanism where the raw mechanism output requires accuracy and eligibility review before disbursement, particularly where Sybil contamination of the contributor pool is a design risk, where wallet verification occurs post-round, or where minimum disbursement thresholds require redistribution of sub-floor allocations."
+      },
+      {
+        name: "Bundled Capacity Instrument",
+        layer: "obligation",
+        description: "A grant instrument that combines a financial disbursement with one or more non-financial capacity components as a single integrated offering, where both the financial and non-financial components are delivered by the funder or by agents contracted and managed by the funder. The integration is structural rather than administrative: the non-financial components are not optional supplements the grantee may accept or decline but are constitutive elements of the award. A grantee under a Bundled Capacity Instrument receives a single grant and simultaneously enters a defined relationship with the funder's non-financial support delivery infrastructure.\n\nThree configuration elements structure the Bundled Capacity Instrument. The first is the component declaration: the award instrument must name every non-financial component that is bundled, specifying whether each is delivered directly by funder staff, by a funder-contracted third party, or through peer-to-peer interaction with other grantees in the same cohort. The second is the integration mechanism: the instrument must specify whether the non-financial components are co-delivered alongside the financial disbursement, triggered by milestones in the financial disbursement schedule, or provided as standing resources the grantee accesses throughout the grant period. The third is the substitution policy: the instrument must state whether the grantee may substitute an alternative provider of a non-financial component or decline that component entirely without affecting the financial disbursement. Bloomberg Philanthropies' programs consistently deploy the fully integrated form, in which the embedded climate advisor, coaching sessions, and peer learning access are funder-provided and non-substitutable.\n\nThe Bundled Capacity Instrument is distinguished from a plain cash grant (which disburses financial resources only) and from a technical assistance contract (which disburses services only, without a cash component) by the structural integration of both. It is distinguished from a grant that offers optional capacity-building services as a program amenity by the non-substitutable character of the bundled components: optional services are a grant enhancement; bundled components change the obligation structure because the grantee cannot be held to outcomes that depend on funder-delivered operational support if the funder has the right to withdraw that support unilaterally. The Sufficiency declaration for a grantee receiving a Bundled Capacity Instrument must account for the funder-delivered labor and expertise as a declared resource at the funded scope, not only for the cash disbursement.",
+        relationships: "Derived from Scope (Layer 2) and Sufficiency (Layer 2): the non-financial components of the bundle are resources at the declared scope, and their funder-side delivery changes the grantee's Sufficiency position at that scope. The component declaration activates the Criterion Specification Elements standard (Layer 5) for each non-financial component: the funder must specify the criterion intent of each component (what it is designed to produce in the grantee's ability to deliver the funded work), the evidence form by which delivery is confirmed, and the minimum threshold of participation or completion that satisfies the obligation. The substitution policy interacts with the Post-Award Dissemination Obligation (below): where a bundled component includes dedicated staff or operational support for dissemination activities, the non-substitutable character of that support is what makes the dissemination obligation operationally feasible. The peer-to-peer cohort delivery form of the integration mechanism is the configuration that makes cohort learning obligatory rather than optional; it distinguishes programs in which grantees are required to engage with each other's work from programs that offer optional network access.",
+        applications: "Bloomberg Philanthropies American Cities Climate Challenge (25 United States cities receiving a two-year acceleration package including an embedded philanthropy-funded Climate Advisor, data and design resources, leadership development support, implementation coaching, rapid-response grants, and peer learning, all non-substitutable, valued at more than 2.5 million United States dollars per city). Bloomberg Philanthropies Mayors Challenge (winning cities receiving cash plus robust technical assistance across three years). Bloomberg Philanthropies City Data Alliance (65 cities receiving a standardized scoping phase plus a six-month acceleration including executive education, individualized coaching, and peer workshops). Any grant program in which the funder co-delivers operational support as a structural component of the award rather than as a separate contract."
+      },
+      {
+        name: "Post-Award Dissemination Obligation",
+        layer: "obligation",
+        description: `A grant condition requiring the grantee to actively disseminate the funded intervention's design, findings, and implementation knowledge to a named class of entities beyond the primary recipient population after the completion of the primary funded deliverable. The obligation is forward-facing and activates at or after completion; it is distinct from the Access Condition (Layer 3), which specifies passive availability terms for an output, because it requires active knowledge transfer rather than open licensing. The grantee must take named steps to reach external entities, not merely make materials available at a publicly accessible location.
+
+Three configuration elements structure the Post-Award Dissemination Obligation. The dissemination target is the named class of entities with whom the recipient must share the intervention design: in Bloomberg Philanthropies' Mayors Challenge, winning cities are explicitly required to "share their ideas with additional cities around the world to enable these tested innovations to spread." The dissemination mechanism is the form in which sharing occurs: a published implementation playbook, a submission to a structured ideas exchange platform, direct city-to-city technical assistance, or another named channel that enables the target class to engage with the intervention design at a level sufficient for independent adaptation and implementation. The documentation standard is the minimum content a dissemination artifact must contain to satisfy the obligation: at minimum, a description of the causal mechanism (what the intervention does and how it produces its effect), the conditions under which the mechanism was observed to operate (including what did not work and what required local adaptation), and the implementation steps another entity would need to follow to replicate the core design.
+
+The Post-Award Dissemination Obligation is distinguished from the Obligation Mode primitives (build, change, retroactive) by being a secondary obligation that activates after completion of the primary funded deliverable, rather than the primary obligation the entry specification gate requires. It is distinguished from the Downstream-Use Restriction (Layer 3) by requiring active distribution to named targets rather than constraining how the grantee may use the output. It is functionally connected to the transferability evaluation criterion at the entry gate of programs like the Mayors Challenge: the transferability criterion at the entry gate assesses whether the proposed intervention was designed to function in other contexts; the Post-Award Dissemination Obligation at the completion gate requires the funded grantee to do the work of making that transfer possible.`,
+        relationships: "Layer 3 obligation primitive in the applicant-side obligation architecture, operating at the completion gate or post-completion period rather than at the entry gate. The documentation standard interacts with the Evidence Type primitive (Layer 4): a dissemination artifact satisfying the documentation standard includes at minimum activity evidence (what was done, at what scale) and outcome evidence (what changed, against what baseline), which together make the intervention's causal mechanism legible to external implementers. The replication rate is the Portfolio Analysis Output (Layer 7) by which funders measure cumulative dissemination impact across their portfolio: Bloomberg Philanthropies tracks replication by 337 cities as a primary program impact metric, which is a convergence analysis and leverage point identification output derived from the dissemination obligations of individual winners. The Post-Award Dissemination Obligation interacts with the Bundled Capacity Instrument (above): where the bundled award includes dedicated staff or coaching specifically to support dissemination activity, the non-substitutable staff support is what makes the dissemination obligation operationally feasible.",
+        applications: "Bloomberg Philanthropies Mayors Challenge (winning cities required to evolve their ideas into programs and actively share them with additional cities globally; replication tracked to 337 cities reaching over 100 million residents across 38 winning ideas). Bloomberg Philanthropies Cities Idea Exchange (submissions structured as replication-ready intervention designs, with each entry meeting the Nesta Standard of Evidence and including cost, complexity, implementation documentation, and flexibility information sufficient for other cities to adapt and implement). Any competition-structured program in which the funder's portfolio-level impact theory runs through knowledge transfer and replication by grantees beyond their own populations."
+      },
+      {
+        name: "True-Cost Declaration Obligation",
+        layer: "obligation",
+        description: "A funder-side obligation, published in budget templates and grant policies before applications open, to cover both the direct costs and the named indirect costs of the funded work rather than only the direct program costs of grant-supported activities. The obligation is funder-side because it runs from the funder toward the grantee, specifying what the grant will fund rather than what the grantee must produce or demonstrate. It directly affects the reliability of grantee Sufficiency declarations: when a funder commits to true-cost coverage, the grantee's sufficiency position at the funded scope is determined by the grant's actual budget coverage rather than by the project's direct cost alone, removing the structural incentive to under-declare indirect costs in order to appear cheaper or more grant-efficient.\n\nThree configuration elements structure the True-Cost Declaration Obligation. The cost definition specifies which cost categories the funder commits to covering: at minimum, direct program costs (personnel, materials, and activities specific to the funded deliverable) and named indirect costs (organizational overhead, administrative functions, and infrastructure costs not attributable to a single grant but necessary for the organization to deliver its work). The documentation form specifies how the budget template prompts the grantee to declare actual indirect costs: the template must actively request indirect cost declaration rather than creating a format in which only direct costs appear, which would produce implicit incentives to minimize indirect cost reporting. The verification mechanism specifies how the funder confirms that the budget submitted reflects the true cost of the proposed work rather than a strategically reduced figure: at minimum, the funder must state a policy of not reducing awards on the basis of indirect cost rates that are honest representations of the grantee's actual overhead structure.\n\nThe True-Cost Declaration Obligation is distinguished from the Sufficiency primitive (Layer 2), which is declared by the applicant as a characterization of their current resource position, by being a funder-side commitment that shapes the conditions under which an honest Sufficiency declaration can be made. Without a True-Cost Declaration Obligation, applicants face a structural incentive to under-declare indirect costs to improve their competitiveness, which makes Sufficiency declarations unreliable at the portfolio level: the funder cannot accurately assess whether its grants are fully funding the work they purport to support. The Hewlett Foundation operationalizes this obligation through a formal policy committing to fund full direct and indirect costs for project and program grants, without applying a fixed minimum or maximum indirect cost rate (with the limited exception of universities capped at ten percent), and tracks the percentage of project-grant recipients who report that their grant covered full costs as a portfolio-level performance metric.",
+        relationships: "Layer 3 funder-side obligation primitive in the funder-side obligation architecture, parallel to and interacting with the Sufficiency primitive (Layer 2). Where a True-Cost Declaration Obligation is in force, a grantee's Sufficiency declaration must include indirect costs at the funded scope: a grantee who reports a partial or critical gap sufficiency position because their indirect costs are not covered has identified a gap that the funder's own obligation requires it to close. The obligation interacts with the Pre-Award Indicator Confirmation Stage (Layer 3): when the confirmation stage finalizes the budget specification for a grant, the True-Cost Declaration Obligation constrains how the budget is structured: indirect costs must appear as a named budget line, not absorbed into contingency or omitted. The Bidirectional Precision primitive (Layer 1) generates the requirement that the funder's budget template be specified with the same rigor the funder demands of applicants: a template that structurally omits indirect costs violates Bidirectional Precision by creating a form that cannot collect the information the funder claims to want. The William and Flora Hewlett Foundation's Funders for Real Cost, Real Change Collaborative, involving Ford, Packard, Open Society, MacArthur, and Hewlett Foundations, confirms cross-foundational recurrence of this obligation structure.",
+        applications: "William and Flora Hewlett Foundation Policy on Indirect Costs for Project or Program Grants (formal policy committing to fund full direct and indirect costs; budget template actively prompts indirect cost declaration; 2022 Grantee Perception Report tracks full-cost coverage as a performance metric with a stated goal of reaching one hundred percent; no fixed maximum rate applied except the ten percent cap for universities). Funders for Real Cost, Real Change Collaborative (cross-foundational coordination on true-cost coverage among five major United States foundations). Any grant program in which the funder's published budget template and grant policies explicitly commit to covering grantee indirect costs as a named obligation, in order to produce reliable Sufficiency declarations and remove the structural incentive to under-report overhead."
+      },
+      {
+        name: "Grantee Participation Obligation in Funder-Commissioned Evaluations",
+        layer: "obligation",
+        description: "A grant-agreement provision, disclosed to the grantee at grant inception before any evaluation is commissioned, that obligates the grantee to cooperate with evaluations commissioned by the funder, share program data with evaluators appointed by the funder, and consent to the public sharing of findings in a named form. The public disclosure consent element is the structurally essential component: without it, findings from funder-commissioned evaluations cannot be published, which means the evaluation produces no independent verifiable record. The provision must be disclosed at inception, not introduced after award, because post-award imposition of evaluation obligations changes the terms of the grant without the grantee's prior consent.\n\nThree configuration elements structure the Grantee Participation Obligation. The disclosure timing requires that the obligation be stated in the Grant Agreement Letter or its equivalent, at the time the grant is made and before any evaluation is planned or commissioned. The scope of cooperation specifies what the grantee must provide: at minimum, access to program data relevant to the evaluation questions, availability of key personnel for evaluator interviews, and review of draft findings for factual accuracy (without authority to suppress unfavorable conclusions). The consent specification names the form in which public sharing may occur: full report, executive summary, public presentation, or a defined combination, and must specify whether findings may be shared without the grantee's further review after the factual accuracy review has occurred.\n\nThe Grantee Participation Obligation in Funder-Commissioned Evaluations is distinguished from the completion verification gate (which covers what a grantee must demonstrate at a defined gate event by submitting grantee-produced evidence) by the direction of commissioning: the evaluation is commissioned by the funder, not produced by the grantee. The grantee's obligation under this primitive is to cooperate with an external process, not to submit a deliverable. It is distinguished from the Determination Body Separation primitive (Layer 4), which specifies the structural independence of the evaluation function from program management, by operating on the grantee side of the evaluation relationship: Determination Body Separation specifies who conducts the evaluation; the Grantee Participation Obligation specifies what the grantee must provide to make the evaluation possible. The two primitives together constitute the structural conditions for a funder-commissioned evaluation to function: separation of the evaluation function from program management (Determination Body Separation) plus guaranteed access to program data and consent to publication (Grantee Participation Obligation).",
+        relationships: "Layer 3 obligation primitive on the applicant side of the grant relationship, activated by the funder's decision to commission an evaluation. Connects to Evidence Strength (Layer 4) at the independent evaluation level: independent evaluation at that level presupposes evaluator access to program data, which the Grantee Participation Obligation provides as a named grant-agreement condition rather than as an ad hoc arrangement. The public disclosure consent element interacts with the Attestation Corpus primitive (Layer 4): a published funder-commissioned evaluation report is a third-party, independently queryable public record that enters the corpus associated with the evaluated grantee. The Bidirectional Precision primitive (Layer 1) generates a funder-side obligation that mirrors the grantee-side obligation: if the funder is entitled to commission evaluations and require grantee cooperation, the funder is correspondingly obligated to use the evaluation function responsibly, to share findings that reflect unfavorably on the funder's own program design as well as those that reflect unfavorably on grantees, and to not commission evaluations as surveillance mechanisms. This is the structural logic of the Hewlett Foundation's principle of presumptive public sharing: the same default applies to findings that reflect poorly on the funder's strategy as to findings that reflect poorly on individual grantees.",
+        applications: "William and Flora Hewlett Foundation Evaluation Principles and Practices Second Edition (2019) (formal requirement that program staff inform grantees at grant inception that they may be expected to participate in a funder-commissioned evaluation, share data with evaluators, and consent to findings being shared publicly; recorded in the Grant Agreement Letter; obligation covers evaluation planning, implementation, and use and sharing phases; staff instructed not to minimize what the evaluation experience will entail). Funder-commissioned external evaluations in any grant program where the funder retains the right to assess grantee program performance through evaluators it appoints, at any point during the grant period or at completion, with public disclosure of findings as a default."
+      },
+      {
+        name: "Federated Network Membership Standard",
+        layer: "obligation",
+        description: `A named specification of the conditions an organization must satisfy on a continuing basis to be a recognized member of a federated network and thereby eligible to conduct a capital-pooling and allocation program under the network's brand, infrastructure, and shared services. Unlike an applicant-side entry gate, which specifies what an organization must demonstrate before receiving a grant, the Federated Network Membership Standard specifies what a capital-holding entity must demonstrate on an ongoing basis to retain its authorization to operate the allocation program at all. Violation of the standard triggers loss of brand rights and network membership rather than loss of a specific grant, and the standard applies perpetually rather than at a defined gate event.
+
+The Federated Network Membership Standard has three structural properties that distinguish it from other obligation primitives. First, the subject of the standard is the funder-entity, not the grantee: the standard constrains the entity that raises and allocates capital, not the entities that receive it. Second, the standard is ongoing rather than gate-specific: membership is assessed against the standard on a continuous basis, with periodic self-assessment and external certification requirements rather than a single entry gate. Third, the standard concerns the authorization to operate an allocation program rather than the design of any specific round: an organization that fails the standard loses the structural authorization to conduct the grantmaking program, not merely the right to disburse funds in a specific cycle.
+
+The United Way Worldwide membership standard is the most extensively documented published instance: to use the United Way name, local United Ways must meet standards in five domains (financial accountability, non-discrimination, use of funds, community support and involvement, and board governance), assessed through a periodic self-assessment covering community impact, financial management, and governance. Membership dues of approximately one percent of locally raised funds are paid to United Way Worldwide in exchange for brand licensing rights and access to national shared infrastructure. Local United Ways are separately incorporated and independently run; United Way Worldwide functions as the standards body, not as a program director or capital controller. The United Way of Cass County membership page captures the structure succinctly: "To be certified, local United Ways must complete specific standards set for all United Ways in areas of financial accountability, non-discrimination, use of funds, community support and involvement, and board governance."
+
+The Federated Network Membership Standard is not covered by existing Layer 3 or Layer 5 primitives, which all address obligations running from a funder to grantees or from grantees to funders. This primitive names a third-tier obligation layer in which the entity that conducts the grantmaking program is itself subject to a standards regime maintained by a superordinate membership body. The standard architecture concerns not the design of specific rounds but the systemic conditions under which any round may be conducted.`,
+        relationships: "A Layer 3 meta-obligation primitive, distinct from grant-cycle obligation primitives by its subject (the capital-holding entity as a network member, not grantees) and its temporal character (continuous authorization requirement rather than gate-specific obligation). Connects to Determination Body Separation (Layer 4): the membership standard typically specifies that the capital-holding entity must maintain structurally independent allocation decision-making, which is the Determination Body Separation requirement applied to the entity as an ongoing operating condition rather than to a specific gate. Connects to Obligation Fulfillment Record (Layer 3): periodic self-assessments and certification reviews required by the membership standard constitute Obligation Fulfillment Records at the organizational level rather than the grant level. Connects to Portfolio-level Continuation Benchmark (Layer 7): the three-year self-assessment cycle is a Portfolio-level Continuation Benchmark applied to the capital-holding entity as a whole. Connects to Inter-cycle Reflection Stage (Layer 7): the membership standard's certification review is a structured assessment of whether the capital-holding entity's operating conditions have met the standard across the prior period, parallel to the program-level reflection stage.",
+        applications: "United Way Worldwide membership certification standard, covering 1,800-plus local United Way affiliates across five domains (financial accountability, non-discrimination, use of funds, community support and involvement, board governance), with annual external audit requirement, triennial self-assessment, and membership dues of approximately one percent of locally raised funds (United Way of Central Washington membership requirements; United Way of Cass County membership page). United Way Centraide Canada Transparency, Accountability and Financial Reporting standards for Canadian affiliates. Accredited grant-making programs operating under sector standards bodies. Community development financial institution certification standards covering the authorization to offer government-supported lending and grant programs."
+      },
+      {
+        name: "Campaign-Contingent Disbursement Cycle",
+        layer: "obligation",
+        description: "A disbursement cycle triggered and bounded by a named campaign event rather than by a fixed calendar period, in which the capital pool available for distribution in the upcoming grant cycle is determined by the results of the campaign event rather than by a pre-set budget allocation. In a Campaign-Contingent Disbursement Cycle, the funder cannot open the grant allocation process or issue grant commitments until campaign results are known, because the aggregate capital available for distribution depends on voluntary donor behavior whose outcome is not known in advance. The disbursement cycle is therefore contingent on: the campaign event concluding, the capital pool from that event being quantified, and grant commitments being calibrated to the confirmed capital available.\n\nThe structural tension in a Campaign-Contingent Disbursement Cycle is that applying agencies need multi-year funding certainty for program planning purposes, while the funder can only commit capital it has raised. Three management mechanisms for this tension appear in published practice. The reserve-backed multi-year commitment model (the United Way Greater Toronto approach) maintains financial reserves specifically designated to back-stop multi-year grant commitments against campaign shortfalls; the funder can make three-year or five-year commitments because the reserve instrument covers the gap between committed amounts and actual campaign yield in adverse years. The conditional multi-year commitment model makes multi-year grants contingent on each year's campaign results; the agency receives a commitment that is nominally multi-year but is re-confirmed annually against campaign performance. The single-cycle commitment model issues only one-year commitments and opens a new application cycle each year after the campaign closes, making no multi-year promise at all. Each of these management mechanisms has distinct consequences for applying agencies' sufficiency position and sustainability stance declarations under CROSS+WALKRI.\n\nThe Campaign-Contingent Disbursement Cycle is structurally distinct from the Portfolio-level Continuation Benchmark (Layer 7) and from Gate Type (Layer 3). The Portfolio-level Continuation Benchmark tests a program against its impact metrics; it does not address how the funder's capital pool is constituted. Gate Type classifies when in a funding lifecycle an assessment occurs; it does not address the structural contingency between a campaign event and the opening of the grant cycle. The Campaign-Contingent Disbursement Cycle is a funder-side capital architecture declaration: it specifies that the funder's disbursement capacity for the next cycle is structurally dependent on a named capital-generation event, and requires the funder to declare which of the three management mechanisms it uses to resolve the tension between multi-year commitments and annually reconstituted capital.",
+        relationships: "Layer 3 primitive operating at the funder-side obligation architecture level (one of the three structural anchors named in the Foundation's Foundational Structural Anchors section). Connects to Sustainability Stance (Layer 6): the distinction between a reserve-backed multi-year commitment (which supports a conditional or sustained sustainability stance for the applying agency) and a conditional multi-year commitment or single-cycle commitment (which supports only a dependent sustainability stance) is directly determined by which management mechanism the funder uses. Applies agencies' sufficiency position declarations should reflect the capital architecture of the funder's disbursement cycle: an agency relying on a conditional multi-year commitment from a campaign-contingent funder cannot declare an approaching or surplus sufficiency position without also declaring the campaign-contingency risk. Connects to Portfolio-level Continuation Benchmark (Layer 7): the campaign yield should be monitored as a portfolio-level metric in a Campaign-Contingent Disbursement Cycle, because declining campaign performance reduces the aggregate capital pool available for the allocation process and affects the effective scope of the community-decided allocation function (the structural risk named by the Donor-Directed Parallel Disbursement Track).",
+        applications: 'United Way local affiliate grantmaking structures: the annual workplace giving campaign is the named campaign event; grant commitments for the following year are issued after campaign totals are known, typically in late fall or early winter. United Way of Dane County two-year impact grant commitments that depend on "results of our Community Campaign each year" are a published implementation of the conditional multi-year commitment management mechanism. United Way Greater Toronto reserve-backed model maintaining reserves sufficient to cover three-year community program grants and five-year anchor program grants is the strongest published implementation of the reserve-backed multi-year commitment mechanism. CROSS Commit-stage obligation architecture: a funder using a Campaign-Contingent Disbursement Cycle should declare, at the Commit stage, the campaign event name, the approximate timeline from campaign close to grant commitments being issued, the management mechanism used for any multi-year commitments, and the reserve architecture (if applicable) backing those commitments.'
+      },
+      {
+        name: "Pre-Mint Fraction Allocation Declaration",
+        layer: "obligation",
+        description: `A structural requirement that the creator of a retroactive funding instrument declare, at the moment of creating the instrument, what fraction of the instrument is reserved for named recipients versus available for funders or the open market to acquire, before any acquisition or claiming occurs. The declaration is made immutable at creation: once the instrument is minted with its allocation structure committed, the creator cannot subsequently modify who is entitled to which quantity. Recipients named in the pre-mint declaration may claim their designated fraction without the creator's further involvement; the claiming event is permissionless within the bounds of the pre-declared allocation.
+
+In the Hypercerts protocol, this mechanism is implemented through the allowlist: a list of wallet addresses and the number of units each address is entitled to claim, committed as a Merkle root stored with the token on-chain, with the full allowlist stored on a content-addressed storage system. The Hypercerts documentation states the structural requirement directly: "The current implementation requires a project to specify an allowlist at the time of minting its hypercert." The allocation to named claimants and the retention of remaining fractions for subsequent funder acquisition are determined simultaneously at minting and cannot be revised after minting. This is the structural form: at the moment of creating a retroactive claim instrument, the creator locks in the distribution architecture.
+
+The Pre-Mint Fraction Allocation Declaration is structurally distinct from the Disbursement Authority primitive (Layer 2), which names the person or mechanism with legal authority to receive and deploy grant funds on behalf of an applying entity. The disbursement authority is the fund-receipt mechanism for prospective grants; the pre-mint declaration is the retroactive attribution-claim distribution architecture locked into the token at creation. Disbursement authority is a property of the applying entity; pre-mint allocation is a property of the impact claim instrument itself, specified before any fund-receipt event occurs. The defining structural property is immutability at creation: unlike a disbursement authority, which can be updated through declared decision-standing rule changes or delegation changes, the pre-mint allocation cannot be changed without destroying the instrument and creating a new one.`,
+        relationships: "Layer 3 primitive operating at the junction of Obligation Mode (retroactive type) and Gate Type, determining how retroactive claim instruments are created with respect to recipient allocation architecture. Connects to Disbursement Authority (Layer 2): where the pre-mint allocation designates recipients who will then receive grant funds through a separate disbursement event, the disbursement authority of the designated recipient entity remains separately required. Connects to On-chain Identity Anchor (Layer 2): the allowlist is a list of on-chain identity anchors (wallet addresses) paired with fractional entitlements; the anchor addresses in the allowlist must correspond to declared identity anchors for CROSS-conformant programs. Connects to Per-Recipient Allocation Bounds (above): where a round-level cap applies, the pre-mint allocation's designated fractions must be checked against the cap to determine whether any designated recipient's total entitlement exceeds the per-recipient bound.",
+        applications: "Hypercerts protocol (allowlist mechanism: required pre-mint specification of claimant addresses and unit quantities, committed as an immutable Merkle root at minting, with permissionless claiming by designated addresses after minting). Any program issuing semi-fungible or fractional claim tokens where the distribution of fractions to named parties must be locked before the first claiming event occurs. Retroactive funding programs using hypercerts that distribute recognition fractions to individual contributors while reserving other fractions for retrospective funders to acquire."
+      },
+      {
+        name: "Post-Grant Access Commitment Survivorship and Funder-Reserved Deployment License",
+        layer: "obligation",
+        description: "A complementary pair that makes a charitable access commitment durable past the grant term and the grantee. Survivorship is an access commitment that outlives the grant term and binds successors, assignees, and subgrantees through asset transfer, so the commitment travels with the funded development rather than ending with the funded relationship. The reserved license is the funder's retained perpetual, irrevocable, royalty-free, sublicensable right to deploy the funded development itself for the access purpose if the grantee fails. They are the surviving obligation and the funder's retained means to act on it; a program may declare survivorship without reserving a license, so they seat as a pair rather than as one primitive. Held-weak.",
+        relationships: "Obligation (Layer 3) pair extending Access Condition (Layer 3) past the grant term and the grantee. Distinct from the retained-obligation primitives, which keep obligations inside a delegation chain, because survivorship carries an obligation outward to non-parties through asset assignment, and the reserved license is an affirmative funder-held deployment right rather than a grantee duty.",
+        applications: "the Gates Foundation Global Access model (access commitments surviving to successors and assignees; the foundation's reserved deployment license on grantee failure). Confirmed by recomposition as the elements without which that model does not rebuild. Held-weak."
+      },
+      {
+        name: "Allocator Competency Declaration",
+        layer: "obligation",
+        description: "The reciprocal of the staff-and-volunteer and grantee competency declarations applied to the allocator: a standing allocator that decides other parties' distributions declares its competence to make the allocation it makes. Held-weak, a first-pass reciprocal from the fourth-position cascade.",
+        relationships: "Obligation (Layer 3) reciprocal attaching to the allocator position (Foundational Structural Anchors), parallel to Staff and Volunteer Competency Declaration. Connects to the Allocation Rule (Layer 3): competence is declared of the rule's runner.",
+        applications: "standing allocator bodies (peer panels, community allocation committees, enfranchised electorates). Held-weak; a thorough allocator-side reciprocity sweep is owed."
+      },
+      {
+        name: "Allocator Conflict Disclosure",
+        layer: "obligation",
+        description: "The allocator's affirmative declaration of its own conflicts, the reciprocal of the applicant conflict declaration pointed at the deciding party. Distinct from the Conflict of Interest conditions that classify allocator-grantee and allocator-evaluator overlaps: those are structural-position conditions the corpus detects, while this is the allocator's own disclosure. Held-weak, first-pass.",
+        relationships: "Obligation (Layer 3) reciprocal attaching to the allocator position, parallel to the applicant-side Conflict of Interest disclosure. Connects to Conflict of Interest (Layer 3), which holds the overlap conditions this disclosure surfaces.",
+        applications: "standing allocator bodies. Held-weak."
+      },
+      {
+        name: "Allocator Decision Record",
+        layer: "obligation",
+        description: "A legible record of the allocation decision: the inputs the allocator consumed and the rule it applied, recorded so the decision can be inspected. It is the decisional-legibility obligation of CRAFT applied to the allocator's act, and the reciprocal at the allocator position of the Obligation Fulfillment Record. Held-weak, first-pass.",
+        relationships: "Obligation (Layer 3) reciprocal attaching to the allocator position, parallel to Obligation Fulfillment Record. Connects to the Allocation Rule (Layer 3): the record captures the rule and its inputs as run. Connects to the Post-Allocation Integrity Adjustment Stage (Layer 3): the record is what an ex-post challenge resolves against.",
+        applications: "any program publishing its allocation as run (Gitcoin's published quadratic-funding results and their adjustments; a peer-review allocation memorandum). Held-weak."
+      },
+      {
+        name: "Affected-Population Validation of the Allocation",
+        layer: "obligation",
+        description: "Where the allocator's decisions shape what the affected population receives, the affected population may validate or contest the allocation. It is the reciprocal of the Affected Population Verification Gate (Layer 4) pointed at the fourth position rather than the grantee. Held-weak, first-pass.",
+        relationships: "Obligation (Layer 3) reciprocal at the allocator position, paired with the Affected Population Verification Gate (Layer 4). Connects to the Allocation Rule (Layer 3): the validation runs against the rule's output as it affects the population.",
+        applications: "participatory and community-allocation programs where the served population can contest the distribution. Held-weak."
+      },
+      {
+        name: "Financing Instrument Type",
+        layer: "obligation",
+        description: "The declared financial form of the transfer a program makes to a recipient: whether the capital is a pure grant that is not repaid, a repayable grant that is returned to the funder on stated conditions, a concessional loan carrying below-market terms, or a blend that combines a grant portion with a loan portion at a declared ratio. The Financing Instrument Type names the form of the capital itself, the property that determines whether and on what terms money flows back to the funder, declared at the round-configuration level before any recipient is selected.\n\nThis primitive is the abstract axis that the Debt Sustainability Instrument Type Gate (Layer 3) selects among but does not itself name. That gate is an assessment: it classifies an eligible recipient into a financing form on the basis of an independently conducted debt analysis. The Financing Instrument Type is the set of forms the gate selects from, and it stands on its own because the financial form of a transfer is a structural fact about the capital that exists wherever a program declares its instrument, including in programs that have no instrument-selection gate at all. A program that offers only pure grants has a Financing Instrument Type even though it runs no debt analysis and selects among nothing. The repayable-grant instrument, where a transfer is structured as a grant that the recipient returns on a triggering condition rather than on a fixed loan schedule, is recorded as one value of this type rather than as a separate primitive.\n\nDistinct from the Bundled Capacity Instrument (Layer 3), which names a transfer that pairs money with non-substitutable funder labor: the Bundled Capacity Instrument concerns what accompanies the capital, while the Financing Instrument Type concerns the form the capital takes. A single transfer may be both a concessional loan (its Financing Instrument Type) and a bundled instrument (because it carries embedded technical support). Distinct also from the Allocation Rule (Layer 3), which determines how much each recipient receives: the Financing Instrument Type determines what form that amount takes, not its size.",
+        relationships: "Selected among by the Debt Sustainability Instrument Type Gate (Layer 3), which is the assessment that maps a recipient to one of these forms; the Financing Instrument Type is the axis that gate ranges over. Distinct from Bundled Capacity Instrument (Layer 3) by naming the capital form rather than the money-plus-labor pairing. Connects to the Allocation Rule (Layer 3): the rule sets the amount, the Financing Instrument Type sets the form of that amount. Connects to Revenue Architecture (Layer 2): a repayable instrument presupposes that the recipient holds a revenue position capable of bearing the repayment, which the recipient declares. The Debt Sustainability Instrument Type Gate is recorded here as the instrument-selection configuration (a Gate Type position that classifies a recipient into one of these forms by an independent debt analysis), not as a standalone primitive.",
+        applications: "African Development Fund three-form instrument selection (high debt-distress risk receives one hundred percent grants, moderate risk a fifty-fifty grant and concessional-loan blend, low risk concessional loans only; Debt Sustainability and African Development Fund Grant Eligibility page). World Bank International Development Association grant-loan blend determination under the joint International Monetary Fund and World Bank Debt Sustainability Framework. International Development Association concessional instruments (Investment Project Financing, Development Policy Financing, Program-for-Results) as declared capital forms. Any program declaring whether its transfer is a pure grant, a repayable grant, a concessional loan, or a blend."
+      },
+      {
+        name: "Multi-Funder Collaborative Decision Authority",
+        layer: "obligation",
+        description: "An obligation structure in which the authority to decide a round's allocation is held jointly by multiple independent funders who have pooled capital into a single program and resolved their allocation decisions under a declared joint-decision rule, rather than each funder deciding its own grants individually. The structure names the case where the deciding party is not one funder but a constituted set of co-funders, and where a published instrument states which co-funders hold decision authority, what voting or selection rule resolves their joint decision, and what quorum the decision requires.\n\nThe structure carries a tier-scope configuration element, since collaborative programs frequently assign decision authority to a declared sub-body of the full set of contributing funders rather than to all of them equally. One tier of funders holds authority over which grants the program selects; another tier contributes capital to the pool without holding that selection authority. The tier-scope element specifies, for each tier of funder participation, what decision authority that tier holds. A configuration in which all contributing funders decide jointly is one value of this element (unanimous or equal-vote); a configuration in which a named sub-body decides and other funders contribute without a vote is another (designated deciding body); a configuration in which professional staff selected by the funders decide is a third (delegated staff).\n\nThis structure relates to the collective-decision configuration of the Allocation Rule (Layer 3), which names the procedure (consensus, ranked choice, majority by a constituted body) that resolves a joint decision into a distribution. The Allocation Rule names the resolution procedure; Multi-Funder Collaborative Decision Authority names the party that runs it when that party is a set of co-funders and specifies the tier structure of decision authority among them. It is distinct from Disbursement Authority (Layer 2), which identifies who may receive and deploy funds: a collaborative may pool funds under a single disbursing intermediary while the decision authority over what to fund is held jointly by several funders. The decision function and the disbursement function are separable and are separated here.",
+        relationships: "Connects to the Allocation Rule (Layer 3): its collective-decision configuration is the procedure this structure's co-funder set runs, and the co-funder set is the declared runner of the rule (the allocator position in the relational quartet, occupied by a constituted multi-funder body). Distinct from Disbursement Authority (Layer 2) by separating the decision function from the fund-receipt function. Connects to Conflict of Interest (Layer 3): a co-funder that also stands to receive from the pool, or whose own portfolio overlaps the decision, is an allocator-position condition this structure must surface.",
+        applications: "Co-Impact (core partners define strategy and select opportunities; co-investors contribute to specific initiatives without holding the same selection authority; Co-Impact Governance page). Oceans 5 (Board partners contributing at the higher tier guide projects through approval; Members at the lower tier participate in discussions without selection authority). Joint Sustainable Development Goal Fund (multi-agency joint decision structure for pooled contributions). Any program in which several independent funders pool capital and resolve allocation jointly under a published decision rule."
+      },
+      {
+        name: "Adoption Gate",
+        layer: "obligation",
+        description: "A continuation gate that conditions further funding on evidence that a party outside the funded work, a government body, a commercial market, or a named scaling partner, has taken the funded work up. The gate fires not on the grantee's own delivery against a deliverable but on a signal that originates with an external adopter: a government has integrated the funded work into its own programming, a market has begun to purchase or sustain it, or a scaling partner has committed to carry it forward. Continuation past the gate depends on the presence of that external uptake, which the grantee cannot manufacture alone.\n\nThis gate is held weak: its substance is drawn from two source programs (USAID Development Innovation Ventures and the Advanced Research Projects Agency for Health), and its standing as a distinct primitive rather than a configuration of the continuation gate awaits a wider second-source confirmation. It is recorded here at its Layer 3 home, surfaced during the Layer 7 portfolio pass where its distributional effect was first visible.\n\nDistinct from the Continuation Specification Gate (Gate Type, Layer 3), which conditions continuation on what the grantee demonstrates: the Adoption Gate conditions continuation on what an external party has done. The evidence the gate consumes is by construction outside the grantee's control, since the adopter is a third party whose decision the grantee can pursue but not produce. It differs from the Downselection Gate (Layer 3), which selects a subset of a cohort by comparative performance: the Adoption Gate is not comparative across the cohort but turns on whether each grantee's external adopter has taken up that grantee's work.",
+        relationships: "Extends Gate Type (Layer 3) with the external-uptake condition that the standard continuation gate does not carry. Connects to Independent Verifiability from Sources Outside the Applicant's Control (Layer 1): the adopter signal must be confirmable from the adopter's own records, not the grantee's account of it. Connects to Sustainability Stance (Layer 6): external adoption is one way a dependent stance moves toward a sustained one, and the gate is where that movement is checked. Reciprocal in Portfolio (Layer 7) where Terminal Adoption names the portfolio-level endpoint this gate guards. Held weak.",
+        applications: "USAID Development Innovation Ventures Stage 3 (Stage 3 grantees demonstrated effective at scale are assessed for adoption into USAID core programming or co-financing arrangements with other USAID operating units; the funder itself is the named potential next-stage adopter). Advanced Research Projects Agency for Health transition structures (agreements consider transition plans from day one, with the expectation that successful work graduates to external commercial, regulatory, or scaling pathways). Held weak pending a second independent source; any program conditioning continued funding on confirmed external uptake by a government, market, or scaling partner."
+      },
+      {
+        name: "Income-Based Graduation with Structured Phase-Down",
+        layer: "obligation",
+        description: "An obligation structure in which a recipient's eligibility for continued funding ends when an external income measure crosses a declared threshold, and in which that ending is managed through a declared multi-year phase-down rather than an abrupt cut. The structure has three named parts: the income threshold that triggers the transition (an independently measured indicator such as gross national income per capita crossing an upper-middle-income line), the phase-down schedule over which funding declines across a stated multi-year period, and the replacement-financing target the recipient is supported to reach so that program coverage continues after the funder withdraws.\n\nThis structure is held weak: its substance is drawn from a single source program (the Global Fund Transitioning Countries mechanism), and its standing as a distinct primitive rather than a configuration of the continuation gate awaits a second independent source. It seats at Layer 3 with a reciprocal note at Layer 6, since the phase-down is the managed movement of a recipient from a dependent sustainability stance toward a sustained one.\n\nDistinct from the Continuation Specification Gate (Gate Type, Layer 3), which conditions continuation on what the recipient demonstrates each cycle: the trigger here is an external income condition, not a performance demonstration, and a recipient performing well still graduates once its income crosses the line. Distinct from Sustainability Stance (Layer 6), which is the recipient's declared position on whether outcomes persist without continued funding: this structure is the funder-side mechanism that actively manages the transition toward that position over a declared period, with rising recipient co-financing across the phase-down, rather than a declaration read at a single gate. The defining feature is that the exit is scheduled and resourced, not that eligibility simply lapses.",
+        relationships: "Extends Gate Type (Layer 3) with an external-threshold exit condition and a phase-down schedule that the standard continuation gate does not carry. Connects to Sustainability Stance (Layer 6): the phase-down is the managed path from a dependent to a sustained stance, which is the reciprocal note at that layer. Connects to Independent Verifiability from Sources Outside the Applicant's Control (Layer 1): the income trigger must be an independently measured indicator, not a self-classification. Held weak.",
+        applications: "Global Fund Transitioning Countries mechanism (countries crossing the upper-middle-income gross-national-income threshold receive time-limited continued access under a declared transition plan, a scheduled multi-year disbursement phase-down, rising national co-financing conditions, and a national-financing target sufficient to sustain coverage without Global Fund support; Global Fund Eligibility Policy and Transitioning Countries documentation). Held weak pending a second independent source; structurally analogous patterns noted in the Gavi Alliance graduation mechanism and Green Climate Fund direct-access modalities."
+      },
+      {
+        name: "Allocation Authority Scope Declaration",
+        layer: "obligation",
+        description: "A declaration that bounds the scope of decision authority the allocator position actually holds: which decisions in the funding lifecycle are the allocator's to make and which are reserved to the funder or another party. The declaration exists because a party may sit in the deciding seat while holding authority over only some decisions, and a program cannot be read correctly without knowing where the allocator's authority begins and ends. The declaration states, for each stage at which the allocator participates, what the allocator may decide there.\n\nThe declaration carries a required mode element drawn from the consultative-participatory distinction. At each stage, the allocator's participation is one of two modes: consultative, in which the allocator advises and the funder decides (authority does not transfer); or participatory, in which the allocator's decision is binding (authority transfers, as in a binding community vote). The mode is the structural variable that distinguishes a program where community members advise from one where they decide, and it must be declared per stage, since the same body may advise at one stage and bind at another. The declaration also carries an override element: the conditions, if any, under which a funder's own legal obligations restrict or supersede the declared allocator authority, recorded because legal duties at the funder often cannot be transferred by agreement even where the program intends the allocator to decide.\n\nThis primitive is held weak, drawn from a single source corpus (participatory grantmaking) and provisional on a second independent source. It absorbs the consultative-versus-participatory mode distinction as a required element rather than carrying that distinction as a separate primitive. Distinct from the Allocation Rule (Layer 3), which names the procedure that resolves the decision: this declaration names how much of the deciding the allocator is actually authorized to do. Distinct from Conflict of Interest (Layer 3), which classifies allocator-position overlaps: this declaration bounds the authority, not the relationships.",
+        relationships: "Connects to the Allocation Rule (Layer 3): the rule's declared runner is the allocator, and this declaration states the scope of that runner's authority stage by stage. Connects to the allocator position in the relational quartet (Foundational Structural Anchors). Connects to the Affected-Population Validation of the Allocation (Layer 3): where the allocator's authority is participatory and binding, the validation reciprocal applies to the binding decision. Held weak.",
+        applications: "participatory grantmaking programs declaring at which lifecycle stages (strategy, sourcing, final selection, evaluation design) community members hold binding rather than advisory authority, and where funder legal duties reserve a decision (Fund for Shared Insight Participatory Philanthropy Toolkit consultative-versus-participatory vocabulary; Ford Foundation participatory grantmaking paper on authority transfer rather than token consultation). Held weak pending a second independent source."
+      },
+      {
+        name: "Community Decision-Maker Support Obligation",
+        layer: "obligation",
+        description: "An obligation, in participatory models, to resource and support the community members who serve as allocation decision-makers, so that the people drawn from the served population can carry the deciding role they have been given. The obligation has two parts: the material-support part (compensation for time, travel, and the costs of participating, plus accessibility provisions such as devices or platforms for members who would otherwise be excluded) and the preparation part (training and structured support so that members can exercise the decision authority assigned to them). The obligation rests on the program operator, not on the community members, and its absence converts a nominally participatory body into one that only those with private means to absorb the cost can join.\n\nThis primitive is held weak, drawn from a small source set (PEAK Grantmaking and the Chan Zuckerberg Initiative) and provisional on a wider second source. Distinct from the Staff and Volunteer Competency Declaration (Layer 3), which addresses whether the people delivering a funded program are qualified to deliver it: this obligation addresses whether the community members deciding allocations are resourced and prepared to decide. The two point at different roles, the delivery role and the deciding role, and at different directions of support. Distinct from the Allocation Authority Scope Declaration (Layer 3), which bounds what the community body may decide: this obligation concerns whether the body's members can participate at all.",
+        relationships: "Reciprocal of the participant-support side of the Staff and Volunteer Competency Declaration (Layer 3), pointed at the allocator position rather than the delivery role. Connects to the allocator position in the relational quartet (Foundational Structural Anchors) and to the Allocation Authority Scope Declaration (Layer 3): the support obligation is what lets a participatory authority declaration be exercised in practice rather than on paper. Connects to Conflict of Interest (Layer 3): compensating community decision-makers is itself a relationship that the allocator-position conditions surface. Held weak.",
+        applications: "PEAK Grantmaking participatory guidance (community members fairly compensated for committee participation, receiving a stipend for time and travel costs, with accessibility supports such as laptops, tablets, or virtual platforms for members with disabilities). Chan Zuckerberg Initiative Community Fund (a structured training and review process of roughly forty hours over about two months for community decision-makers). Held weak pending a wider second source."
+      },
+      {
+        name: "Returns-Scaled Impact Justification Obligation",
+        layer: "obligation",
+        description: "An obligation in which the strength of the impact justification a program requires at the entry gate scales inversely with the financial return the funder expects from the transfer: the more financial return the funder forgoes, the more compelling the impact case it must require, so a pure grant must clear a higher impact bar than a market-rate investment. A transfer the funder expects to return full market-rate financial value carries no separate impact-justification requirement; a transfer at below-market return must supply an impact justification proportional to the concession; a grant returning no capital must supply the most demanding impact case of all.\n\nThis primitive is held weak, drawn from a single source program (Omidyar Network) and provisional on a second independent source. Distinct from the Public Benefit Mechanism (Layer 3), which fixes the evidence scope required at completion by the declared mechanism type, and from Evidence Scope (Layer 4), which classifies the rigor of an evidential claim: neither makes the required justification a function of the financial terms of the transfer. This obligation adds exactly that function, an entry-gate justification requirement that rises as expected financial return falls, which is not derivable from the mechanism type or the evidence scope alone. Distinct from Revenue Architecture (Layer 2), which describes the recipient's revenue position: this obligation concerns the funder's expected return and the impact bar it sets.",
+        relationships: "Connects to Public Benefit Mechanism (Layer 3) and Evidence Scope (Layer 4): this obligation sets the entry-gate impact bar as a function of expected financial return, where those primitives set evidence requirements by mechanism type and rigor; the function is additional to both. Connects to Revenue Architecture (Layer 2): the expected-return position that scales the bar is a property of how the funded entity is financed. Connects to the Financing Instrument Type (Layer 3): the financial form of the transfer (grant, concessional, loan) is what positions it on the returns continuum that this obligation scales against. Held weak.",
+        applications: "Omidyar Network returns continuum (the greater the financial concession, the more compelling the expected impact must be; market-rate-return investments require no separate impact-justification evidence, below-market investments require a proportional impact case, grants are held to the highest impact expectation; Across the Returns Continuum, Stanford Social Innovation Review, Winter 2017). Held weak pending a second independent source."
+      },
+      {
+        name: "Funder Exit Transition Obligation",
+        layer: "obligation",
+        description: "A funder-side obligation to manage a planned transition when the funder discontinues a program area, rather than simply ceasing funding and leaving active grantees at an abrupt resource cliff. The obligation has three declared parts: a named transition mechanism (the form the exit support takes, such as unrestricted general operating support rather than project-specific wind-down funding), a budget allocation reserved for transition support (a stated portion of the program budget set aside for the purpose), and a timeline for transition conversations with affected grantees before the discontinuation is announced publicly.\n\nThis primitive is held weak, drawn from a single source program (Omidyar Network) and provisional on a second independent source. It is forward-referenced by the Portfolio Transfer Declaration (Layer 7), which names the portfolio-level handoff this obligation operates within. Distinct from Sustainability Stance (Layer 6), which is the grantee's declared position on whether outcomes persist without continued funding: this obligation runs the other direction, placing a duty on the funder to respond when its own exit would disrupt grantees in a dependent or partial stance. Distinct from the Continuation Specification Gate (Gate Type, Layer 3), which determines whether an individual grantee advances between rounds: this obligation addresses the program-level case where the round itself ceases to exist, a scenario the continuation gate does not reach.",
+        relationships: "Forward-referenced by Portfolio Transfer Declaration (Layer 7): the funder-side exit this obligation manages is the act that a portfolio transfer records at the portfolio level. Connects to Sustainability Stance (Layer 6): the obligation is most load-bearing where grantees hold a dependent or partial stance, since those are the grantees an abrupt exit harms most. Distinct from Continuation Specification Gate (Gate Type, Layer 3) by addressing program termination rather than individual advancement. Held weak.",
+        applications: "Omidyar Network 2024 strategy evolution (a named transition mechanism of unrestricted general operating support grants, a budget allocation of one quarter of the 2025 programmatic budget reserved for transition support, and direct conversations with partners before public announcement; Omidyar Network strategy evolution announcement). Held weak pending a second independent source."
+      },
+      {
+        name: "Fund-Holder Discretion Obligation",
+        layer: "obligation",
+        description: "The obligation, in arrangements where a legal fund holder receives money on behalf of a separate program-operating party, that the fund holder retain genuine independent judgment over the funds rather than functioning as a pass-through. The obligation has three components: the discretion component (the fund holder may not commit in advance to pass all funds automatically to the program operator; each disbursement is the fund holder's own determination), the purpose-alignment component (each disbursement must further the fund holder's own exempt purposes, not merely satisfy the operator's request), and the non-pass-through component (the fund holder must not operate as a financial conduit, and any agreement or practice that removes its independent disbursement judgment voids the arrangement's legal basis). This is a requirement of United States fiscal-sponsorship law, grounded in the Internal Revenue Service requirement that the fund holder retain complete discretion and control over donated funds (Revenue Ruling 68-489).\n\nThis primitive is held weak, drawn from a single source domain (United States fiscal-sponsorship law) and provisional on a second independent source. It is distinct from Disbursement Authority (Layer 2), which identifies who may receive and deploy funds: the Fund-Holder Discretion Obligation specifies that this authority, in a fund-holder separation arrangement, cannot be surrendered to the program operator, and that surrendering it does not merely weaken the arrangement but collapses its legal validity. The defining feature is the constitutive character of the obligation: where an ordinary gate failure withholds a payment, failing this obligation invalidates the arrangement itself, with consequences including loss of donor deductibility and risk to the fund holder's tax-exempt status. The fund holder being a genuine independent decider, rather than a pass-through, is what makes the structure hold.",
+        relationships: "Extends Disbursement Authority (Layer 2) with a non-surrender condition specific to fund-holder separation arrangements: the holder's discretion cannot be delegated to the operator. Connects to the Fund Segregation Requirement (Layer 3): a holder may exercise discretion while still commingling accounts, so the two obligations are separable and both required. Connects to Non-Delegable Obligation Retention (Layer 3): the discretion the fund holder must retain is itself a non-delegable position constituted by the holder's relationship to the tax authority. Held weak.",
+        applications: "United States fiscal sponsorship, the preapproved-grant model in particular (the fund holder must retain discretion and control over received funds, may withhold funds where the operator cannot further the holder's exempt purposes, and must not pass funds along automatically, on pain of the arrangement being recharacterized as a conduit; Internal Revenue Service Revenue Ruling 68-489; National Network of Fiscal Sponsors and allied legal guidance). Held weak pending a second independent source."
+      },
+      {
+        name: "Fund Segregation Requirement",
+        layer: "obligation",
+        description: "An obligation to hold a project's funds segregated from other funds throughout the period they are held: the funds a holder receives on behalf of a program-operating party must be kept in a separately identifiable form, apart from the holder's own general operating funds and apart from funds held for other projects. The requirement has three elements: the segregation mechanism (the banking or accounting treatment that keeps the funds separate, whether a dedicated bank account or a restricted fund in the holder's books), the commingling prohibition (held funds may not be used to supplement the holder's general cash flow or meet obligations unrelated to the project), and the zero-out condition (on termination of the arrangement, the segregated fund is closed and remaining funds transferred to a successor holder, returned, or redeployed to equivalent exempt purposes under the holder's own discretion).\n\nThis primitive is held weak, drawn from a single source domain (United States fiscal-sponsorship and expenditure-responsibility law) and provisional on a second independent source. It is a continuous accounting-state obligation rather than a periodic reporting event: the funds must be held separately at every moment they are held, not merely shown to be separate at a gate. Distinct from the Fund-Holder Discretion Obligation (Layer 3), which concerns the holder's independent judgment over whether to disburse: a holder may exercise full disbursement discretion while still keeping the funds in a commingled account, satisfying the discretion obligation and failing the segregation requirement. The two are separable, which is why segregation stands as its own obligation. Distinct from the Prior Deployment Expenditure Record (Evidence Type, Layer 4), which is shown at gates: segregation is the underlying state that such a record reports on.",
+        relationships: "Paired with the Fund-Holder Discretion Obligation (Layer 3) within the fund-holder separation architecture, separable because discretion and segregation can each hold without the other. Connects to Evidence Type (Layer 4): the Prior Deployment Expenditure Record at progress and completion gates should specify the segregation mechanism as part of its evidence form, confirming the funds were held separately. Connects to Non-Delegable Obligation Retention (Layer 3): under expenditure-responsibility law the originating funder may require the recipient to hold grant funds in a separate dedicated fund as a condition of the grant. Held weak.",
+        applications: "United States fiscal sponsorship (project funds held in a separate bank account or restricted fund, not commingled with the sponsor's general assets, with sponsored assets and liabilities zeroing out on the balance sheet; Propel Nonprofits and National Council guidance). United States expenditure responsibility under Internal Revenue Code Section 4945 (the written commitment requires the grantee to maintain grant funds in a separate fund dedicated to charitable purposes; Treasury Regulation Section 53.4945-5(b)(3)). Held weak pending a second independent source."
+      },
+      {
+        name: "Contingency Reserve with Dual Deployment Architecture",
+        layer: "obligation",
+        description: "An obligation structure in which a program holds a named reserve within a larger resource pool that can be deployed along two distinct declared pathways: one anticipatory pathway through which the reserve funds thematic priorities set at the opening of the cycle, and one reactive pathway through which the reserve activates mid-cycle when new or reversing conditions meet declared trigger criteria. The two pathways draw on the same reserve but answer to different signals: the anticipatory pathway is pre-positioned at cycle opening against priorities defined in advance, while the reactive pathway is held back specifically for conditions that emerge or deteriorate during the cycle and cannot wait for the next cycle to open. The trigger criteria for the reactive pathway are declared before the cycle opens.\n\nThis primitive is held weak, drawn from a single source program (the African Development Bank) and provisional on a second independent source. Its distinguishing feature is the mid-cycle temporal position that no existing primitive holds: where the Continuation Specification Gate and the inter-cycle stages operate at cycle boundaries, this reserve's reactive pathway deploys inside a cycle, on emerging conditions, without waiting for the boundary. Distinct from the Activation Threshold Gate (Layer 3), which fires when a single quantified floor is crossed: this structure holds two declared deployment routes off one reserve, an anticipatory route and a reactive route, rather than one threshold with one consequence. Distinct from the Payment Suspension Trigger (Layer 3), which holds future disbursement pending remedy of a detected failure: this reserve releases additional funds on a detected need, the opposite direction of flow.",
+        relationships: "Connects to the Allocation Rule (Layer 3): the reserve sits inside the pool the rule distributes, and its two pathways are declared deployment routes the rule's configuration must name. Distinct from Activation Threshold Gate (Layer 3) by holding two declared pathways off one reserve rather than one floor with one consequence. Distinct from the Payment Suspension Trigger (Layer 3) by releasing funds on emerging need rather than withholding them on detected failure. Reciprocal in Portfolio (Layer 7), where the reserve's effect on the cycle's distribution is felt. Held weak.",
+        applications: "African Development Bank Transition Support Facility (from the sixteenth African Development Fund replenishment, the reserve is distributed across a Prevention Envelope supporting preventative interventions through thematic priorities defined for each cycle and a Response Envelope that comes into play when new and unforeseen fragile situations develop or when reversals in circumstances warrant increased support; Transition Support Facility documentation). Held weak pending a second independent source."
+      },
       {
         name: "Evidence Scope",
         layer: "evidence",
-        description: "The classification of how strong an evidential claim is at a given gate. Four levels in ascending order: output evidence, usage evidence, outcome evidence, and impact evidence.",
-        relationships: [
-          "Configured per gate type",
-          "Minimum evidence scope at completion gate set by grant scale",
-          "Determines which WALKRI evidence types are required"
-        ],
-        applications: [
-          "CROSS gate configuration",
-          "Completion gate minimum evidence requirement",
-          "Evidence type determination"
-        ]
+        description: "The classification of how strong an evidential claim is at a given gate. Four levels in ascending order of rigor:\n\n**Output evidence**: the specified deliverable exists or a measurable artifact demonstrates progress toward it.\n\n**Usage evidence**: the deliverable is being used by parties outside the applicant's control at independently verifiable scale.\n\n**Outcome evidence**: a measurable change has occurred in the specified population, documented against the baseline established at entry.\n\n**Impact evidence**: a credible causal link is established between the funded work and the measured change through methodology sufficient to support causal inference.",
+        relationships: "Configured per gate type. Minimum evidence scope at the completion gate is set by the Coordination Scaling Standard based on grant scale. Determines which WALKRI evidence types are required.",
+        applications: ""
       },
       {
         name: "Evidence Strength",
         layer: "evidence",
-        description: "The classification of how rigorous the verification mechanism is at a given gate. Four levels in ascending order: self-report with documentation, third-party verifiable, independent review, and independent evaluation.",
-        relationships: [
-          "Configured per gate type, independently from evidence scope",
-          "Minimum evidence strength at completion gate set by grant scale",
-          "Higher strength does not substitute for higher scope; both configured independently"
-        ],
-        applications: [
-          "CROSS gate configuration",
-          "Completion gate verification mechanism"
-        ]
+        description: "The classification of how rigorous the verification mechanism is at a given gate. Four levels in ascending order of rigor:\n\n**Self-report with documentation**: grantee narrative with supporting links reviewed by funder staff.\n\n**Third-party verifiable**: evidence independently accessible to any reviewer from sources outside the applicant's control.\n\n**Independent review**: a named party outside the funder-grantee relationship confirms the evidence meets completion criteria.\n\n**Independent evaluation**: a qualified evaluator with domain expertise conducts a structured assessment.",
+        relationships: "Configured per gate type. Minimum evidence strength at the completion gate is set by grant scale. Higher evidence strength does not substitute for higher evidence scope; both dimensions are configured independently.\n\n**Configurations recorded here:** the Attestation-Conditioned Gate (a gate whose condition is the existence of a named third-party attestation, a configuration of the third-party-verifiable level) and the Affected Population Verification Gate (a completion-gate configuration requiring verification by parties drawn from the affected population, not substitutable by a technically qualified but population-distant independent reviewer) are configurations of Evidence Strength, recorded here rather than as standalone primitives.",
+        applications: ""
       },
       {
         name: "Evidence Type",
         layer: "evidence",
-        description: "The classification of what kind of proof a submission constitutes. Five types: standing evidence, activity evidence, outcome evidence, planning evidence, and financial accountability evidence.",
-        relationships: [
-          "Governs what a reviewer must look for when assessing a submission",
-          "Generates the evidence form requirement in WALKRI's criterion specification"
-        ],
-        applications: [
-          "Reviewer assessment guidance",
-          "Evidence form requirement in WALKRI",
-          "Completion gate review"
-        ]
+        description: "The classification of what kind of proof a submission constitutes. Five types recognized:\n\n**Standing evidence**: attests to organizational standing as verified by a named external body, recognition, accreditation, or institutional membership. Elements: attesting body, domain of standing, scope, currency window, public verification path.\n\n**Activity evidence**: attests that named activities occurred at a stated date, location, and scale. Elements: date, location, activity type, quantity metric, counting methodology. For scientific monitoring data, the named protocol must be stated.\n\n**Outcome evidence**: attests that a named condition changed or that a performance claim is verified against a baseline. Elements: measurement methodology, baseline, post-intervention value, independent verifier. Only evidence type sufficient at completion gates in change-obligation rounds.\n\n**Planning evidence**: attests to future intent, procurement arrangements, or structural agreements. Elements: plan details, parties, timeline. Must be labeled as planning evidence, not outcome evidence.\n\n**Prior Deployment Expenditure Record**: attests to how prior funding was deployed by expenditure category. Elements: period, expenditure by category, verification path. All links must resolve without authentication walls.",
+        relationships: "Determines what a reviewer must look for when assessing a submission. Generates the evidence form requirement in WALKRI's criterion specification. Determines whether outcome-level evidence scope can be satisfied at a given gate.",
+        applications: ""
       },
       {
         name: "Causality Stance",
         layer: "evidence",
-        description: "The declared position on what kind of causal claim an intervention makes at a given gate or pathway. Two stances: attribution (the intervention caused the outcome) and contribution (the intervention contributed among other factors).",
-        relationships: [
-          "Configured at the gate level and at the pathway level",
-          "Attribution stance requires counterfactual methodology",
-          "Contribution stance is appropriate for most public goods and Web3 contexts"
-        ],
-        applications: [
-          "CROSS gate causal claim configuration",
-          "Theory of Change pathway declaration",
-          "Evaluator assessment of causal claims"
-        ]
+        description: "The declared position on what kind of causal claim an intervention makes at a given gate or pathway. Two stances:\n\n**Attribution stance**: claims that the intervention caused the observed outcome. Requires counterfactual methodology: a documented estimate of what the indicator would have been without the intervention, an attribution argument, a comparison period or group, and independent attestation.\n\n**Contribution stance**: claims that the intervention contributed to the observed outcome among other factors. Requires a named causal pathway from the activity to the outcome, a list of acknowledged co-factors, and a materiality argument explaining why the intervention's contribution was meaningful rather than incidental.",
+        relationships: "Configured at the gate level and at the pathway level. Attribution stance at the pathway level should correspond to counterfactual reference configuration at the associated gate. Contribution stance is appropriate for most public goods and Web3 contexts where multiple actors contribute to shared ecosystem outcomes.",
+        applications: ""
       },
       {
         name: "Intended vs. Unintended Effects",
         layer: "evidence",
-        description: "The classification of whether an effect was specified in the entry gate or discovered during or after the grant period. Both positive and negative unintended effects must be disclosed at the completion gate.",
-        relationships: [
-          "Generates the unintended outcomes disclosure requirement at the completion gate",
-          "Connects to the Adverse Signal Engagement Principle"
-        ],
-        applications: [
-          "Completion gate disclosure requirement",
-          "Adverse signal detection"
-        ]
-      },
-      {
-        name: "Affected Population Verification Gate",
-        layer: "evidence",
-        description: "A gate element requiring that the people or communities served by a funded program participate in verifying what was delivered, not merely that independent third parties confirm delivery. Three configuration elements: affected population, participation mechanism, and minimum participation threshold. Renamed at Primitives Foundation v0.1.7 from Beneficiary Accountability Gate per Frame Language audit; the rename aligns with relational triad terminology (affected population) and names the structural mechanism (verification) rather than Frame 1 framing.",
-        relationships: [
-          "Extension of Evidence Strength: independent review where the reviewer must be or include the affected population",
-          "Connects to Public Benefit Mechanism: most applicable to condition change and access provision types",
-          "Cross-references Beneficiary Validation Mechanism (Layer 3, entry-stage primitive) by temporal distinction (validation at entry; verification at completion)"
-        ],
-        applications: [
-          "Humanitarian and community-development grant programs",
-          "Any program claiming condition change with a named affected population",
-          "CROSS Part XII (CRS ProPack, World Vision LEAP; citation use of source frameworks' beneficiary terminology)"
-        ]
+        description: "The classification of whether an effect was specified in the entry gate or discovered during or after the grant period.\n\n**Intended effects**: outcomes specified in the entry gate. Assessed against the published completion criteria.\n\n**Unintended effects**: effects that occurred during the grant period that were not specified in the entry gate and that are plausibly connected to the funded work. Both positive (discoveries) and negative (adverse signals) unintended effects must be disclosed at the completion gate. Negative unintended effects trigger the Adverse Signal Engagement Principle for the continuation gate assessment.",
+        relationships: "Generates the unintended outcomes disclosure requirement at the completion gate. Connects to the Adverse Signal Engagement Principle (referenced from CROSS Part I).",
+        applications: ""
       },
       {
         name: "Attestation Corpus",
         layer: "evidence",
-        description: "The set of claims about an entity made by parties outside the entity's control, retrievable from named public sources without the entity's participation. Includes on-chain attestations, off-chain program completion records, and named endorsements.",
-        relationships: [
-          "Queried against the On-chain Identity Anchor (Layer 2)",
-          "Distinguished from the Obligation Fulfillment Record by being independently queryable without applicant participation",
-          "Corpus discrepancies vs the Obligation Fulfillment Record are adverse signals"
-        ],
-        applications: [
-          "CROSS Part IV funder-side Attestation Corpus query procedure",
-          "Cross-program track record assessment",
-          "Adverse signal detection in returning applicant review"
-        ]
+        description: "The set of claims about an entity made by parties outside the entity's control, retrievable from named public sources without the entity's participation or submission. Distinguished from evidence (applicant-submitted), gate records (funder-issued for this entity specifically), and standing evidence (institutional endorsements submitted by the applicant) by being third-party, public, and queryable independently. The Attestation Corpus includes on-chain attestations (EAS attestations across chains, KarmaGAP grant and milestone records, RPGF impact attestations), off-chain program completion records (Gitcoin Explorer, Giveth, Open Collective), and named endorsements from identifiable ecosystem participants. The Attestation Corpus is a funder-side data collection, not an applicant disclosure requirement. Its contents inform the track record assessment but are not substitutes for the applicant's own Obligation Fulfillment Record.",
+        relationships: "The Attestation Corpus is queried against the On-chain Identity Anchor (Layer 2): the anchor address is the input to cross-program attestation lookups. Distinguished from the Obligation Fulfillment Record (which is applicant-submitted and covers this funder's prior rounds specifically) by being independently queryable from named third-party sources without applicant participation. Where the Attestation Corpus reveals prior grants, milestones, or completion obligations not disclosed in the applicant's Obligation Fulfillment Record, the discrepancy is an adverse signal under the Evidence Type primitive's standing evidence category and is treated as non-disclosure of a prior obligation. The corpus does not require a specific attestation format; any named public source from which claims about an entity can be retrieved without that entity's cooperation or submission qualifies.",
+        applications: "CROSS Part IV funder-side Attestation Corpus query procedure. Cross-program track record assessment. Adverse signal detection in returning applicant review."
       },
       {
         name: "Determination Body Separation",
         layer: "evidence",
-        description: "A funder-side architectural condition requiring that completion-gate determinations be made by a named body structurally outside program management, with a named charter or policy document specifying the body composition, scope, authority, and removal mechanism. The body must be named; charter must be publicly accessible at a stable URL; document must specify how members are appointed and removed, what determination scope the body has authority over, and what relationship the body has to the funder program management chain.",
-        relationships: [
-          "Extension of Evidence Strength (Layer 4) for the institutional-layer separation that per-gate independent review cannot guarantee on its own",
-          "Connects to Conflict of Interest (Layer 3): governs reviewer-applicant relationships at the individual reviewer level; Determination Body Separation governs the structural independence of the evaluation function itself from program operations",
-          "Cross-references Part XI funder obligations and redress"
-        ],
-        applications: [
-          "CROSS Part XII (IFAD Independent Office of Evaluation per IFAD Evaluation Policy; OGP Independent Reporting Mechanism per Procedures Manual 2025; TWCF Research Assessment Policy with DORA-aligned external assessment; CDC Program Evaluation Framework Standard 3 on independence and objectivity; Innovate UK Level 2 and Level 3 externally commissioned evaluations; AEA Program Evaluation Standards E1 through E3 on evaluation accountability)"
-        ]
+        description: `A funder-side architectural condition requiring that completion-gate determinations be made by a named body structurally outside program management, with a named charter or policy document specifying the body's composition, scope, authority, and removal mechanism. Distinguished from the independent review level of Evidence Strength (which specifies that a particular gate determination be made by a named party outside the funder-grantee relationship) by specifying an institutional layer that sits outside the program operator across all gates, not a per-gate determination property.
+
+The body must be named, its charter or policy document must be publicly accessible at a stable URL, and the document must specify how members are appointed, how members may be removed, what scope of determinations the body has authority over, and what relationship the body has to the funder's program management chain. The body may report up to the funder's overall leadership without compromising the separation, provided that program management cannot directly direct or override the body's determinations within its named scope.
+
+This primitive prevents a structural ambiguity that the existing Evidence Strength taxonomy alone cannot resolve: a program may satisfy "independent review" at every gate by appointing technically qualified external reviewers who nonetheless report to the same program management chain that designed the program being evaluated. Determination Body Separation specifies that the evaluation function itself sits outside the program management chain, not merely that individual gate reviewers are technically external.`,
+        relationships: "Extension of Evidence Strength (Layer 4) for the institutional-layer separation that per-gate independent review cannot guarantee on its own. Connects to Conflict of Interest (Layer 3): Conflict of Interest classifies reviewer-applicant relationships at the individual reviewer level; Determination Body Separation specifies the structural independence of the evaluation function itself from program operations. With the relational quartet, the separation must distinguish three bodies that may now be distinct: the evaluator who assesses, the allocator who decides the distribution, and the funder who supplies the capital. Where the allocator and the evaluator are the same body, the coupled case of quadratic funding and participatory allocation, the separation requirement interacts with the Allocation Rule's CRAFT Condition 5 coupled-structure declaration rather than being satisfied by a simple arm's-length claim: the program declares the coupling and the safeguards that stand in for separation. Cross-references Part XI funder obligations and redress.",
+        applications: "CROSS Part XII (IFAD Independent Office of Evaluation per IFAD Evaluation Policy; OGP Independent Reporting Mechanism per Procedures Manual 2025; TWCF Research Assessment Policy with DORA-aligned external assessment; CDC Program Evaluation Framework Standard 3 on independence and objectivity; Innovate UK Level 2 and Level 3 externally commissioned evaluations; AEA Program Evaluation Standards E1 through E3 on evaluation accountability)."
       },
-      // ---------------------------------------------------------------------------
-      // Layer 5: Specification Primitives
-      // ---------------------------------------------------------------------------
+      {
+        name: "Upward Assurance Package",
+        layer: "evidence",
+        description: "A named bundle of evidence that a lower configuration tier must produce and transmit to the tier above, on a declared periodic schedule, as the formal basis on which the higher tier determines whether named-obligation and control systems are functioning properly and whether continued disbursement is warranted. The bundle is not a single evidence type but a composite: it combines a self-declaration by the program operator (covering what the operator knows about its own management and control performance), independently produced financial accounts (attesting to how funds were deployed by expenditure category across the reporting period), and an independent audit opinion issued by a body that is functionally separate from both the program operator and the higher tier. All three components must be present for the bundle to satisfy the submission obligation; partial submission does not constitute discharge of the upward assurance obligation.\n\nThe structural novelty of this primitive relative to existing evidence primitives is the bundling requirement and its consequence: the higher tier's acceptance or rejection of the assurance package as a whole conditions continued fund flow, not merely the acceptance of any individual component. A management declaration submitted without an independent audit opinion does not satisfy the obligation. An independent audit opinion submitted without the accounts it is meant to cover does not satisfy the obligation. The bundle character requires a division of responsibility: the program operator produces the self-declaration and the accounts; the independent audit body assesses both; and neither can substitute for the other in the higher tier's determination. The Regulation (EU) 2021/1060 (Common Provisions Regulation) is the most formally elaborated published instance of this structure, specifying by annex the required content of each component and the annual schedule on which the bundle must be submitted before the Commission accepts the accounts.\n\nThe Upward Assurance Package is distinct from the Obligation Fulfillment Record (Layer 3) in three respects. The Obligation Fulfillment Record is applicant-submitted and covers this funder's prior rounds specifically; it is queried by the funder as part of a track record assessment. The Upward Assurance Package flows from a program operator to the superior configuration tier above it; it is not submitted at a gate within a grant cycle but on an annual program-level schedule. The Obligation Fulfillment Record documents what was committed and whether it was fulfilled; the Upward Assurance Package asserts the adequacy of the management and control system as a whole, covering legality and regularity of all declared expenditure. The Upward Assurance Package is also distinct from the Inter-cycle Reflection Stage (Layer 7), which is a learning artifact produced between cycles to improve the next cycle's design. The Upward Assurance Package is a document that formally discharges the program configuration tier's named submission obligation to the tier above, not a learning document.",
+        relationships: "Extends the Evidence Type primitive's Prior Deployment Expenditure Record type by requiring that the Prior Deployment Expenditure Record be co-submitted with a self-declaration and an independent audit opinion as a named bundle. Connects to Determination Body Separation (Layer 4): the audit body that produces the independent opinion within the bundle must be functionally separate from the program management chain. Connects to Obligation Fulfillment Record (Layer 3): the management declaration component of the bundle is a formal instantiation of the Obligation Fulfillment Record at the program operator level. Connects to the relational triad's funder-side obligation architecture: the Upward Assurance Package is the primary mechanism by which a program configuration tier discharges its declared obligation to the tier above in a multi-tier capital deployment system. The Evidence Strength level for the audit opinion component within the bundle is independent review at minimum.",
+        applications: "European Union Structural and Investment Funds programs operating under Regulation (EU) 2021/1060, specifically the annual submission of the management declaration (Article 72(1)(f)), annual accounts (Article 98), and annual audit opinion (Article 77(3)(a)) to the European Commission. United States Agency for International Development program implementation letters combined with annual audit reports and program evaluation submissions. IFAD annual progress reports combined with audit certificates. Gates Foundation annual narrative reports combined with financial reports and evaluation summaries. Any multi-tier funded program in which a program operator holds delegated authority from a higher tier and must periodically discharge that authority through a formal documentary bundle."
+      },
+      {
+        name: "Typed Evidence Schema",
+        layer: "evidence",
+        description: "A schema architecture in which each piece of evidence carries a machine-readable type declaration that defines and constrains the valid contents of that evidence record. The schema is registered once in a canonical, addressable registry and assigned a unique, deterministic identifier; every evidence record of that type declares its schema identifier, binding its contents to the type specification. The schema's machine-readable field type list constrains what data the evidence record may carry: a record whose encoded data does not conform to the declared schema's field types is structurally invalid at the infrastructure layer, not merely deficient by evaluator judgment.\n\nThe Typed Evidence Schema is distinct from the Criterion Specification Elements primitive (Layer 5) in structural function, although the two are related. Criterion Specification Elements specifies what a field must carry before it constitutes a measurement instrument: criterion intent, operational definition, response form, evidence form, and conformance threshold. The Typed Evidence Schema specifies the architectural constraint on what an entire evidence record of a given type may carry: the ABI-encoded or equivalently machine-readable field type list that constrains every instance of that schema type simultaneously. Criterion Specification Elements is a measurement design standard; the Typed Evidence Schema is an evidence architecture standard. A schema registration makes the type constraint a structural rejection-on-non-conformance property: registering the same schema a second time fails, making schemas globally canonical; and evidence records whose data does not conform to the schema's field types are rejected at the infrastructure layer. This structural rejection-on-non-conformance property has no equivalent in the Criterion Specification Elements primitive, which relies on human review rather than machine-layer rejection.\n\nThe Typed Evidence Schema is the structural foundation on which the Attestation Corpus primitive (Layer 4) rests without having been explicitly named. The Attestation Corpus names Ethereum Attestation Service attestations as one of three on-chain sources in the corpus, but does not define what a schema is or how it constrains corpus records. Without this primitive, the Attestation Corpus definition refers to a data structure whose type system is not named. The Ethereum Attestation Service is the most fully documented deployed instance: its SchemaRegistry contract stores schema records with four fields (a uid as a keccak256 hash of the schema string, resolver address, and revocable flag; the resolver address; the revocable boolean; and the ABI-encoded schema string), and its contract requires at execution time that attestation data is encoded to match the schema's field type list.\n\nRevocability is a named configuration element within this primitive. A schema registered as non-revocable permanently constrains all evidence records created under it: no attestation under a non-revocable schema can be declared revocable, and the Ethereum Attestation Service contract rejects any attempt to do so with a revert. This means the schema designer's choice at registration time creates a permanent architectural constraint on the tamper-resistance and revocability properties of all future evidence records of that type. Programs configuring evidence schemas must declare the revocability choice explicitly and state the rationale: non-revocable schemas prevent retraction of incorrect claims, which is appropriate for completion attestations but may be inappropriate for progress updates.",
+        relationships: "Structural foundation for the Attestation Corpus primitive (Layer 4): the corpus is queryable because each record's schema identifier makes its type retrievable. Connects to External Standard Identifier Types (Layer 5): the schema uid is the most strongly-typed external standard identifier available, being a deterministic hash of the schema's content that cannot collide with any other schema definition. Distinct from Criterion Specification Elements (Layer 5) by being an architecture-constraint primitive rather than a measurement design standard: Criterion Specification Elements concerns what a field should specify; Typed Evidence Schema concerns what a field is permitted to carry at the infrastructure layer. Connects to Format Agnosticism (Layer 1): the Typed Evidence Schema is a format-layer instrument, and Format Agnosticism holds that conformance to CROSS+WALKRI is content-based rather than format-based; a schema registration is the format layer's mechanism for encoding content requirements as structural constraints. Pairs with Attested Claim Record: the schema is the type; the attestation is the instance.",
+        applications: "Ethereum Attestation Service SchemaRegistry.sol and EAS.sol, deployed on Ethereum mainnet and multiple Layer 2 networks (https://docs.attest.org, accessed 2026-05-24). KarmaGAP gap-contracts schema resolver architecture for cross-program grant, milestone, and progress attestations (https://github.com/show-karma/gap-contracts, accessed 2026-05-24). Any program using Ethereum Attestation Service-compatible infrastructure for grant milestone tracking, including programs on Arbitrum, Gitcoin, Optimism, Octant, Celo, Scroll, and Lisk ecosystems."
+      },
+      {
+        name: "Attested Claim Record",
+        layer: "evidence",
+        description: `An on-chain or cryptographically signed off-chain record attesting a specific claim about a specific subject, carrying eight named structural fields: a unique claim identifier (a deterministic hash of the record's content fields, preventing duplication), a schema reference (the identifier of the Typed Evidence Schema the record conforms to), an attester identity (the address or credential of the party making the claim), an optional recipient identity (the address or identifier of the subject the claim is about, which may be the zero address if no specific recipient is named), a timestamp (when the claim was created), an optional expiration time (when the claim ceases to be current, or zero if non-expiring), a revocation time (populated only upon revocation, zero otherwise), and encoded claim data (the payload conforming to the schema's field type list). The Attested Claim Record is the atomic unit of the Attestation Corpus: every record in the corpus is an instance of this structure, and every Attestation Corpus query operation resolves to a set of Attested Claim Records.
+
+The eight fields together constitute the structural anatomy that makes cross-program identity matching, track record assessment, and corpus queries operable. Without the attester field, the claimed fact cannot be evaluated against a named, independently verifiable source (the Ethereum Attestation Service documentation states: "The credibility of an attestation hinges on the reputation of the entity making it. A credit score attestation holds weight when issued by a recognized credit bureau, but not so much if declared by an individual"). Without the schema reference, the claim's field structure cannot be retrieved or validated. Without the unique claim identifier, the record cannot be referenced from other records or queried independently. The combination of all eight fields is what makes the Attested Claim Record independently verifiable from sources outside the applicant's control (Layer 1): any party can query the record from the on-chain registry using the claim identifier, without the applicant's participation or cooperation.
+
+The Attested Claim Record is distinct from the Evidence Type taxonomy (Layer 4) in structural level. Evidence Type classifies what kind of claim a submission constitutes: standing, activity, outcome, planning, or Prior Deployment Expenditure Record. An Attested Claim Record may carry any of these evidence types depending on the schema it conforms to and the data it carries. The Attested Claim Record names the structural unit that holds an evidence type; the Evidence Type taxonomy names what the unit holds. Both are needed: Evidence Type without Attested Claim Record specifies what should be proven without naming the structural form of the proof; Attested Claim Record without Evidence Type names the structural form without specifying the evidential classification.
+
+The optional expiration time field deserves specific notice. An expiration time of zero means the claim is non-expiring and remains valid indefinitely after creation. A non-zero expiration time names the moment after which the claim should be treated as no longer current for gate determination purposes, even though the record remains permanently accessible in the on-chain registry. This is the attester's own first-person declaration, at the time of signing, of when the claim ceases to be authoritative: structurally distinct from the Data Quality Standards Timeliness criterion (Layer 5), which is an evaluator's third-person assessment of whether evidence is current.`,
+        relationships: "Instance of the Typed Evidence Schema primitive (Layer 4): the schema is the type; the Attested Claim Record is a specific instance of that type. Provides the structural anatomy that the Attestation Corpus primitive (Layer 4) presupposes but does not articulate: the corpus is a collection of Attested Claim Records; the On-chain Identity Anchor primitive (Layer 3) is the query key against which the attester and recipient fields are matched. Pairs with Chained Evidence Reference: the reference uid field within the Attested Claim Record is populated when this record points to a prior record, enabling evidence chains. Connects to Independent Verifiability from Sources Outside the Applicant's Control (Layer 1): the on-chain record is publicly retrievable by any party without the applicant's cooperation.",
+        applications: "Ethereum Attestation Service Attestation struct (EAS GitHub: Common.sol, https://github.com/ethereum-attestation-service/eas-contracts/blob/master/contracts/Common.sol, accessed 2026-05-24), which defines the exact ten-field structure (uid, schema, time, expirationTime, revocationTime, refUID, recipient, attester, revocable, data) from which the eight semantically named fields in this primitive are derived. KarmaGAP milestone attestations, progress update attestations, and grant profile attestations across Gitcoin, Optimism, Arbitrum, Octant, Celo, Scroll, and Lisk ecosystems. Any on-chain grant obligation tracking system that stores evidence as Ethereum Attestation Service-compatible attestations."
+      },
+      {
+        name: "Displacement Risk Declaration",
+        layer: "evidence",
+        description: `A required assessment of whether a program's activities risk causing the benefits it produces for its target population to be offset by negative effects in adjacent populations or areas, together with a declaration of the detection and measurement methodology used to assess that risk. The assessment operates prospectively, during program design, rather than retrospectively at the completion gate: the risk must be identified and addressed before implementation, not disclosed only after it has materialized. A displacement effect is specifically the case where the program does not create a net benefit at the aggregate level but rather reallocates an existing benefit from one population to another. The DCED Standard formulation is the most operationally detailed published definition: "displacement is when non-target groups suffer because the target groups benefit. This implies that the programme does not create an overall benefit, it just shifts benefits from one group to another."
+
+The Displacement Risk Declaration is distinct from the Intended versus Unintended Effects primitive (Layer 4) in structural position and direction. Intended versus Unintended Effects covers effects that occurred during the grant period that were not specified at entry and that are plausibly connected to the funded work; it is retrospective and it covers effects on the target population and other parties without structural distinction. The Displacement Risk Declaration is prospective and it specifically addresses effects on non-target populations that offset benefits to the target population: it fires at program design, requires a methodology declaration before implementation begins, and must address the specific counterfactual of what would have happened to non-target populations in the absence of the program. A displacement risk can exist even when the target population is genuinely helped: the question is whether the aggregate benefit is positive (new value created) or redistributional (value taken from one party and given to another).
+
+Three levels of displacement analysis are required where the primitive applies. At the service or activity level: would the program's activities displace other providers of similar services, reducing non-target populations' access to those services? At the enterprise or organization level: would the enterprises or organizations supported by the program displace competitor enterprises, resulting in job losses or market contraction elsewhere that offset the program's job-creation or income claims? At the sector or market system level: would the program's interventions alter price levels, market structures, or systemic conditions in ways that disadvantage populations outside the target group?
+
+The Displacement Risk Declaration is also distinct from the Causality Stance primitive (Layer 4), which addresses whether the intervention caused or contributed to an observed outcome. Causality stance operates at the level of the program-outcome relationship; displacement risk operates at the level of the program's aggregate societal effect. A program can have a valid contribution claim for its target-population outcomes while simultaneously having a displacement risk that renders the aggregate societal effect neutral or negative. The OECD DAC Coherence criterion addresses a related but structurally broader concept: coherence asks whether the program fits with other interventions in the same context, including whether other actors' interventions support or undermine the program. The Displacement Risk Declaration is more specific: it targets the counterfactual aggregate effect for non-target populations, not the fit between this program and other actors' programs.`,
+        relationships: "Extends Intended versus Unintended Effects (Layer 4) by naming a specific class of prospective inter-population effect that must be assessed during design rather than disclosed after the fact. Pairs with Causality Stance (Layer 4) at the aggregate societal level: a contribution stance on target-population outcomes does not discharge the displacement risk assessment obligation, which requires a separate aggregate-effect analysis. Connects to Theory of Change Hierarchy (Layer 6): displacement effects typically appear at the Intermediate or Long-term Outcome levels, not at the Short-term Outcome level where most completion gate evidence operates. Connects to Public Benefit Mechanism (Layer 3): programs claiming an access provision or condition change mechanism for a defined population must assess whether their mechanism risks producing displacement effects outside that population. The DCED Standard for Results Measurement and the OECD DAC Coherence criterion (both 2019 revision) together constitute the cross-framework grounding for this primitive.",
+        applications: `DCED Standard for Results Measurement in Private Sector Development, Element 1 Control Point 1.6 (Displacement Risk Assessment, status: Recommended): "Each results chain is supported by research and analysis that considers the risk of displacement" (DCED Implementation Guidelines: Articulating the Results Chain, https://www.enterprise-development.org/wp-content/uploads/1_Implementation_Guidelines_Results_Chains.pdf, accessed 2026-05-24). OECD DAC Evaluation Criteria Coherence criterion (2019 revision): external coherence requires assessment of whether the intervention's effects complement or undermine other actors' activities in the same context, including effects on non-beneficiary populations (OECD Better Criteria for Better Evaluation, December 2019). Any program claiming job creation, income generation, or market-development outcomes in a bounded geographic or sector context where program activities could shift benefits from non-target populations to target populations without creating aggregate net benefit.`
+      },
+      {
+        name: "Qualitative Mechanism Inquiry Requirement",
+        layer: "evidence",
+        description: "A required evidence form in which a submission must include qualitative inquiry into why and how an observed change occurred, not only quantified measurement of what changed. Where outcome evidence (Evidence Type, Layer 4) attests that a named condition shifted against a baseline, the Qualitative Mechanism Inquiry Requirement names a distinct evidential obligation: a structured investigation, conducted after the change is observed, into the mechanism that produced it. The object of the inquiry is the causal mechanism as it actually operated, surfaced through methods such as process tracing (documenting the causal chain from activity to outcome with evidence at each step), contribution analysis (mapping which actors and factors carried the observed change), or structured qualitative comparison across cases. The inquiry covers the perceptions of the people the program reached, changes that were not predicted at entry, and the wider effects the quantitative indicators do not register.\n\nThis requirement is its own primitive because it sits at a different structural position from both Causality Stance and Evidence Type. Causality Stance (Layer 4) is the declared posture an intervention takes toward an outcome (attribution or contribution); it fixes what kind of causal claim is being made, but a Causality Stance declaration paired with a quantitative outcome measurement satisfies the existing evidence primitives without any post-change inquiry into whether the declared mechanism actually operated as assumed. The Qualitative Mechanism Inquiry Requirement is the ex-post investigation that tests the declared mechanism against what happened, as distinct from the ex-ante critical assumptions list carried in a Pathway (Layer 6), which records the conditions presumed to hold before the work begins. A completion gate that measures only the magnitude of change, without requiring any documentation of how and why it came about, cannot be used to test whether the program's causal theory was correct or to inform the design of subsequent rounds.\n\nThe requirement, where it applies, specifies three elements: the inquiry method (the named qualitative approach, such as process tracing or contribution analysis), the inquiry scope (which mechanism links and which affected parties the inquiry must reach), and the disclosure form (how the mechanism findings, including findings that the declared mechanism did not operate as assumed, are recorded at the gate). Direction-toward-a-goal language that names a mechanism without specifying how it is detected does not satisfy the requirement; the Frame Language Frame 2 Functioning Check (Layer 1) applies to every mechanism description offered under it.",
+        relationships: "Pairs with Causality Stance (Layer 4): the stance declares the kind of causal claim; the Qualitative Mechanism Inquiry Requirement supplies the post-change investigation that tests whether the declared mechanism operated. Distinct from Evidence Type (Layer 4), whose outcome evidence type attests to the fact of change while this primitive addresses the mechanism of change. Pairs with Intended versus Unintended Effects (Layer 4): the qualitative inquiry is the principal means by which unintended effects, positive and negative, are surfaced at the completion gate. Distinct from the critical assumptions list within Pathway (Layer 6) by being ex-post inquiry rather than ex-ante assumption documentation. Feeds the Inter-cycle Reflection Stage configuration of Program Learning Architecture (Layer 7): mechanism findings are a primary input to the next cycle's design.",
+        applications: `DCED Standard for Results Measurement in Private Sector Development, Control Point 2.2 (Must): "Qualitative information on how and why changes are occurring is defined for each intervention," with five named purposes including capturing unpredicted changes and understanding sustainability (DCED Implementation Guidelines: Defining Indicators, https://www.enterprise-development.org/wp-content/uploads/2_Implementation_Guidelines_Defining_Indicators.pdf, accessed 2026-05-24). OECD Development Assistance Committee, Impact criterion, which directs the evaluator toward "the big 'so what?' question" and the investigation of unintended effects, with the recorded finding that 85 percent of one agency's evaluations did not cover unintended effects (Applying Evaluation Criteria Thoughtfully, OECD 2021; Better Criteria for Better Evaluation: Reflections, UNDP Network of Evaluation Centres, 2021). CGIAR Monitoring, Evaluation, Learning and Impact Assessment (MELIA) theory-based approach, which requires that impact assessments "causally test the assumptions underlying the theory of change" (CGIAR Evaluation Policy, 2022). Any change-obligation program whose completion gate must inform subsequent design rather than only record an outcome magnitude.`
+      },
+      {
+        name: "Contested-Domain Outcome Measurement Problem",
+        layer: "evidence",
+        description: "A named evidence condition that holds in certain programs whose target sits at the level of a political institution or a shared norm, where the very definition of a successful outcome is itself in active dispute among parties with standing to shape it. Three features mark the condition: the target condition is contested among the parties who hold authority over it; multiple concurrent interventions from uncoordinated actors push for or against movement in the condition; and no single grantee or funder can plausibly claim attribution for the condition's movement. Under this condition, the ordinary entry-gate move of pre-specifying an outcome metric becomes problematic, because naming the outcome in measurable terms may itself be a contested act within the domain the program operates in. The primitive names this as a structural evidence condition so that a program can declare it at entry rather than discover it at the completion gate.\n\nThe Contested-Domain Outcome Measurement Problem is its own primitive because it precedes and is distinct from Causality Stance (Layer 4). Causality Stance addresses how a program relates to an outcome it concedes it does not solely cause: the contribution stance already covers the case where many actors carry a shared outcome and attribution to one is not claimed. The contested-domain condition is more specific and sits upstream of that choice. It names the case where the outcome definition itself is in dispute, not only the causal share. Causality Stance, Theory of Change Hierarchy (Layer 6), and Sustainability Stance (Layer 6) all presuppose a target condition whose definition is agreed by funder and evaluator even when causation is hard to establish. This primitive names the case where that presupposition fails: the definition of the target is the subject of the contest, so a pre-specified outcome metric is not a neutral measurement instrument but a position within the dispute.\n\nThe condition resolves into two sub-cases that a declaring program must distinguish, because the measurement consequence differs. In definitional contest, the parties disagree on what the target condition would look like if achieved, which makes any pre-specified indicator a loaded choice. In causal contest, the parties agree on the target condition but dispute whether a given intervention advances or impedes it, which makes an attribution claim a usable argument for opponents of the program. Where this condition is declared, contribution-level evidence is the maximum claim the program can carry, and the program states which sub-case applies and how it will report progress without asserting an attribution it cannot hold.",
+        relationships: "Distinct from and upstream of Causality Stance (Layer 4): the contested-domain condition constrains the outcome definition itself, where Causality Stance constrains only the causal claim made about an agreed outcome. Where the condition is declared, contribution stance is the only admissible Causality Stance and attribution stance is excluded. Constrains the Outcome Description Completeness Schema (Layer 5): a program under this condition cannot supply a settled From-state and To-state in the ordinary way, and must instead declare the contest and the sub-case. Connects to Public Benefit Mechanism (Layer 3): programs claiming a condition change mechanism for an institutional or normative target must check whether the target's definition is contested before treating the mechanism's outcome as measurable. Connects to Multi-Actor Population Outcome Attribution Rule (Layer 4): both name configurations where attribution to a single program is structurally unavailable, the contested-domain condition because the outcome definition is disputed, the multi-actor rule because the population-level result is shared across many actors.",
+        applications: 'Democracy Fund structural electoral reform program (proportional representation, anti-gerrymandering, ballot-access reform), where the target is a change in how an election system is designed, requiring legislative action, judicial decision, or ballot initiative against actively organized opposing interests, and where whether the structural change is desirable is itself in dispute (Democracy Fund, "Democracy Fund Invests in the Promise of Representative Institutions"; "Embracing Our Responsibility to Adapt and Evolve"; democracyfund.org, accessed 2026-05-24). Any program whose target condition is an institutional design or a shared norm subject to active contest by parties with authority over it.'
+      },
+      {
+        name: "Attested Third-Party Verification Record",
+        layer: "evidence",
+        description: "An evidence record consisting of a third party's attestation to a result, recorded as a verifiable attested object created by a party outside the entity whose result is being attested. The defining structural element is that the verification act itself is a recorded attestation, signed by the verifying party and retrievable from a named source, rather than a narrative report or an off-record determination. The verifying party may be one whose own assessments accumulate as a retrievable track record: a verifier who self-nominates, declares the domain in which they assess, and builds a record of prior assessments that any party can retrieve, so that the verifier's evidential weight rests on that retrievable record of prior assessments rather than on an internal staffing decision of any single program.\n\nThe Attested Third-Party Verification Record is distinct from Determination Body Separation (Layer 4), which requires that completion-gate determinations be made by a named body sitting structurally outside program management, constituted by a charter that specifies composition, scope, authority, and a removal mechanism. The record here is produced under a different arrangement: the verifier participates by self-nomination and expertise declaration rather than by charter constitution, and the structural object is the attestation the verifier produces, not the standing institution that houses them. It is also distinct from the self-report level of Evidence Strength (Layer 4), because the attesting party is outside the entity whose result is verified, and from the Attested Claim Record (Layer 4), which names the eight-field atomic structure of any attestation: the Attested Third-Party Verification Record is the specific case where the attestation's content is a third party's verification of a result and where the attester carries a retrievable record of prior assessments.\n\nThis entry is held weak: it currently rests on a single source and is provisional pending a second independent source that records a third party's result-verification as a retrievable attested object on the same structural logic. The placement of the verifier-track-record element is held open with it: whether the self-nomination and retrievable-assessment-record features are protocol-level structure or a program-level configuration of the underlying attestation mechanism awaits the second source.",
+        relationships: "Distinct from Determination Body Separation (Layer 4): a charter-constituted body versus a self-nominated verifier whose evidential weight rests on a retrievable record of prior assessments. Instance of Evidence Strength (Layer 4) above the self-report level, since the attester is outside the verified entity. Configuration of the Attested Claim Record (Layer 4): the verification record is an Attested Claim Record whose encoded data is a third party's verification of a result. Connects to the Attestation Corpus (Layer 4): verification records of this kind are retrievable corpus contents from sources outside the applicant's control. Connects to Conflict of Interest (Layer 3): the self-nomination model is a positive selection by declared expertise, which does not by itself discharge the relationship-based exclusion that Conflict of Interest names.",
+        applications: "KarmaGAP community reviewer model, in which reviewers self-nominate, declare domain expertise, and accumulate a retrievable record of their own assessments alongside the grant-manager completion attestations stored through the Ethereum Attestation Service (KarmaGAP documentation export; Arbitrum implementation forum post, accessed 2026-05-24). Held weak pending a second independent program that records third-party result-verification as a retrievable attested object."
+      },
+      {
+        name: "Multi-Actor Population Outcome Attribution Rule",
+        layer: "evidence",
+        description: "A declared rule for how a population-level outcome is attributed when many actors contribute to it. The rule states that at the level of a whole-population condition in a geographic area, no single program is the bearer of the result, and the result is carried by a shared structure of multiple contributing actors rather than by an attribution argument from any one organization. It separates two levels at which a claim about results can be made: the level of a single program's own performance, where the result can be assigned to a named program, and the level of a whole-population condition, where the result cannot be pinned to any one actor and a shared contributing structure is the only admissible form of the claim. The transition between the two levels is a change in who bears the result, not only a change in how hard causation is to establish.\n\nThe Multi-Actor Population Outcome Attribution Rule is its own primitive because it goes beyond Causality Stance (Layer 4). Causality Stance's contribution stance requires a named causal pathway, a list of acknowledged co-factors, and a materiality argument from the program making the claim; it remains a claim made by one program about its own share. The Multi-Actor Population Outcome Attribution Rule names the structural assertion that, at the whole-population level, even a well-formed contribution argument from a single organization is not the right form of the claim: the result is shared and non-assignable, and a population-level outcome claim requires a named shared contributing structure across actors. This is the rule that determines, at the portfolio level, that no single program's continuation gate can be assessed against a whole-population result, and that a funder claiming a population-level outcome through a portfolio of programs is making a claim of the shared kind, not the assignable kind.\n\nThis entry is held weak: it currently rests on a single source and is provisional pending a second independent source that draws the same line between assignable program-level results and non-assignable population-level results on the same structural logic. Its relation to the parent question is held open with it: whether the rule is a standalone primitive or a derived consequence of a broader population-versus-program separation primitive awaits the second source.",
+        relationships: "Extends Causality Stance (Layer 4) at the whole-population level: where the outcome is a whole-population condition, contribution stance is the only admissible stance and even a single program's contribution argument does not by itself constitute the population-level claim. Configures Theory of Change Hierarchy (Layer 6) at the Goal level, where attribution of any single project to a long-term outcome is already an argued contribution rather than a measured one. Pairs with the convergence analysis output of Portfolio Analysis Outputs (Layer 7): the named shared contributing structure is tracked through convergence analysis of multiple programs feeding the same outcome node. Connects to Contested-Domain Outcome Measurement Problem (Layer 4): both name configurations where attribution to one program is unavailable, here because the population-level result is shared, there because the outcome definition is disputed.",
+        applications: 'Annie E. Casey Foundation Results-Based Accountability practice, which separates population-level results ("conditions we wish to achieve" for a whole population, measured by indicators such as the infant mortality rate) from program-level performance, and states that "accountability for population well-being cannot be pinned on any one person or organization" and that population results do not flow linearly downward through agencies and programs (Mark Friedman, RBA Basic Ideas; RBA Implementation Guide, raguide.org, accessed 2026-05-24). Held weak pending a second independent source drawing the same assignable-versus-shared line at the population level.'
+      },
+      {
+        name: "Locked Counterfactual Baseline",
+        layer: "evidence",
+        description: "A counterfactual baseline fixed at the outset of a program and locked against later revision, so that the outcome determination rests on a comparison agreed before the intervention begins. The counterfactual is a quantified estimate of what the indicator would have been in the absence of the intervention, drawn from a historical comparison cohort or a control group. What this primitive adds beyond the ordinary attribution-stance requirement is the locking: the estimate is established and agreed by the contracting parties before the program runs, and is recorded as a binding term against which post-program measurement is evaluated, so that no party can revise the baseline once the program's results are known. The lock is what prevents the figure from being adjusted after the fact to move the determination, which matters most where disbursement is calculated directly against the counterfactual figure.\n\nThe Locked Counterfactual Baseline is a named configuration of the attribution stance within Causality Stance (Layer 4), not a separate causal claim. Attribution stance already requires a documented estimate of what the indicator would have been without the intervention, a comparison period or group, and independent attestation; the Locked Counterfactual Baseline adds the specific requirement that this estimate be quantified and recorded as a binding term before the intervention begins, such that the post-program measurement is read against the pre-program figure rather than against one that can be revised once results are known. It is distinct from the From-state baseline of the condition change Public Benefit Mechanism (Layer 3), which names the independent source of the starting condition but does not require that the counterfactual estimate be locked against revision by the parties. It is distinct from the Pre-Award Indicator Confirmation Stage (Layer 3), which locks the indicator specification: this primitive locks the comparison figure the locked indicator is measured against.\n\nThis entry is held weak: it currently rests on a single source and is provisional pending a second independent source that fixes a counterfactual comparison figure as a binding pre-program term on the same structural logic.",
+        relationships: "Named configuration of the attribution stance within Causality Stance (Layer 4): the documented counterfactual estimate is fixed and bound before the intervention begins. Distinct from the From-state baseline of the condition change Public Benefit Mechanism (Layer 3), which names the starting condition's independent source without the revision lock. Pairs with the Pre-Award Indicator Confirmation Stage (Layer 3): the indicator specification and the counterfactual figure are both fixed before disbursement, but they fix different objects. Connects to Data Quality Standards (Layer 5): the locked figure satisfies the integrity requirement that evidence collection be separated from the party that benefits from a favorable determination, since a locked baseline cannot be adjusted by the benefiting party after results are known. Connects to Evidence Strength (Layer 4): the independent evaluation that produces and attests the counterfactual figure is independent review at minimum.",
+        applications: 'Social Impact Bonds and Pay for Success contracts, in which "payments due only where the actual outcomes delivered were above pre-established counterfactuals," and in which a historical comparison cohort is constructed before program start to establish the counterfactual scenario (Government Outcomes Lab Oxford, New Zealand Youth Offending Social Impact Bond evaluation; Social Finance, Designing Outcomes Metrics technical guide; NSW Government Technical Guide on Outcomes Measurement, accessed 2026-05-24). Held weak pending a second independent source that binds a counterfactual comparison figure as a pre-program term.'
+      },
+      {
+        name: "Disaggregated Population Progress Obligation",
+        layer: "evidence",
+        description: "An obligation to report outcome progress broken out across population subgroups at a defined resolution, rather than only in aggregate. The obligation fixes a reporting granularity that sits between the aggregate total and the individual record: outcome evidence must be resolved to named subgroup categories (for example ethnicity, gender, and discipline) but must not be resolved to the level of identifiable individuals. Two further elements travel with it where it applies: a requirement that failures be documented alongside successes, so that the evidence design can credibly register both, and a feed into a cross-portfolio evaluation run by the funder across all programs holding the same obligation, so that subgroup-resolved data aggregates upward into a program-level picture no single program could produce alone.\n\nThe Disaggregated Population Progress Obligation is distinct from the Disaggregation Floor (Layer 5), which is the nearest existing primitive and a different structural object. The Disaggregation Floor is a no-drop constraint over time: categories declared at the entry gate ratchet upward and cannot be collapsed at later gates within one program. The Disaggregated Population Progress Obligation is an obligation about the granularity and routing of outcome evidence itself: it sets the subgroup resolution at which progress must be reported, bounds that resolution above the individual level, requires failure documentation, and routes the result into cross-portfolio aggregation. A program could satisfy a Disaggregation Floor (carrying its declared categories forward unchanged) while not holding a Disaggregated Population Progress Obligation (which additionally fixes the resolution band, the failure-documentation element, and the outward cross-portfolio feed). It is also distinct from the Beneficiary Validation Mechanism (Layer 3), which confirms that claimed beneficiaries are real but does not set the resolution of ongoing outcome reporting; and from Data Quality Standards (Layer 5), which set the quality of evidence but not the required population-category resolution at which outcomes are reported.\n\nThis entry is held weak: it currently rests on a single source and is provisional pending a second independent source that fixes a bounded subgroup reporting resolution feeding a cross-portfolio evaluation on the same structural logic. The outward cross-portfolio element is what holds the obligation standalone rather than folding it into the Disaggregation Floor; whether the failure-documentation element generalizes beyond its source context is held open with it.",
+        relationships: "Distinct from the Disaggregation Floor (Layer 5): a granularity-and-routing obligation on outcome evidence versus a no-drop ratchet on declared categories over time. Configures Evidence Type (Layer 4) outcome evidence by fixing the subgroup resolution at which the outcome must be reported. Connects to Portfolio Analysis Outputs (Layer 7): the cross-portfolio feed is the mechanism by which subgroup-resolved outcomes from many programs aggregate into a program-level evaluation. Distinct from the Beneficiary Validation Mechanism (Layer 3), which verifies beneficiary reality rather than setting ongoing reporting resolution. Connects to the bounded resolution between aggregate and individual, which is a privacy-preserving constraint distinct from the equity-commitment basis of the Disaggregation Floor's categories.",
+        applications: 'National Science Foundation Broadening Participation in Computing solicitation NSF 21-571, which requires outcome data "disaggregated by ethnicity, gender, and discipline (but not further disaggregated to the individual level)," requires participation in a program-level evaluation supplied with that disaggregated data, and requires evaluation components that "can effectively document both successes and failures" (NSF 21-571, accessed 2026-05-24). Held weak pending a second independent source fixing a bounded subgroup reporting resolution that feeds a cross-portfolio evaluation.'
+      },
       {
         name: "Criterion Specification Elements",
         layer: "specification",
-        description: "The five elements that a field must carry before it is a measurement instrument rather than a label: criterion intent, operational definition, response form, evidence form, and compliance threshold. All five are required.",
-        relationships: [
-          "Generated by the bidirectional precision primitive",
-          "Applies to all fields in any WALKRI-conformant form",
-          "Generates data quality standards as quality checks on the specification itself"
-        ],
-        applications: [
-          "Every WALKRI field audit",
-          "WALKRI pre-publication checklist",
-          "AI-assisted field review criterion reference"
-        ]
+        description: "The five elements that a field must carry before it is a measurement instrument rather than a label. All five are required; a field lacking any one is not WALKRI-conformant.\n\n**Criterion intent**: a written statement of what the field measures, distinct from its label. Answers: what does a true response to this field tell us about the applicant or subject?\n\n**Operational definition**: a complete definition of each option or response category with qualifying and non-qualifying examples. For numeric fields: the unit, the counting rule, and the boundary conditions. For text fields: the scope and minimum content requirements.\n\n**Response form**: the response type with a written justification for why that type is appropriate for the criterion intent. Response type is a measurement decision, not a formatting decision.\n\n**Evidence form**: the specification of the artifact that satisfies the criterion: document type, data source, collection methodology at a level sufficient for independent replication.\n\n**Conformance threshold**: for fields referencing an external standard, which components apply, what evidence satisfies each, and what the minimum threshold for passage is.",
+        relationships: "Generated by the bidirectional precision primitive. Applies to all fields in any WALKRI-conformant form, including identity fields. Generates the data quality standards (validity, integrity, precision, reliability, timeliness) as quality checks on the specification itself.",
+        applications: ""
       },
       {
         name: "Data Quality Standards",
         layer: "specification",
-        description: "The five standards against which a WALKRI-conformant field specification is assessed: validity, integrity, precision, reliability, and timeliness. These are quality checks on criterion specification elements, not independent requirements.",
-        relationships: [
-          "Quality checks on criterion specification elements",
-          "Maps to USAID data quality criteria (Validity, Reliability, Precision, Integrity, Timeliness)"
-        ],
-        applications: [
-          "WALKRI field audit quality assessment",
-          "USAID DQA structural compliance"
-        ]
+        description: "The five standards against which a WALKRI-conformant field specification is assessed.\n\n**Validity**: the logical chain from the evidence specified in the evidence form to the result claimed in the criterion intent is documented and sound.\n\n**Integrity**: evidence collection is separated from the entity that benefits from favorable outcomes of that collection.\n\n**Precision**: the measurement instrument is capable of detecting the magnitude of differences that are relevant to the criterion intent. This is measurement resolution in the monitoring-and-evaluation sense, a property of the instrument; it is distinct from PFDS-defined Precision, which in the upstream standards names the unified precision-and-non-harming commitment, and shares only the word with it.\n\n**Reliability**: the instrument produces consistent results across reporting periods and across different reviewers applying the same operational definition.\n\n**Timeliness**: the evidence is current to the decision cycle it is intended to inform.",
+        relationships: "These are quality checks on criterion specification elements, not independent requirements. A field that satisfies all five criterion specification elements but fails a data quality standard has a well-specified but poorly designed instrument.",
+        applications: ""
       },
       {
         name: "External Standard Identifier Types",
         layer: "specification",
-        description: "The classification of how an external standard is identified in a WALKRI compliance threshold or CROSS reference. Ten types: DOI, ISO number, IETF RFC number, SPDX identifier, W3C dated URL, ELI URI, regulatory citation, repository version tag, IRIS+ indicator identifier, and URL (general, least preferred).",
-        relationships: [
-          "Each identifier type has an associated access model and archival anchor requirement",
-          "Identifier type determines the appropriate version anchor"
-        ],
-        applications: [
-          "WALKRI compliance threshold field specification",
-          "CROSS external standard reference fields"
-        ]
+        description: "The classification of how an external standard is identified in a WALKRI conformance threshold or CROSS external standard reference. Ten types recognized:\n\nDOI (Digital Object Identifier), ISO number, IETF RFC number, SPDX identifier, W3C dated URL, ELI URI (European Legislation Identifier), regulatory citation, repository version tag, IRIS+ indicator identifier, URL (general, least preferred due to link rot).",
+        relationships: "Each identifier type has an associated access model and archival anchor requirement. Identifier type determines the appropriate version anchor.",
+        applications: ""
       },
       {
         name: "Access Models",
         layer: "specification",
-        description: "The classification of how an external standard is accessed. Four models: open and free, open with registration, paid and licensed, and government and regulatory.",
-        relationships: [
-          "Constrains compliance threshold language (paid standards cannot require evidence only a subscriber could produce)",
-          "Access model must be declared alongside the external standard reference"
-        ],
-        applications: [
-          "WALKRI compliance threshold access requirement",
-          "External standard reference declarations"
-        ]
+        description: "The classification of how an external standard is accessed. Four models:\n\n**Open and free**: available to any user without registration or payment.\n\n**Open with registration**: available without payment but requires account creation.\n\n**Paid and licensed**: requires payment or institutional license for access.\n\n**Government and regulatory**: published by a regulatory or governmental authority; formally free but may require navigation of official systems.",
+        relationships: "Constrains what conformance threshold language is appropriate: a paid standard cannot require evidence that only a paying subscriber could produce. The access model must be declared alongside the external standard reference.",
+        applications: ""
       },
       {
         name: "Applicant Identity Instrument Types",
         layer: "specification",
-        description: "The classification of identity fields as WALKRI instruments. Three types: legal entity instrument, display name instrument, and prior entity relationship instrument.",
-        relationships: [
-          "Generated by the entity boundary primitive applied at the field level",
-          "Generates the self-reference consistency requirement"
-        ],
-        applications: [
-          "WALKRI applicant identity field specification",
-          "Self-reference consistency check across application"
-        ]
+        description: "The classification of identity fields as WALKRI instruments. Three types, each with its own criterion intent and operational definition:\n\n**Legal entity instrument**: criterion intent is to identify the legal person or registered organization responsible for delivering the grant obligations. Operational definition: the name as it appears in the jurisdiction of registration, with registration number and jurisdiction stated. Trading names, brand names, and project names do not satisfy this field unless they are the legal name.\n\n**Display name instrument**: criterion intent is to identify the publicly known name the applicant uses when presenting this work. Operational definition: the name used consistently in prior public communications, repositories, and grant histories. A name chosen specifically for this application that has no prior public use is not a display name.\n\n**Prior entity relationship instrument**: criterion intent is to identify any entity under whose resources, employment, or declared decision-standing rules cited prior work was performed. Operational definition: the name of the entity, the applicant's relationship to it at the time of the work, and the current status of that relationship. Activates whenever prior work is cited.",
+        relationships: "Generated by the entity boundary primitive applied at the field level. Generates the self-reference consistency requirement: all self-references in an application must resolve to the declared legal entity or display name.",
+        applications: ""
       },
       {
         name: "Disaggregation Floor",
         layer: "specification",
-        description: "A constraint that disaggregation categories declared at the entry gate are carried forward unchanged to every subsequent gate within the same program; the set may be added to at later gates, but established categories cannot be dropped, collapsed, or replaced. Disaggregation floors ratchet only upward. Addresses the recurring pattern where disaggregation categories established to satisfy entry-gate equity, inclusion, or population-scope commitments quietly disappear at progress and completion gates. Two configuration elements: floor categories, addition protocol.",
-        relationships: [
-          "Layer 5 primitive operating in conjunction with Criterion Specification Elements (each field bound by the floor must satisfy operational definition requirements for each declared category)",
-          "Connects to Public Benefit Mechanism (Layer 3): floor categories typically derive from the population scope declared with the public benefit mechanism",
-          "Connects to Obligation Fulfillment Record: drift below the floor at any gate is an adverse signal recorded against the funder program"
-        ],
-        applications: [
-          "CROSS Part XII (NCRP Criteria for Philanthropy at Its Best disaggregation requirements; IPAF Indigenous well-being indicators disaggregation; CDC framework rigor standard on disaggregated reporting)",
-          "Any program declaring equity, inclusion, or population-targeted public benefit mechanisms with named disaggregation categories"
-        ]
+        description: "A constraint that disaggregation categories declared at the entry gate are carried forward unchanged to every subsequent gate within the same program; the set may be added to at later gates, but established categories cannot be dropped, collapsed, or replaced. Disaggregation floors ratchet only upward.\n\nThe constraint addresses a recurring pattern in grants reporting where disaggregation categories established to satisfy entry-gate equity, inclusion, or population-scope commitments quietly disappear at progress and completion gates, leaving the funder with aggregate data that no longer answers the questions the entry gate committed to answering. The Disaggregation Floor names this constraint and makes its violation a structural drift between entry-gate commitment and completion-gate evidence.\n\nTwo configuration elements: the floor categories (the disaggregation dimensions declared at the entry gate that cannot be dropped, for example gender, race or ethnicity, geographic region, age cohort, disability status), and the addition protocol (the conditions under which new disaggregation dimensions may be added at later gates without violating the floor).",
+        relationships: "Layer 5 primitive operating in conjunction with Criterion Specification Elements (each field bound by the floor must satisfy the operational definition requirements for each declared disaggregation category). Connects to Public Benefit Mechanism (Layer 3): the floor categories typically derive from the population scope declared with the public benefit mechanism. Connects to Obligation Fulfillment Record: drift below the floor at any gate is an adverse signal recorded against the funder's program.",
+        applications: "CROSS Part XII (NCRP Criteria for Philanthropy at Its Best disaggregation requirements; IPAF Indigenous well-being indicators disaggregation; CDC framework rigor standard on disaggregated reporting). Any program declaring equity, inclusion, or population-targeted public benefit mechanisms with named disaggregation categories."
       },
-      // ---------------------------------------------------------------------------
-      // Layer 6: Causal Architecture Primitives
-      // ---------------------------------------------------------------------------
+      {
+        name: "Cross-Cutting Objective Classification System",
+        layer: "specification",
+        description: "A named taxonomy of cross-cutting objectives that applies to every operation within a program, requiring that each operation be classified at design time according to its depth of integration of each named objective, with qualifying tiers generating required downstream design obligations and portfolio-level coverage targets binding the program to aggregate performance across the classification. The classification fires before any individual operation's entry gate is assessed and is separate from the entry specification criteria for the operation itself: classification is an obligatory design-time act, not a competitive criterion. The African Development Bank's Gender Marker System is the most operationally detailed published instance, classifying each sovereign and non-sovereign operation into four tiers based on the depth of integration of gender equality: the principal objective directly addresses gender equality (GEN I), gender equality is one outcome but not the principal one (GEN II), one or more outputs relate to gender equality (GEN III), or gender-inclusive activities are marginal to outputs and outcomes (GEN IV).\n\nThe Cross-Cutting Objective Classification System operates at three structural levels simultaneously. At the operation level, each funded operation receives a tier assignment that reflects the depth of integration of the named objective into that operation's design. At the instrument level, operations above a declared tier threshold trigger a required design instrument (in the AfDB case, a Gender Action Plan specifying actions, budget, and responsibilities for implementation) that must be produced alongside the operation's standard documentation. At the portfolio level, a declared coverage target requires that a named proportion of all operations reach or exceed a threshold tier within a specified reporting period, with the portfolio-level target published and tracked through a linked dashboard connected to the program's project management system.\n\nThe Cross-Cutting Objective Classification System is distinct from the Disaggregation Floor (Layer 5) in structural function and position. The Disaggregation Floor is a constraint on the reporting data categories declared at entry: once declared, they cannot be dropped at subsequent gates. The Cross-Cutting Objective Classification System is a design-time classification applied to the operation as a whole, before any specific data categories are established, that determines what design obligations attach to the operation and what portfolio coverage the funder must demonstrate. The Disaggregation Floor covers the accuracy and completeness of data over time within a single operation; the Cross-Cutting Objective Classification System covers the distribution of integration depth across all operations and triggers instrument obligations based on that distribution.\n\nThe primitive is also distinct from the Criterion Specification Elements primitive (Layer 5). Criterion Specification Elements specifies how a single field must be designed to constitute a measurement instrument. The Cross-Cutting Objective Classification System specifies a tiered design classification for an entire operation, not a measurement instrument for a single field. A full five-element criterion specification for each tier of the classification system is required as a component of this primitive's deployment, but the classification architecture itself is a distinct structural commitment that Criterion Specification Elements does not capture.",
+        relationships: "Extends Criterion Specification Elements (Layer 5) by requiring that the tier definitions be operationally specified with qualifying and non-qualifying examples at each tier level; the classification produces a score, making it a scored criterion, and the scoring methodology must satisfy the Bidirectional Precision requirement (Layer 1). Pairs with Portfolio-level Continuation Benchmark (Layer 7) at the portfolio level: the coverage target that requires a declared proportion of operations to reach a threshold tier is a Portfolio-level Continuation Benchmark applied to a cross-cutting design dimension rather than to an outcome evidence dimension. Connects to Disaggregation Floor (Layer 5): operations classified above the trigger threshold must carry disaggregation categories for the named cross-cutting objective through all subsequent reporting gates. Connects to Public Benefit Mechanism (Layer 3): operations claiming a condition change or access provision mechanism for a population affected by the named cross-cutting objective must satisfy the classification tier requirement before their public benefit claim is assessed.",
+        applications: "African Development Bank Gender Marker System, classifying all sovereign and non-sovereign operations into GEN I through GEN IV with linked Gender Action Plan obligation for GEN I and GEN II operations and portfolio coverage target of 80 percent of public-sector operations directly benefiting women (AfDB Gender Marker System Dashboard press release, https://www.afdb.org/en/news-and-events/press-releases/african-development-bank-unveils-gender-marker-system-dashboard-strengthen-monitoring-and-implementation-gender-mainstreaming-bank-projects-74157, accessed 2026-05-24). AfDB climate finance tagging system (structural analogue applying the same architecture to climate co-benefit classification). World Bank climate co-benefit classification system. Any multi-operation program that must track integration of a named cross-cutting theme (gender, environment, disability, Indigenous peoples) across its full portfolio and hold the portfolio to a declared coverage target."
+      },
+      {
+        name: "Criteria Transmission Ceiling",
+        layer: "specification",
+        description: "The maximum distance in delegation layers over which a funder's criteria can be transmitted before they must be restated by the receiving intermediary in operationally specific terms. In a re-granting chain, each delegation layer introduces structural distance between the original funder's criteria and the end-recipient applicants who must meet them. As criteria travel through delegation layers, they accumulate interpretive drift: terms that were operationally defined at the original funder's level become abstract at the intermediary level, and abstract at the sub-intermediary level, until they arrive at the end-recipient's entry gate as labels without operational content. The Criteria Transmission Ceiling names the point at which this drift requires a restatement obligation.\n\nThe ceiling is not a fixed number of layers but a declared configuration element: the funder or program designer must declare how many delegation layers its criteria may travel without restatement, and must require that any intermediary operating beyond that distance produce its own operationally specific restatement of the criteria before opening sub-grant applications. An intermediary operating within the declared ceiling may transmit the criteria as received. An intermediary operating beyond the declared ceiling must restate each criterion using the full Criterion Specification Elements standard (Layer 5), calibrated to the specific context of its sub-grantee population, before those criteria constitute an entry gate specification.\n\nThe Criteria Transmission Ceiling is distinct from the Delegation Scope Agreement primitive (from the EU structural funds dossier, not yet promoted) in structural focus. A Delegation Scope Agreement specifies the scope of tasks, supervision arrangements, and reporting obligations in a delegation relationship between a program operator and an intermediate body. The Criteria Transmission Ceiling specifies a constraint on the operational specificity of measurement specifications as they travel through delegation layers: it is a quality maintenance requirement, not a task scope definition. An intermediary can operate under a fully specified Delegation Scope Agreement and still produce an entry gate specification at the end-recipient level that fails the Criteria Transmission Ceiling requirement because its criteria have lost operational content across too many delegation layers.\n\nThe Criteria Transmission Ceiling is also distinct from the Downstream-Use Restriction primitive (Layer 3), which constrains what end-recipients may do with funded outputs. The Criteria Transmission Ceiling constrains the operational specificity of what end-recipients must demonstrate to receive the funding, not what they may do with it once received. The two primitives address complementary aspects of criteria behavior in re-granting chains: Downstream-Use Restriction travels with the money and constrains its use; the Criteria Transmission Ceiling travels with the specification and constrains its operational specificity across delegation layers.",
+        relationships: "Layer 5 primitive operating in conjunction with Criterion Specification Elements (Layer 5): the restatement obligation triggered when the ceiling is exceeded requires each restated criterion to satisfy the full five-element specification. Connects to the Delegation Scope Agreement concept (EU structural funds dossier, Candidate 3): the delegation scope agreement must declare the criteria transmission ceiling as a named element of the delegation terms, not merely the task scope. Connects to Downstream-Use Restriction (Layer 3): both operate on criteria behavior in re-granting chains but address different dimensions (operational specificity of specifications versus use restriction). Connects to Non-Delegable Obligation Retention (MacArthur dossier Candidate 6, not yet promoted): the originating funder's purpose-conformant-use obligation cannot be delegated; the Criteria Transmission Ceiling specifies how far the funder's measurement specifications may travel while retaining operational specificity.",
+        applications: "MacArthur Foundation 100andChange re-granting through Lever for Change, in which the five published criteria must be transmitted to the Wise Head Panel reviewers and then to finalist organizations during the monitoring, evaluation, and learning plan development stage; the operational specificity of the criteria at each stage determines whether the Pre-Award Indicator Confirmation Stage produces an actionable measurement specification or an abstract aspiration (see 100andChange monitoring, evaluation, and learning guidance, https://www.100andchange.org/monitoring-learning-evaluation-guidance, accessed 2026-05-24). Any regranting program in which an intermediary re-grants to sub-intermediaries who re-grant further, particularly programs operating across multiple country or sector contexts where the original funder's criteria must be adapted to local operational specificity. Programs under the IRS expenditure responsibility framework (Internal Revenue Code Section 4945) where the original purpose declaration must survive the delegation chain to end-recipient level."
+      },
+      {
+        name: "Outcome Description Completeness Schema",
+        layer: "specification",
+        description: `A five-dimension specification requiring that any outcome described in a program's theory of change or evidence submission address what changed, for whom, by how much, over what time period, and compared to what baseline. An outcome description that is silent on any one of the five dimensions is incomplete as a specification: it cannot support a coherent gate criterion, cannot be used to configure a Causality Stance declaration, and cannot generate a fully specified Pathway. The five dimensions are structurally cumulative, not independent: "what changed" is not fully specified without "for whom" (the same change in different populations may have different significance), and "by how much" is not interpretable without "compared to what baseline" (a scale of change has no evaluative meaning without a reference point).
+
+The five dimensions derive from the IRIS+ Five Dimensions of Impact framework, developed in partnership with the Impact Management Project, which specifies: What (what outcome occurs, and how important is it to the people or planet experiencing it), Who (who experiences the outcome, and how underserved are the affected parties relative to alternatives), How Much (scale, depth, and duration of the outcome), Contribution (the program's contribution to the outcome accounting for what would have happened anyway), and Risk (the risk that the impact does not occur as expected). The Outcome Description Completeness Schema is a specification standard derived from this framework, asserting that all five dimensions must be present for an outcome description to constitute a complete and evaluable specification.
+
+The Outcome Description Completeness Schema is not reducible to the Criterion Specification Elements primitive (Layer 5), which determines how a single measurement field must be designed. Criterion Specification Elements specifies what a field must carry: criterion intent, operational definition, response form, evidence form, and conformance threshold. The Outcome Description Completeness Schema concerns the internal structure of an outcome description as a whole unit: it specifies what dimensions must be present in the description of any outcome before that outcome can serve as a specification target for a field, a pathway, or an evidence requirement. The two primitives operate at different levels of abstraction: Criterion Specification Elements concerns field design; the Outcome Description Completeness Schema concerns outcome specification as a prerequisite to field design.
+
+The Contribution dimension deserves explicit attention. IRIS+ defines contribution as "the enterprise's contribution to the outcome, accounting for what would have happened anyway." This is the Causality Stance primitive's contribution type expressed as a required element of every outcome description rather than a gate-level configuration choice. The Outcome Description Completeness Schema treats contribution stance as required in the specification of any outcome: an outcome description that does not address the question of what would have happened anyway is incomplete as a specification. This is a stronger requirement than the Causality Stance primitive's current position in the Foundation, which configures causality stance per gate and per pathway without requiring it in the outcome description itself.`,
+        relationships: "Operates at a specification level upstream of both Pathway (Layer 6) and Evidence Scope (Layer 4): a complete outcome description, as defined by this schema, is required before a Pathway can be drawn to that outcome and before an evidence specification can address what must be evidenced at that outcome node. The five dimensions map onto existing primitives as follows: What maps to the Pathway primitive's target node description; Who maps to the population definition in the condition change Access Condition; How Much maps to Evidence Scope at its scale, depth, and duration sub-dimensions; Contribution maps to Causality Stance (Layer 4), contribution type; Risk maps to the critical assumptions list and external risk list within the Pathway primitive. The schema's requirement that all five dimensions be present simultaneously is what cannot be decomposed into those existing primitives: each primitive addresses its corresponding dimension independently; the completeness requirement across all five simultaneously is the added structural commitment. Connects to the Potential Indicator Assessment primitive (Layer 4): programs assessing potential rather than completed work still must describe the outcome they are predicting the potential for, and that description must satisfy the completeness schema.",
+        applications: "IRIS+ Five Dimensions of Impact framework (https://iris.thegiin.org/introduction/ and https://iris.thegiin.org/document/iris-and-the-five-dimensions/, accessed 2026-05-24). GIIN COMPASS Methodology for Standardizing and Comparing Impact Performance (https://thegiin.org/publication/research/methodology-for-standardizing-and-comparing-impact-performance/, accessed 2026-05-24). Impact Management Project outcome description standards as adopted across the impact investing sector. Any program declaring change-obligation outcomes (Obligation Mode, Layer 3) where the outcome description will serve as the specification target for subsequent gate criteria: the completeness schema applies to the outcome description as a prerequisite to criterion specification, not as a gate criterion itself."
+      },
+      {
+        name: "Evidence Volume Floor",
+        layer: "specification",
+        description: "A declared minimum-count condition on a body of evidence, below which a body-level determination changes, held orthogonally to per-study quality. A body of evidence can be rated lower purely for insufficient volume even when each study in it meets the per-study quality bar. Configuration: the counted unit or units (studies, distinct sites, pooled subjects), the minimum count on each, and the body-level determination that flips when the count is not met. Held-weak.",
+        relationships: "Specification (Layer 5) primitive sitting orthogonally to Data Quality Standards (Layer 5), which carries the per-study quality axis while the Evidence Volume Floor carries the body-volume axis. Shares a genus with the Disaggregation Floor (Layer 5), a minimum threshold below which a body-level determination changes; whether a parent should sit above both is an open vocabulary-shape question.",
+        applications: "the Institute of Education Sciences and its What Works Clearinghouse (a body of evidence rates Medium-to-Large only with at least two studies, two distinct sites, and 350 pooled students or 14 classrooms, and Small otherwise). Validated by recomposition; Cochrane and Campbell Collaboration review thresholds are the named second source to test for a lift to full. Held-weak."
+      },
+      {
+        name: "Parallel Indicator Architecture",
+        layer: "specification",
+        description: `A specification that maintains two distinct indicator registries for the same body of funded work: a universal registry of indicators measured with disaggregation, and a population-specific registry whose indicators measure dimensions the universal framework does not measure at all. The architecture is the structural commitment to operate in two parallel measurement registers at once, rather than collapsing population-specific measurement into the universal framework as one more disaggregation cut.
+
+The primitive is structurally prior to and distinct from the Disaggregation Floor (Layer 5). The Disaggregation Floor names which categories of an existing universal indicator are preserved across gates; it can express "carry the age, ethnicity, and region categories forward unchanged" but cannot express "also maintain a second indicator measuring collective wellbeing at the extended-family level that has no universal-framework equivalent." Parallel Indicator Architecture names exactly that second case: indicators that exist only in population-specific form because they measure things the universal framework is silent on, such as collective rather than individual outcomes, or dimensions of flourishing defined by the population's own norms. It is also distinct from Criterion Specification Elements (Layer 5), which specifies how a single field is built as a measurement instrument and says nothing about the relationship between two parallel registries serving different measurement purposes.
+
+The two registries are not ranked. The population-specific registry is not a refinement of the universal one and does not reduce to it; each answers questions the other cannot. The specification's defining act is to hold both as required and to forbid the reduction of one into the other.`,
+        relationships: "Sits structurally prior to the Disaggregation Floor (Layer 5): a program may carry both a Disaggregation Floor on its universal registry and a separate population-specific registry under this architecture. Each indicator in either registry is built to the Criterion Specification Elements (Layer 5) standard. Connects to Public Benefit Mechanism (Layer 3): the population whose registry is maintained is typically the population scope declared with the public benefit mechanism. Connects to Beneficiary Validation Mechanism (Layer 3), since the population-specific registry is frequently the register in which the affected population's own framing of the work is measured.",
+        applications: `Te Puni Kokiri Effectiveness for Maori (EFM) framework, which maintains universal disaggregated indicators alongside Maori-specific measures that "might seek to capture results at the level of collectives rather than individuals, including whanau levels," and which cautions explicitly against reducing Maori measurement to disparities analysis within the universal framework (Maramatanga academic review of the TPK 2013 EFM precursor, https://www.maramatanga.ac.nz/media/202/download?inline=, accessed 2026-05-24; TPK EFM publication suite presentation, tpk.govt.nz/documents/download/96/EfM%20publication%20suite%20presentation.pdf). The IFAD Indigenous Peoples Assistance Facility (IPAF), whose Indigenous wellbeing indicators run parallel to IFAD's universal Core Outcome Indicators, is the second source. Any program serving a named population whose measurement norms differ structurally from the universal framework, where the author may scope the primitive to Treaty-partnership and Indigenous contexts specifically or read it across any such population.`
+      },
+      {
+        name: "Immutable Outcome Specification Lock",
+        layer: "specification",
+        description: "A specification condition under which the outcome definition that determines payment is fixed at contract signing and cannot be moved by any party during the term without formal renegotiation of the contract. The locked specification carries the payable outcome metric, its measurement methodology, and the threshold that triggers disbursement, and it binds the funder as much as the funded entity: once locked, subsequent gate determinations are made against the locked definition regardless of operational circumstances that arise after signing.\n\nThe primitive extends Criterion Specification Elements (Layer 5), which specifies what a conformant field must contain but does not prohibit later revision of that content, and Pre-Award Indicator Confirmation Stage (Layer 3), which finalizes the operative specification between selection and disbursement as a funder-side process step. What this primitive adds beyond both is the contract-binding character of the lock: in a standard grant, the funder may revise criteria between rounds, but here the outcome specification is a contractual term that constrains all signatories, because the locked definition is what investor repayment is calculated against. The lock removes the funder's unilateral revision capacity for the duration of the term.\n\nThis primitive is held weak. It rests on a single source family, the Social Impact Bond and Pay-for-Success literature, where the financial structure makes the lock explicit; the structural concept needs a second independent source measuring the same lock outside outcomes-based finance before it lifts to full.",
+        relationships: "Extends Criterion Specification Elements (Layer 5) by adding a revision-prohibition condition on the finalized specification. Tightens the Pre-Award Indicator Confirmation Stage (Layer 3) from a funder-side finalization step into a condition binding on every contracting party. Pairs with the locked counterfactual baseline pattern in the same source family, where the comparison estimate is also fixed before the intervention begins so that post-program measurement cannot be evaluated against a revisable figure.",
+        applications: 'Social Impact Bonds and Pay-for-Success contracts, in which "the parties to the contract agree to the target outcomes, the metrics that will be used to evaluate whether the outcomes are achieved, the method of evaluation, and a payment schedule," and the investor is repaid only if an independent evaluator certifies the pre-specified outcomes were achieved (Brookings Institution impact bonds research and Social Finance, A Technical Guide to Developing a Social Impact Bond, https://www.socialfinance.org.uk/assets/documents/A-technical_guide_vulnerable_children.pdf, accessed 2026-05-24). Held weak (single-source).'
+      },
+      {
+        name: "Tiered Threshold Certification Architecture",
+        layer: "specification",
+        description: "A specification in which one assessment against a single criterion set produces one of several named achievement levels, each level a declared threshold defined by the proportion of the criterion set satisfied. The architecture is a single scoring instrument that resolves to a labeled tier, not a sequence of independent gates: the same body of evidence, scored once, lands at exactly one published level whose name carries a public-facing designation.\n\nThe primitive is distinct from a multi-tier configuration of Gate Type (Layer 3). Three completion gates configured at different thresholds over the same criterion set would each return an independent pass-or-fail determination; the Tiered Threshold Certification Architecture instead is one assessment whose aggregate score maps to one of several mutually exclusive named outcomes. The aggregate-score-to-labeled-tier relationship is a scoring architecture that the gate vocabulary does not model. It is also distinct from Criterion Specification Elements (Layer 5), which specifies how each individual criterion in the set is built, and from Evidence Strength (Layer 4), which classifies verification rigor rather than mapping an aggregate score to a named achievement level.\n\nThis primitive is held weak. It rests primarily on a single source, the What Works Cities certification framework, with a partial parallel in the Te Puni Kokiri Poutama self-assessment model; a clean second independent source is needed to lift it to full, and the author may decide whether the assessment source (external determination versus self-positioning) is a configuration element of one primitive or a definitional split into two.",
+        relationships: "Distinct from the multi-threshold configuration of Gate Type (Layer 3): the tiered architecture is one scored assessment producing one labeled level, not several independent gates. Each criterion in the scored set is built to Criterion Specification Elements (Layer 5). The aggregate score that determines the tier is a scored criterion, so its scoring method must satisfy Bidirectional Precision (Layer 1). Connects to Development Stage (Layer 3), since a higher tier functions as a published proxy for the certified entity's maturity.",
+        applications: "What Works Cities Certification, which scores a city against 43 criteria across eight practice areas and resolves the aggregate to Silver (51 to 67 percent of criteria), Gold (68 to 84 percent), or Platinum (85 percent or more) (What Works Cities Why Certify page, https://whatworkscities.bloomberg.org/why-certify/, accessed 2026-05-24). The Te Puni Kokiri Poutama maturation model is the partial second source in self-assessment form. Held weak (single-source)."
+      },
+      {
+        name: "Population Underservice Level Specification",
+        layer: "specification",
+        description: `A specification of the degree to which the population a program serves is underserved, expressed as a declared, measurable level rather than as a description of the population's current conditions. The level is comparative: it states how far this population's access to a benefit falls below what alternative sources would otherwise provide, so that a population with no existing service option carries a higher declared level than one with partial service.
+
+The primitive is distinct from the FROM-state baseline carried by the condition change Access Condition (Layer 3). A FROM-state baseline records the population's absolute current conditions; the underservice level records a relative comparison between this population and the population that would otherwise receive the benefit from another source. The two do not reduce to each other: a program can establish a precise current baseline while leaving the relative underservice claim unstated. It is distinct from Public Benefit Mechanism (Layer 3), which classifies the type of benefit produced but does not carry a declared level of the recipient population's relative underservice, and from Outcome Description Completeness Schema (Layer 5), whose "Who" dimension requires that the population and its underservice be described but does not itself specify underservice as a separately measured level.
+
+This primitive is held weak. It rests on a single source, the IRIS+ Five Dimensions of Impact "Who" dimension, though the comparative concept also appears in the GIIN COMPASS methodology and the "leave no one behind" framing; a second source measuring underservice as a declared level, rather than describing it qualitatively, would lift it to full. The decisions record places this primitive at Layer 5 by ratification, against the dossier's provisional Layer 3 suggestion.`,
+        relationships: 'Distinct from the FROM-state baseline in the condition change Access Condition (Layer 3): absolute current conditions versus relative underservice. Realizes, as a separately measured level, the "how underserved" component of the "Who" dimension named in Outcome Description Completeness Schema (Layer 5). Connects to Public Benefit Mechanism (Layer 3): the declared level qualifies the strength of the public-benefit claim attached to the named mechanism. Built, as any measured field, to Criterion Specification Elements (Layer 5).',
+        applications: 'IRIS+ Five Dimensions of Impact, whose "Who" dimension asks "who experiences the outcomes? How underserved are the affected stakeholders in relation to the outcome?" (IRIS+ Introduction to Impact Measurement and Management, https://iris.thegiin.org/introduction/, accessed 2026-05-24). The GIIN COMPASS methodology for comparing impact performance is the named candidate second source. Held weak (single-source).'
+      },
+      {
+        name: "Data Development Agenda",
+        layer: "specification",
+        description: "A declared forward plan to build the data capacity required to measure a desired indicator that the program does not yet have adequate data to support. Rather than dropping an important measure because its data are not yet of usable quality, the program selects the measure and commits to a named plan of investment that will bring the supporting data to the required quality over a stated period. The agenda is a prioritized list of the specific data-development work needed to answer each measurement question the program intends to ask.\n\nThe primitive is distinct from Data Quality Standards (Layer 5), which defines what data quality is (validity, integrity, precision, reliability, timeliness) and assesses an existing instrument against those standards. The Data Development Agenda is the response when a chosen measure fails one of those standards on the data-availability axis: it is a gap-response plan, not a quality definition. It is also distinct from Criterion Specification Elements (Layer 5): that primitive specifies how a field is built once its data exist, whereas the Data Development Agenda specifies how a program proceeds when the data needed to populate the field do not yet exist and must be developed.\n\nThis primitive is held weak on a single source. An open consolidation fold is also recorded against it: a consolidation pass proposes folding the Data Development Agenda into Criterion Specification Elements (Layer 5) as a named gap-response configuration rather than a standalone primitive. That fold is not ratified. The primitive stands in the basis as a standalone held-weak primitive until the author rules; ratifying the fold would remove it as a standalone entry.",
+        relationships: "Responds to a shortfall named by Data Quality Standards (Layer 5): where a selected measure fails a standard on the data-availability axis, the Data Development Agenda is the documented plan that closes the shortfall. Candidate for a fold into Criterion Specification Elements (Layer 5) under the open consolidation proposal. Parallel to the Data Quality Assessment Procedure (Layer 5), whose mitigating-action requirement performs a structurally similar gap-response function at a formal assessment gate.",
+        applications: 'Annie E. Casey Foundation Results-Based Accountability, which directs that "for those measures that are rated high for communication and proxy power, but medium or low for data power, start a data development agenda... measures for which you might want to invest resources to develop quality data that would be available on a timely basis," producing "a prioritized list of areas in which data development work is required" (Clear Impact RBA Ebook and Annie E. Casey Foundation, Road to Better Results, accessed 2026-05-24). Held weak (single-source); fold into Criterion Specification Elements proposed but not ratified.'
+      },
+      {
+        name: "Population-Authored Indicator Component",
+        layer: "specification",
+        description: "A specification component in which the affected population is the originating author of part of the indicator set, holding the authority to define what some indicators measure rather than only validating or reporting against indicators the implementing organization has defined. The component names a portion of the indicator set whose measurement frame is set by the population itself.\n\nThe primitive sits between two existing primitives and is reducible to neither. Criterion Specification Elements (Layer 5) specifies how an indicator is built as an instrument but is silent on who holds the authority to author it. Beneficiary Validation Mechanism (Layer 3) gives the affected population the role of validating entry-gate claims and pre-defined indicators, but validation of a defined indicator is not authorship of it. The Population-Authored Indicator Component names the stronger configuration in which the population originates the measurement concept, setting the frame rather than confirming a frame already set. This is the strongest form of population participation in measurement: the population determines what is measured, not only how data are later collected.\n\nThis primitive is held weak on a single source. The author's open scope decision is whether it stands as a Layer 5 primitive requiring an authoring-authority component for part of the indicator set, becomes a sixth authoring-authority element of Criterion Specification Elements (Layer 5), or extends Beneficiary Validation Mechanism (Layer 3) to the indicator-definition stage; the choice has direct consequences for WALKRI form structure.",
+        relationships: "Extends Beneficiary Validation Mechanism (Layer 3) from validation of defined indicators to authorship of indicator definitions. Configures Criterion Specification Elements (Layer 5) by naming, for each authored indicator, the party that holds defining authority. Connects to Affected Population Verification Gate (Layer 4): population-authored indicators are the strongest configuration of population participation in measurement, where the population sets the measurement frame rather than only participating in data collection.",
+        applications: "Catholic Relief Services ProPack and its MEAL (Monitoring, Evaluation, Accountability, and Learning) practice, which documents beneficiary-defined indicators as a tool in which the affected population defines what indicators measure, not only what they report on, supported within the Feedback, Complaints, and Response Mechanism guidance (CRS MEAL tools documentation, crs.org, accessed 2026-05-24). Held weak (single-source)."
+      },
+      {
+        name: "Condition-Creation Indicator Set",
+        layer: "specification",
+        description: "An indicator set that measures whether the enabling conditions for a later outcome were created, declared as a required logframe component for any grant whose obligation is to create conditions for scale-up by others rather than to deliver service outputs directly. Where a direct-delivery grant measures coverage achieved, a condition-creation grant measures whether the named conditions for downstream scale-up now exist: evidence generated, normative guidance issued, regulatory approval obtained, affordable pricing reached, supply base adequate, country readiness established, transition handoff completed.\n\nThe primitive is distinct from Criterion Specification Elements (Layer 5), which specifies how any single field that exists is built, and from the Disaggregation Floor (Layer 5), which constrains categories on existing indicators. What this primitive adds is the requirement that a named class of indicator, the condition-creation class, must exist in the logframe at all, before any field-level specification, whenever the grant's obligation mode is condition-creation. It binds the existence of the indicator class to the obligation mode, which the existing specification primitives do not do.\n\nThis primitive is held weak on a single source. The author's open scope decision is whether CROSS+WALKRI specifies the content of the required condition categories, as the source does with its multi-level scalability framework, or requires only that a condition-creation indicator set exists and is mapped to named categories, leaving the categories to the funder's domain specification; the latter preserves format agnosticism.",
+        relationships: "Activated by an obligation mode of condition-creation rather than direct delivery (Obligation Mode, Layer 3), making the indicator class a required logframe component for that mode. Each indicator in the set is built to Criterion Specification Elements (Layer 5). Connects to Enabling Condition (Layer 6), which names the conditions whose creation this indicator set measures, and to Network Formation Outcome (Layer 6) where the created condition is a formed network. Distinct from direct-delivery output measurement under Evidence Scope (Layer 4).",
+        applications: 'Unitaid, whose grants are scoped to "creating the conditions for scale-up" by downstream actors and whose Scalability Framework requires a logframe set of scalability indicators across global conditions, country-readiness conditions, and transition conditions (Unitaid Scalability Framework, https://unitaid.org/uploads/Unitaid-Scalability-Framework.pdf, accessed 2026-05-24). Held weak (single-source).'
+      },
+      {
+        name: "Confidential Rotating-Pool Nomination Architecture",
+        layer: "specification",
+        description: "A specification for candidate identification in which no one may apply or submit an unsolicited nomination, and recipients are instead identified through a continuously refreshed pool of invited external nominators who submit on a confidential basis, reviewed by a selection committee whose members serve anonymously and rotate on a regular schedule so that no fixed group holds the selection function over time. The architecture defines three participant roles, nominator, evaluator, and selection committee member, each under a confidentiality condition, and binds the committee to a rotation rule.\n\nThe primitive is distinct from an Application-Free Award Structure, which names the general configuration of selecting recipients without an application but does not specify the structured identification pipeline that precedes selection. This architecture is not merely the absence of an application: it is a layered identification system with named roles, a confidentiality condition on each, and a rotation rule on committee composition. It is also distinct from Determination Body Separation (Layer 4), which places the evaluation function structurally outside program management. The confidentiality-and-rotation design addresses a different structural problem, upstream of evaluation: preventing the identification stage from being captured by persistent relationships, advocacy campaigns, or visibility bias toward already-prominent candidates. Where Determination Body Separation locates the determination outside management, this architecture protects the integrity of the upstream nomination pipeline.\n\nThis primitive is held weak on a single source. The author's open decision is whether the design separates into two primitives, a confidentiality condition on participants and a rotation requirement on committee composition, or holds as one integrated response to the identification-integrity problem, and whether a second published funder operating this architecture at comparable structural specificity can be named.",
+        relationships: "Distinct from Application-Free Award Structure: this architecture specifies the nomination pipeline that an application-free structure leaves unspecified. Upstream of Determination Body Separation (Layer 4): it protects the identification stage rather than the determination stage. Carries a confidentiality condition on each named role, which is a structural obligation on participants and connects to the obligation primitives in Layer 3. Pairs with Track-Record Selection Substitution, since identification by reputation and potential rather than by application is what makes pipeline integrity the load-bearing constraint.",
+        applications: 'The MacArthur Foundation Fellows Program, in which "nominators, evaluators, and selectors all serve anonymously, and their correspondence is kept confidential," nominations "are accepted only from invited nominators, a list that is constantly renewed throughout the year," and committee members rotate at the end of each review cycle (MacArthur Fellows Program FAQ, https://www.macfound.org/programs/awards/fellows/faq, and Fellows Program Strategy, https://www.macfound.org/programs/awards/fellows/about, accessed 2026-05-24). Held weak (single-source).'
+      },
+      {
+        name: "Locked Measurement Population Commitment",
+        layer: "specification",
+        description: "A commitment, fixed at the outset of measurement, to the specific population units against which all subsequent measurement will be taken, requiring that the same observation units surveyed at baseline are tracked through every later measurement stage rather than re-sampled. The commitment locks not the analysis categories but the actual units of observation: the named households or individuals measured at baseline are the same ones measured at mid-term and at completion.\n\nThe primitive is distinct from, and stronger than, the Disaggregation Floor (Layer 5). The Disaggregation Floor requires that declared analysis categories persist across gates; a program can satisfy it, keeping the same categories, while still re-sampling different units at each stage. The Locked Measurement Population Commitment requires continuous-cohort tracking of the same units, which the Disaggregation Floor cannot express. Its structural function is to prevent observed change from reflecting sampling variation rather than real outcome change. It is also distinct from Criterion Specification Elements (Layer 5), whose operational definition specifies a field's scope but does not require that the same observation units be carried across time.\n\nThis primitive is held weak on a single source, though the pattern recurs across panel-based outcome measurement in development finance; a clean second independent source would lift it to full. The decisions record places it at Layer 5 by precedence (C7-1) as a specification constraint on outcome evidence form; the author may revisit whether its obligation dimension warrants a move toward Layer 3, but precedence stands at Layer 5.",
+        relationships: "Stronger than the Disaggregation Floor (Layer 5): persistence of observation units, not only of analysis categories. Configures the outcome level of Evidence Scope (Layer 4), specifying that outcome evidence be drawn from a continuously tracked cohort. Builds on the FROM-state baseline named in the condition change Access Condition (Layer 3), fixing the population units of that baseline as the units carried forward. Each measured field is built to Criterion Specification Elements (Layer 5).",
+        applications: 'IFAD Core Outcome Indicators methodology, whose surveys "are conducted at three points in time (baseline, mid-term and completion) on the same population units (hence a panel of households and individuals)" (IFAD Core Outcome Indicators, https://www.ifad.org/en/coitraining/, accessed 2026-05-24). World Bank DIME panel studies and MCC beneficiary analysis are named parallel practices. Held weak (single-source).'
+      },
+      {
+        name: "Data Quality Assessment Procedure",
+        layer: "specification",
+        description: "A declared procedure for assessing the quality of the data used in measurement, applying the five data quality standards as a formal audit of indicator data, producing documented findings on data strengths and weaknesses, and requiring named mitigating actions where a standard is not met. The procedure is the structured application of the standards at a defined assessment point, distinct from the standards themselves as definitions.\n\nThe primitive is distinct from Data Quality Standards (Layer 5), which names the five standards (validity, integrity, precision, reliability, timeliness) against which a field specification is assessed but does not name a structured audit procedure for applying them. The Data Quality Assessment Procedure is that procedure: a formal assessment at a defined gate, with a documented findings requirement and a mitigating-action requirement when a standard fails. The standards define what good data are; this procedure defines how the program examines its data against them and what it must do about a shortfall.\n\nThis primitive is held weak on a single source. A consolidation reading proposes that the procedure could instead be added as a named application configuration of the Data Quality Standards (Layer 5) rather than stand alone; that reading is not ratified, and the decisions record seats this as a standalone Layer 5 primitive by precedence (C7-7). A second framework operating the same structured audit-with-mitigation pattern would lift it to full.",
+        relationships: "Applies Data Quality Standards (Layer 5) as a structured audit at a defined assessment gate, adding documented findings and a mitigating-action requirement that the standards alone do not carry. Parallel to the Data Development Agenda (Layer 5), whose forward data-building plan is a structurally similar gap-response where the shortfall is data that do not yet exist rather than existing data that fail a standard. Each assessed field is specified by Criterion Specification Elements (Layer 5).",
+        applications: 'USAID Performance Indicator Reference Sheet (PIRS) practice under ADS Chapter 201, whose Data Quality Assessment is "an examination of the quality of performance indicator data considering the five standards of data quality... to ensure that decision makers are fully aware of data strengths and weaknesses," and which requires that where an assessment has been conducted the plan "include the findings from the DQA and note whether any mitigating actions are being taken to improve data quality" (USAID MEL Plan template quoting ADS 201, accessed 2026-05-24). Held weak (single-source).'
+      },
       {
         name: "Theory of Change Hierarchy",
         layer: "causal-architecture",
-        description: "The classification of levels in a causal chain from intervention to goal. Six levels following the Compact Logic structure: Process, Outputs, Short-term Outcomes, Intermediate Outcomes, Long-term Outcomes, and Goal.",
-        relationships: [
-          "Determines what evidence is appropriate at each gate",
-          "Determines what attribution claims are credible at each level",
-          "Determines the directionality primitive's application"
-        ],
-        applications: [
-          "CROSS Theory of Change architecture",
-          "Gate evidence scope determination by outcome level",
-          "Attribution claim credibility assessment"
-        ]
-      },
-      {
-        name: "Theory Layer",
-        layer: "causal-architecture",
-        description: "The classification of which layer of the Theory of Change an intervention primarily operates in. Two values: Build (Process-to-Outputs, producing artifacts) and Change (Outputs-to-Outcomes, producing measurable shifts).",
-        relationships: [
-          "Applied at the pathway level in the program-level ToC declaration",
-          "A build-layer pathway declares an intended outcome level identifying what outcomes the artifact is designed to enable downstream"
-        ],
-        applications: [
-          "Theory of Change pathway tagging",
-          "Obligation mode assignment at the pathway level"
-        ]
+        description: "The classification of levels in a causal chain from intervention to goal. Six levels following the Compact Logic structure:\n\n**Process**: the interventions, activities, and investments being funded.\n\n**Outputs**: artifacts, infrastructure, capacity, or conditions produced by the Process layer. Build-obligation grants operate primarily here.\n\n**Short-term Outcomes**: conditions produced directly by the program's outputs within the program's active period. Directly measurable at the project level within a single grant cycle. The highest outcome level at which a completion gate can require outcome evidence rather than output evidence.\n\n**Intermediate Outcomes**: conditions produced by the convergence of short-term outcomes over the program time horizon. Typically measurable within the program time horizon but not within a single project cycle. The primary outcome level at which institutional funders in multi-year programs carry declared reporting obligations.\n\n**Long-term Outcomes**: conditions that persist after the program's active intervention period ends. Not directly measurable at any single project completion gate. Attribution of any single project to a long-term outcome is an argued contribution, not a directly measured one.\n\n**Goal**: the ultimate change the program is designed to contribute to. At the population or system level, operating over the full program time horizon.",
+        relationships: "Determines what evidence is appropriate at each gate (short-term outcomes at completion; intermediate and long-term outcomes at program evaluation). Determines what attribution claims are credible at each level. Determines the directionality primitive's application (planning mode works backward from Goal; delivery mode works forward from Process).\n\n**Fold recorded here:** the Theory Layer folds into the Theory of Change Hierarchy; its build-and-change values are supplied by Obligation Mode (Layer 3). It is recorded here rather than as a standalone primitive.",
+        applications: ""
       },
       {
         name: "Specification Directionality",
         layer: "causal-architecture",
-        description: "The classification of whether a pathway was specified from the desired outcome backward (planning mode) or from available capacity forward (delivery mode). Delivery mode clusters at short-term outcomes; planning mode is required to reach intermediate and long-term outcomes.",
-        relationships: [
-          "Delivery-mode pathways cluster at short-term outcomes",
-          "Planning mode is required to reach intermediate and long-term outcomes"
-        ],
-        applications: [
-          "Theory of Change pathway specification",
-          "Portfolio outcome level distribution analysis"
-        ]
+        description: "The classification of whether a pathway or program was specified from the desired outcome backward (planning mode) or from available capacity forward (delivery mode).\n\n**Planning mode**: the specification begins with the desired target node (outcome) and works backward to identify what source nodes (outputs or processes) and causal mechanisms are necessary to reach it.\n\n**Delivery mode**: the specification begins with the available source node (what the program can produce) and claims forward to a target node.",
+        relationships: "Delivery-mode pathways naturally cluster at the short-term outcome level; planning-mode specification is required to reach intermediate and long-term outcomes. A portfolio in which all pathways are delivery-mode specified will show structural gaps at higher outcome levels.",
+        applications: ""
       },
       {
         name: "Pathway",
         layer: "causal-architecture",
-        description: "A numbered causal claim declaring the relationship between a source node at one ToC hierarchy level and a target node at the next level up. Each pathway carries: unique identifier, source node, target node, causal mechanism statement, critical assumptions, external risks, dependency declarations, theory layer tag, intended outcome level, causality stance tag, and specification directionality tag.",
-        relationships: [
-          "The pathway is the unit of causal architecture",
-          "Dependency declarations generate the dependency map for portfolio analysis",
-          "Causality stance tag should match the gate configuration for rounds advancing that pathway"
-        ],
-        applications: [
-          "CROSS Theory of Change registry",
-          "Portfolio dependency mapping",
-          "Grants Causeway tool"
-        ]
+        description: "A numbered causal claim declaring the relationship between a source node at one ToC hierarchy level and a target node at the next level up. Each pathway carries: a unique identifier, source node, target node, causal mechanism statement (the if-then claim), critical assumptions list, external risk list, dependency declarations, theory layer tag, intended outcome level (for build-layer pathways), causality stance tag, and specification directionality tag.",
+        relationships: "The pathway is the unit of causal architecture. Dependency declarations between pathways generate the dependency map that enables portfolio analysis. Causality stance tag at the pathway level should match the gate configuration for rounds advancing that pathway.",
+        applications: ""
       },
       {
         name: "Sustainability Stance",
         layer: "causal-architecture",
-        description: "The declared position on whether outcomes produced by prior rounds are self-sustaining or dependent on continued intervention. Three positions: sustained, conditional, and dependent.",
-        relationships: [
-          "Required at the continuation gate",
-          "Distinct from the impact question and the cost-effectiveness question",
-          "A program can pass both and still have a dependent sustainability stance"
-        ],
-        applications: [
-          "Continuation gate assessment",
-          "Program sustainability declaration"
-        ]
+        description: "The declared position on whether outcomes produced by prior rounds are self-sustaining or dependent on continued intervention. Three positions:\n\n**Sustained**: outcomes continue under their own momentum without additional intervention.\n\n**Conditional**: outcomes persist under specified conditions that are independent of this program's continued funding.\n\n**Dependent**: outcomes will not persist without continued intervention. A dependent stance is a disclosure, not a disqualifier.",
+        relationships: "Required at the continuation gate. Distinct from the impact question (did the outcome occur?) and the cost-effectiveness question (is further investment worthwhile?). A program can pass both and still have a dependent sustainability stance.",
+        applications: ""
       },
-      // ---------------------------------------------------------------------------
-      // Layer 7: Portfolio Primitives
-      // ---------------------------------------------------------------------------
+      {
+        name: "Enabling Condition",
+        layer: "causal-architecture",
+        description: 'A named system-level prerequisite that must be satisfied before a funded intervention can be expected to produce its intended causal effect. The enabling condition is not a task for the grantee to complete; it is a structural state that must already obtain in the system the grantee is operating within. Where an enabling condition is not yet satisfied, the causal pathway from the funded intervention to the intended outcome is blocked at the system level, and evidence of grantee activity will not produce the expected outcome regardless of delivery quality.\n\nThe enabling condition is prospective and systemic in character. It is assessed before disbursement and monitored throughout the grant period. This distinguishes it from Problem Diagnosis Stage (Level 0 of the Theory of Change Hierarchy, where the grantee characterizes the current state that the funded work intends to change). Problem Diagnosis Stage is retrospective in framing, identifying a root cause that explains the current state. An enabling condition is prospective: it specifies what must be true in the system going forward for the causal pathway to be traversable. A given analysis may produce both a problem diagnosis and a set of enabling conditions, but they are structurally distinct. The problem diagnosis answers the question "why is the current state as it is?" The enabling condition answers the question "what must be present before this intervention can work?"\n\nIn the European Union Structural Funds framework, enabling conditions are codified in annexes to Regulation (EU) 2021/1060 as thematic prerequisites assessed at the programme level: a Member State whose legal or policy framework does not satisfy a given enabling condition may not programme investment in the corresponding thematic area until the condition is fulfilled. This is the most formally codified instance of the primitive across analyzed frameworks. The structural logic generalizes: in any program that requires a system-level prerequisite for the funded work to produce its intended effect, that prerequisite is an enabling condition in this sense.\n\nTwo configuration elements are required when an enabling condition is declared. First, the condition statement: a specific description of what must be true in the relevant system, at a level of specificity sufficient to allow independent assessment of whether the condition is satisfied. A condition statement that is too general (for example, "political will exists") fails the Bidirectional Precision standard and cannot serve as a gate element. Second, the assessment mechanism: how the funder and grantee determine whether the condition is satisfied at the entry gate and how continued satisfaction is monitored across the grant period. If an enabling condition is declared but no assessment mechanism is specified, the declaration is a Precision Facade under the Frame Language Frame 2 Functioning Check.',
+        relationships: "Derived from Theory of Change Hierarchy (Layer 6): the enabling condition is a system-level precondition that must be satisfied before any level of the hierarchy can be traversed by the funded work. Connects to the Pathway primitive (Layer 6): the critical assumptions list within a Pathway names the conditions the causal mechanism depends on; an enabling condition is a Pathway assumption elevated to the level of a gate-level prerequisite whose status must be independently confirmed before disbursement, rather than merely listed as a background assumption. Connects to the Entry Specification Gate (Gate Type, Layer 3): where enabling conditions are declared as gate elements, the entry specification gate must confirm their satisfaction before the round opens or, in multi-tier systems, before the relevant thematic investment area is programmed. Connects to Precondition State Specification (if promoted from Omidyar Network dossier): Precondition State Specification addresses what conditions must be present at the system level before an ecosystem shift outcome can occur; Enabling Condition addresses what conditions must be present before a specific funded intervention can produce its intended causal effect. Both operate above the grantee level but at different causal positions.",
+        applications: "European Union Structural Funds enabling conditions (thematic prerequisites assessed at Member State programme level before investment areas are programmed, as codified in Annexes III and IV of Regulation (EU) 2021/1060). Millennium Challenge Corporation Scorecard country prerequisites, assessed before a Compact can be signed. United States Agency for International Development sector reform conditions required before budget support disbursement. International Fund for Agricultural Development country eligibility criteria. Any funder operating in a system where the grantee's causal pathway depends on conditions in the institutional, legal, or policy environment that the grantee does not control."
+      },
+      {
+        name: "Network Formation Outcome",
+        layer: "causal-architecture",
+        description: `A named theory-of-change outcome type in which the primary intended effect of the funded work is the creation or strengthening of a network relationship among specified actors, rather than a direct service outcome or a policy change. A network formation outcome treats the network itself as the outcome object: the set of durable relationships among named participants, the interaction mechanisms through which those participants engage, and the shared resources the network makes accessible to its members.
+
+A network formation outcome is distinct from other outcome types in the Theory of Change Hierarchy in two respects. First, the causal mechanism by which the network produces subsequent effects is not the same as the mechanism by which service delivery produces short-term outcomes or policy advocacy produces condition changes. A network functions primarily through multiplier dynamics: each new member increases the connective potential of the whole, and the network's value to any individual member depends partly on the number and diversity of other members. This mechanism requires a distinct causal mechanism declaration. Second, the assessment of whether a network formation outcome has been achieved is not the same as the assessment of whether a service was delivered or a condition changed. Network formation requires evidence not only that a group of individuals has been assembled, but that functional relational ties have been established among them, evidenced by documented interaction patterns, shared resource flows, or collaborative outputs that cross organizational boundaries.
+
+In the Schmidt Futures framework, network formation is an explicitly declared program goal for both the Schmidt Science Fellows community and the Rise program. The Schmidt Science Fellows program describes "establishing a dynamic interdisciplinary science community" as "fundamental to our mission," with senior fellowship status, Catalyst Grant Scheme access, and event participation together constituting the standing support structure of the network. The Rise program articulates the network formation goal as "knitting talent into networks" that produce impact collectively exceeding what individuals could produce alone. Neither program currently publishes a measurement specification for network formation outcomes, which the Hewlett Foundation's Evaluation Principles and Practices identifies as the most common measurement specification gap in programs declaring network formation as an outcome.
+
+Where a program declares network formation as an outcome, four specification elements are required. The network membership definition must name the population of participants and the mechanism by which membership is established. The interaction mechanism must name the structured channels through which members engage. The network formation indicator set must specify the observable signals that indicate a functional network has been established, with at least one indicator that requires evidence of cross-organizational or cross-institutional interaction rather than co-location alone. The temporal specification must state the time horizon at which network formation is assessed and how a functional network is distinguished from an aggregate of individuals who have been brought into proximity but have not yet formed functional ties.`,
+        relationships: "Sits within the Theory of Change Hierarchy (Layer 6) as a named outcome type at the Intermediate Outcome level or above. A network formation outcome is not the same as the Ecosystem Shift type in the Public Benefit Mechanism (Layer 3): Ecosystem Shift describes a mechanism by which funded work contributes to systemic change; Network Formation Outcome names a specific structural result (the network itself) that then serves as a mechanism for subsequent effects. The distinction is whether the network is declared as the outcome object (Network Formation Outcome) or as one of the causal pathways toward an ecosystem-level change (Ecosystem Shift). Programs that treat network formation as both an outcome and a mechanism must declare both explicitly. Connects to the Pathway primitive (Layer 6): the causal pathway from network formation to subsequent effects (individual career impact, cross-disciplinary collaboration, collective action on a shared problem) must be declared separately; a network formation outcome declaration does not automatically establish that subsequent effects will follow. Connects to Multi-cycle Retrospective Assessment (Layer 7): network formation outcomes typically cannot be confirmed within a single grant cycle, because the functional relational ties that distinguish a network from an assembled group require time to develop; multi-cycle assessment is the appropriate gate for confirming network formation at the intermediate outcome level.",
+        applications: "Schmidt Futures Schmidt Science Fellows community (interdisciplinary scientific network as declared program outcome; source: Schmidt Science Fellows Community page, schmidtsciencefellows.org/program/community/). Schmidt Futures Rise program (lifetime network for exceptional young people as declared program outcome; source: Rise Launch Press Release, 2020). MacArthur Foundation 100andChange network among grantees. Co-Impact collaborative philanthropy networks. Any program that declares community formation, cohort building, or network weaving as a primary intended effect of the funded work rather than as an incidental byproduct of gathering participants."
+      },
+      {
+        name: "Pre-Specified Disconfirmation Threshold",
+        layer: "causal-architecture",
+        description: `A named component of a strategy's design in which the funder pre-commits to pausing or reassessing if a specified adverse signal is observed during the strategy period. The threshold is declared before any monitoring observation is made. It specifies in advance which signals, if observed, are sufficient to trigger a strategic pause rather than merely updating the funder's ongoing monitoring. This prospective character distinguishes the Pre-Specified Disconfirmation Threshold from the Adverse Signal Engagement Principle referenced in CROSS Part I, which responds to adverse signals identified at the completion gate after observation. The Pre-Specified Disconfirmation Threshold is declared before observation and binds the response before the signal appears.
+
+In the Hewlett Foundation's Seven Habits of Excellent Work with Grantees (2020) and the Tracking Progress guide it cites, the sixth category within the implementation marker typology is called a "trip wire": a named adverse signal or condition that, if observed, requires a documented strategic pause and reassessment rather than continuation to the next gate. The document states that trip wires address the question "how would we know if we were falling?" and distinguishes them from ordinary monitoring by their triggering function. Observing a trip wire fires a pause; observing any other marker merely informs ongoing monitoring. This is the most operationally specific published instantiation of the primitive across analyzed frameworks.
+
+The primitive is structurally distinct from the Pathway primitive's external risk list (Layer 6). An external risk list names things that could go wrong without specifying that their occurrence obligates a strategic pause. A Pre-Specified Disconfirmation Threshold goes further: it names a specific signal or class of signals and pre-commits the funder to a defined response if any of those signals is observed. The threshold converts a risk flag into a binding trigger. This conversion matters practically: without it, a funder who observes a named risk may rationalize continuation by treating the risk's occurrence as an anomaly rather than as evidence against the strategy's validity. The threshold pre-empts that rationalization by committing the response in advance.
+
+Three required configuration elements: the threshold signal (the specific adverse signal or condition that triggers the pause, specified with enough operational precision to allow independent confirmation that it has been observed), the response commitment (what the funder commits to do when the threshold is triggered: a defined pause duration, a named reassessment process, or a named decision authority), and the publication timing (the threshold must be declared and published before the monitoring period opens; a threshold declared after observation is a post-hoc rationalization, not a disconfirmation commitment). The threshold signal should be drawn from the strategy's own critical assumptions: the most useful thresholds name signals that would indicate a critical assumption is false, since false critical assumptions invalidate the strategy's causal logic rather than merely interrupting delivery.`,
+        relationships: "Derived from the Pathway primitive (Layer 6) and specifically from the critical assumptions list within each declared Pathway. The critical assumptions are the logical source from which Pre-Specified Disconfirmation Thresholds are derived: for each critical assumption in a pathway, a funder may declare what signal would indicate that assumption is false and commit to a defined response if that signal is observed. Not all critical assumptions need to be converted into thresholds; the author determines which assumptions are sufficiently foundational that their falsification warrants a strategic pause rather than a monitoring update. Connects to the Inter-cycle Reflection Stage (Layer 7): a triggered pause is a forced inter-cycle reflection that fires before the scheduled reflection interval; the artifact produced by a triggered pause should feed into the next cycle's design using the same structure the Inter-cycle Reflection Stage requires. Connects to Intended versus Unintended Effects (Layer 4): a Pre-Specified Disconfirmation Threshold is a named adverse signal type declared prospectively; an unintended negative effect discovered at the completion gate is a retrospectively identified adverse signal. Both trigger a response, but through structurally different mechanisms.",
+        applications: 'Hewlett Foundation "trip wire" monitoring category (Six-category implementation marker typology, Seven Habits of Excellent Work with Grantees, 2020; Tracking Progress guide). Science and Business Innovation Research program go/no-go decision points at defined stage gates. Any multi-year strategy program where the funder has published critical assumptions and wishes to convert selected assumptions into binding disconfirmation commitments. Portfolio-level risk monitoring for funders whose strategies depend on external system conditions that may change mid-period.'
+      },
+      {
+        name: "Work-Impact Temporal Separation",
+        layer: "causal-architecture",
+        description: `A structural requirement that a program or funding instrument declare the time during which the relevant work was performed as a distinct, independently bounded temporal field from the time during which the impact of that work is expected to manifest or accumulate. The two windows are separately specified: neither collapses into the other, and neither may be inferred from the other without explicit declaration. Work may occur in a bounded past period while impact accumulates over years or decades beyond the end of the work. Conversely, impact may begin before work formally concludes (a research project producing usable intermediate findings during its active period). What the primitive requires is that the declaring party state both windows explicitly rather than treating them as identical or leaving either implicit.
+
+The structural basis for this separation is that the causal chain from funded work to funded impact operates over time. Impact does not coincide with work except in the limiting case where the output of work is itself the impact (for example a tool made available at the conclusion of development). In all cases involving ecosystem development, knowledge production, community building, or infrastructure provision, the work occurs in one period and the downstream effects of that work accumulate in a subsequent, often longer period. A reforestation project may perform all planting work in calendar year 2024 but declare an impact window running through 2035, because the carbon sequestration and biodiversity effects it is designed to produce accumulate over the decade following the work's conclusion.
+
+The Hypercerts data standard makes this separation structural and required rather than optional. The standard specifies time of work as "a date range, from the start to the end of the work being claimed," and time of impact as "date ranges from the start to the end of the impact being claimed," with both fields required in every hypercert token. The Change Code implementation illustrates why the distinction matters: it sets the impact timeframe end as the work period end plus five years, explicitly encoding a post-work impact accumulation period into the data structure. Without a named primitive requiring this declaration, programs routinely treat work completion as the terminal date for impact assessment, systematically undercounting contributions whose effects accumulate after the grant period ends.
+
+The Work-Impact Temporal Separation is not derivable from the Theory of Change Hierarchy (Layer 6), which distinguishes outcome levels by causal distance (short-term, intermediate, long-term) but does not require that the time window of the work be specified independently from the time window of its effects. It is not derivable from the Retroactive Impact Window (Layer 3), which is the funder-side declaration of which prior work period an assessment round will consider; this primitive is the contributor-side structural requirement that the contributor declare both the work period and the impact period of their own work, independently of what any funder's assessment window may specify.`,
+        relationships: "Layer 6 (Causal Architecture Primitives), as a structural specification of the temporal architecture of the causal chain from work to impact. Cross-references Retroactive Impact Window (Layer 3): the two primitives are structurally paired. The funder's declared impact window (Retroactive Impact Window) constrains which contributions' time-of-impact declarations fall within the assessable period. A program using Hypercerts for attribution would cross-reference each hypercert's time-of-impact field against the round's declared Retroactive Impact Window to determine eligibility. Connects to Sustainability Stance (Layer 6): a contribution whose time-of-impact extends well beyond its time-of-work implies a sustained or conditional sustainability stance for the underlying work, and the two declarations are complementary.",
+        applications: "Hypercerts protocol (required data standard: time_of_work and time_of_impact as two required and independently bounded fields in every hypercert token). Change Code implementation (impact_timeframe set as work end plus five years, encoding post-work accumulation explicitly). Any program using the Hypercerts data standard for retroactive impact attribution. Any grant program that assesses long-horizon contributions (reforestation, ecosystem development, public infrastructure, knowledge commons) where work completion and impact realization are separated in time and both must be declared for honest evaluation."
+      },
+      {
+        name: "Pre-Identification Platform Investment",
+        layer: "causal-architecture",
+        description: 'A class of funded work whose intended beneficiary population cannot be named at the time of funding because the threat or opportunity the work prepares for has not yet appeared. The funded deliverable is not a product directed at a known population; it is a scientific, technological, or infrastructural asset whose downstream application is contingent on a future event that may or may not occur, and whose timing and specific form are unknown when the investment is made. The structural logic is build-before-need: rather than waiting for a defined threat to emerge and then beginning development, the funder pays in advance for readiness that compresses the time required to respond once the threat is named.\n\nWhat distinguishes this primitive from an ordinary build-obligation grant is the status of the beneficiary population at funding time. A build-obligation grant produces a specified output for a population the program can name; the causal pathway from output to outcome runs to a defined target node. A Pre-Identification Platform Investment produces an output whose target node is deliberately left as a class rather than an instance: the funded asset is designed to serve whichever member of a defined family of future threats actually materializes. The Coalition for Epidemic Preparedness Innovations frames this through its vaccine library concept and viral family approach, funding research against a selected prototype pathogen that is representative of an entire viral family (an arenavirus standing as the prototype for the arenavirus family, which includes Lassa fever as well as potential Disease X variants). The scientific work done against the prototype reduces the time required to develop a countermeasure against any newly identified member of the same family. The funded deliverable is a readiness asset, not a licensed product.\n\nTwo configuration elements are required when a Pre-Identification Platform Investment is declared. First, the threat class statement: a named family or class of future events the asset is designed to prepare for, specified with enough precision that the eventual instance can be tested for membership in the class. A threat class stated too broadly (for example, "future pandemics") cannot serve as a gate element, because no later event can be confirmed to fall inside or outside it. Second, the readiness deliverable specification: what the funded work produces as a standing asset (a prototype-stage candidate, a platform technology, a manufacturing capability) and the mechanism by which that asset is converted into a directed response once a member of the threat class appears. Without the conversion mechanism specified, the declaration names an asset with no stated path to use.\n\nThis entry is held weak: it currently rests on a single source and is provisional pending a second independent source that funds readiness for an unnamed beneficiary on the same structural logic.',
+        relationships: "Sits within Layer 6 (Causal Architecture Primitives) as a causal architecture in which the target node of the pathway is a class rather than a named instance. Distinct from Theory of Change Hierarchy (Layer 6): the hierarchy requires a causal pathway from funded activity to a named population benefit, and a Pre-Identification Platform Investment explicitly cannot name the beneficiary population at funding time because the threat is unknown. Connects to the Pathway primitive (Layer 6): the causal mechanism statement for a pre-identification pathway runs from the funded asset to a class of possible beneficiaries, and the critical assumptions list carries the assumption that the eventual threat will fall within the declared class; if it does not, the asset's relevance is not established. Connects to Enabling Condition (Layer 6) in mirror: an enabling condition is a system-level prerequisite that must already obtain before a directed intervention can work, whereas a Pre-Identification Platform Investment builds an asset whose relevance is established only after a future event obtains. Connects to Work-Impact Temporal Separation (Layer 6): the work occurs in a bounded present period while the impact, if it occurs at all, is realized at the unscheduled future moment the threat appears, so the two windows are separated by an interval of indefinite length.",
+        applications: 'Coalition for Epidemic Preparedness Innovations vaccine library and viral family approach (prototype pathogen research that compresses future development timelines for as-yet-unnamed members of a viral family; sources: CEPI "Disease X" page, cepi.net/disease-x; CEPI "CEPI 3.0 Explained: Vaccines and Viral Families," cepi.net; CEPI-SK Bioscience partnership announcement). Any funder that pays in advance for a standing capability whose benefit to a specific population is contingent on a future threat event that cannot be named at the time of funding.'
+      },
+      {
+        name: "Sustainability Exit Criterion",
+        layer: "causal-architecture",
+        description: "A declared hypothesis, required at the entry gate, specifying the intended terminal state of the funded work at the close of the funding commitment. The terminal state names what the funded organization or work is expected to become once this category of funding ends, and the declaration is a precondition for the commitment rather than a retrospective observation made after the work concludes. An applicant that cannot articulate a well-grounded path to a named terminal state does not pass the gate. The criterion is satisfied not by the eventual arrival at the terminal state but by the presence, at entry, of a stated terminal state with a named pathway mechanism and supporting evidence.\n\nThe Sustainability Exit Criterion is structurally distinct from Sustainability Stance (Layer 6) in two respects, and the distinction is the reason it is a separate primitive rather than a configuration of that one. Sustainability Stance is a declaration made at the continuation or completion gate about what will happen to outcomes after a grant period ends: whether they are self-sustaining, conditional, or dependent. The Sustainability Exit Criterion operates at the opposite end of the lifecycle, as an entry-gate precondition; it declares the intended terminal state before any work is funded, not the observed persistence of outcomes after work concludes. Second, the terminal states it names are not the three positions of Sustainability Stance. Blue Meridian Partners, the source program, names two: financial independence, where the funded organization reaches a revenue position that no longer requires this category of funding, and problem resolution, where the conditions the organization addresses are resolved at a named system level that makes its continued operation unnecessary. The published criterion states the hypothesis directly: that growth capital can catalyze scale leading to one of two outcomes, either renewable and reliable revenue covering ongoing operational costs, or the organization's work no longer being necessary as a result of fundamental system change. Neither terminal state collapses into the sustained, conditional, or dependent positions, which describe what happens to outcomes rather than what the intended revenue and relevance structure of the organization is at the intended terminal state.\n\nTwo configuration elements are required when a Sustainability Exit Criterion is declared. First, the terminal state declaration: which intended end state the applicant commits to, drawn from the named set (financial independence or problem resolution, with policy institutionalization as a candidate third state where the funded model is absorbed into a public system rather than reaching either financial independence or problem resolution on its own terms). Second, the pathway and evidence basis: a named mechanism by which the funded work reaches the declared terminal state, together with prior revenue trajectory or system-change indicators sufficient to make the hypothesis well-grounded rather than asserted. A terminal state declared without a pathway mechanism is a statement of aspiration, not a gate-satisfying criterion.\n\nThis entry is held weak: it currently rests on a single source and is provisional pending a second independent source that requires a terminal-state declaration as an entry-gate precondition on the same structural logic. The completeness of the terminal-state set is also open: whether financial independence and problem resolution are the full set, or whether policy institutionalization (and possibly others) belongs in it, awaits a second source.",
+        relationships: "Sits within Layer 6 (Causal Architecture Primitives) as the entry-gate companion to Sustainability Stance (Layer 6), operating in the same causal domain at a different lifecycle position and with structurally different content: Sustainability Stance observes post-grant persistence; the Sustainability Exit Criterion declares an intended terminal state at entry. The two are recorded as explicit reciprocals. Connects to the Entry Specification Gate (Gate Type, Layer 3): where a Sustainability Exit Criterion is declared, the entry specification gate must confirm both the terminal state declaration and whether its supporting pathway is well-grounded enough to stand before the commitment is made. Connects to the Pathway primitive (Layer 6): the named mechanism by which the funded work reaches its terminal state is a pathway whose target node is the terminal state itself (a revenue position or a resolved system condition), and the supporting evidence functions as the pathway's basis. Connects to Specification Directionality (Layer 6): a Sustainability Exit Criterion is planning-mode by construction, beginning from the desired terminal node and working backward to the work that must be funded to reach it.",
+        applications: "Blue Meridian Partners sixth selection criterion (a credible entry-gate hypothesis that growth capital will lead either to renewable revenue covering operational costs or to the organization's work becoming unnecessary through system change; source: Blue Meridian Selection Criteria page, bluemeridian.org/selection-criteria/). Any funder making large multi-year commitments that requires, as a condition of entry, a declared and evidenced hypothesis about the terminal state of the funded work rather than open-ended continuation."
+      },
+      {
+        name: "Projection Requirement with Documented Assumptions",
+        layer: "causal-architecture",
+        description: "A standing obligation to state, at the point of indicator specification, the expected future value of each indicator at a named date, together with the assumptions and supporting basis on which that expected value rests. The projection is not a record of a change that has occurred; it is a forward statement of the change the funded work is expected to produce, bound to a specific date and made testable by the requirement that the reasoning behind it be written down. The obligation is ongoing rather than one-time: projections are updated at defined intervals as new data arrives, so that the gap between projected and observed values becomes a tracked signal across the life of the program.\n\nThe DCED Standard for Results Measurement, the source framework, places this requirement at Control Point 2.7 and specifies that projections should be made for all indicators, including the three common impact indicators of scale, income, and jobs, predicting the change that will result from the intervention either at the end of the program or two years after the end of the program. The standard's distinctive contribution is the documented-assumptions clause: each projection should rest on well-considered assumptions and on findings from market research, field observation, or other credible sources, and the assumptions, findings, and any calculations should be made clear. This converts a projected number into a falsifiable claim. A projected indicator value with no stated assumptions cannot be tested against later observation, because the reason it failed (a wrong assumption versus a delivery shortfall) cannot be located; the documented-assumptions clause is what makes the projection diagnostic rather than decorative.\n\nThe primitive is distinct from a contribution or attribution claim. Causality Stance (Layer 4) addresses whether the funded work caused or contributed to a change that has already occurred; a projection addresses what the indicator value is expected to be at a future date, before any change has been observed. It is also distinct from the critical assumptions list within a Pathway (Layer 6): a pathway's critical assumptions are the conditions that must hold for the causal mechanism to operate, whereas a projection's documented assumptions are the basis for a specific quantified expectation at a named date. The two overlap in content but differ in function: one underwrites the causal logic, the other underwrites a number.\n\nTwo configuration elements are required when a Projection Requirement is declared. First, the projection statement: the expected indicator value, the date it is expected by, and the documented assumptions and source findings that support it, stated with enough specificity that the eventual observed value can be compared against the projection and any divergence attributed. Second, the update interval: the defined points at which projections are revisited and revised against new data (the DCED formulation requires at least annual updating and explicit review at the six-month review meeting). Without a stated update interval the projection is a one-time forecast rather than the ongoing obligation the primitive names.\n\nThis entry is held weak: it currently rests on a single source and is provisional pending a second independent source that imposes an ongoing projection obligation with documented assumptions on the same structural logic. The placement question is held open with it: whether this is a standalone primitive or a configuration element of the Pre-Award Indicator Confirmation Stage (Layer 3) awaits the second source.",
+        relationships: "Sits within Layer 6 (Causal Architecture Primitives) as a forward-looking specification bound to the indicators that mark a pathway's target nodes. Connects to the Pathway primitive (Layer 6): projections are attached to the indicators that measure each pathway's target node, and the documented-assumptions clause sits alongside, but is distinct from, the pathway's critical assumptions list, the first underwriting a quantified expectation and the second underwriting the causal mechanism. Connects to the Pre-Award Indicator Confirmation Stage (Layer 3): the projection statement is part of the content that a post-selection confirmation stage finalizes before disbursement, and the open placement question is whether the projection obligation is best seated here or as a standalone Layer 6 primitive. Connects to the Inter-cycle Reflection Stage (Layer 7): the requirement to update projections against observed values at defined intervals feeds the reflection artifact, since the projected-versus-observed gap is exactly the kind of signal a between-cycle reflection is meant to carry into the next cycle's design. Connects to Pre-Specified Disconfirmation Threshold (Layer 6) in adjacency: a sufficiently large projected-versus-observed divergence on a foundational indicator can be the threshold signal a funder pre-commits to act on, but the projection requirement itself only obligates the comparison, not the response.",
+        applications: "DCED Standard for Results Measurement, Control Point 2.7 (projections for all indicators and for the scale, income, and jobs impact indicators, each resting on documented assumptions and credible source findings, updated at least annually and reviewed at the six-month review meeting; source: DCED Guidelines, Defining Indicators of Change, enterprise-development.org). Any results-measurement program that requires forward indicator projections with their supporting assumptions written down and revised against observation across the program period."
+      },
       {
         name: "Portfolio Position",
         layer: "portfolio",
-        description: "The classification of a round's relationship to prior rounds in the same program or portfolio. Three positions: initiating, continuation, and convergence.",
-        relationships: [
-          "Determines what prior work attribution is required",
-          "Convergence rounds require dependency declarations naming the pathways they depend on"
-        ],
-        applications: [
-          "CROSS round configuration",
-          "Prior work attribution requirement determination"
-        ]
+        description: "The classification of a round's relationship to prior rounds in the same program or portfolio. Three positions:\n\n**Initiating**: establishing a new process or output with no prior CROSS round in the same pathway.\n\n**Continuation**: advancing an established pathway with evidence from prior rounds.\n\n**Convergence**: designed to produce an output or outcome that depends on pathways established by other programs or funders.",
+        relationships: "Determines what prior work attribution is required. Convergence rounds require dependency declarations naming the pathways they depend on.",
+        applications: ""
       },
       {
         name: "Portfolio-level Continuation Benchmark",
         layer: "portfolio",
-        description: "A funder-declared threshold that the program as a whole must meet to justify continued operation, distinct from individual grantee continuation gates. Three configuration elements: metric, threshold, and review period. Holds the funder's program accountable rather than its individual grantees.",
-        relationships: [
-          "Derived from Portfolio Position and Evidence Scope",
-          "Benchmark metric must be at least as rigorous as the evidence scope at individual completion gates",
-          "Distinct from individual continuation gate and from portfolio analysis outputs"
-        ],
-        applications: [
-          "CROSS Part XII (SBIR/STTR portfolio-level commercialization benchmarks)",
-          "Program operator accountability in multi-cycle programs",
-          "Program continuation decision at the funder level"
-        ]
+        description: "A funder-declared threshold that the program as a whole must meet to justify continued operation, distinct from individual grantee continuation gates. The benchmark binds the funder's program rather than its individual grantees. Three configuration elements: the metric (what is measured at the program level, such as percentage of grants reaching a specified development stage, total ecosystem adoption attributable to the portfolio, or aggregate outcome evidence across the cohort), the threshold (the minimum level that constitutes program continuation), and the review period (the span across which the benchmark is assessed, typically multiple grant cycles).\n\nDistinguished from the individual continuation gate (which sets a single grantee's eligibility for subsequent funding) and from portfolio analysis outputs (which are analytical tools, not binding program-level conditions) by being a binding condition on the funder's own program continuation. The portfolio-level benchmark applies to the program operator: if the portfolio as a whole does not meet the declared threshold, the program design must be revised before the next cycle opens.",
+        relationships: "Derived from Portfolio Position and Evidence Scope. The benchmark metric must be at least as rigorous as the evidence scope required at individual grantee completion gates. A program requiring usage evidence at the grantee completion gate cannot credibly declare a portfolio benchmark based on output evidence at the program level. The benchmark threshold is declared at the entry specification gate for the program (not for individual rounds) and published before any grantee applies.",
+        applications: "CROSS Part XII (SBIR/STTR portfolio-level commercialization benchmarks). Program operator obligation fulfillment tracking in multi-cycle programs. Program continuation decision at the funder level."
       },
       {
-        name: "Inter-cycle Reflection Stage",
+        name: "Program Learning Architecture",
         layer: "portfolio",
-        description: "A structured learning artifact produced between grant cycles that captures what the prior cycle demonstrated, what assumptions were confirmed or disconfirmed, and how that learning will change the design of the next cycle. Three required elements: reflection artifact, design response, and publication timing.",
-        relationships: [
-          "Derived from Obligation Fulfillment Record and Sustainability Stance at the program level",
-          "The program-level analogue of the applicant's Obligation Fulfillment Record",
-          "The reflection artifact is input to the next cycle's entry specification gate"
-        ],
-        applications: [
-          "CROSS Part XII (World Vision LEAP)",
-          "Multi-cycle program design",
-          "Program-level learning loop"
-        ]
+        description: "A funder-side structural commitment to cumulative, cross-cycle learning at the program level. A Program Learning Architecture is distinct from any individual gate or artifact by being an ongoing architecture that persists across cycles and determines how evidence produced in one cycle is captured, processed, and applied to the design of subsequent cycles. The Inter-cycle Reflection Stage is derived from this primitive: the reflection artifact requirement is the minimum expression of Program Learning Architecture when only Element 4 (cumulative sequence linkage) is declared.\n\nSeven configuration elements:\n\n**Element 1 (Required): Round learning question declaration.** A minimum of one named learning question per round declared before the round opens, specifying the question itself, the intended user of the answer, the named activity that will generate evidence to answer it, and the timeline for answering it.\n\n**Element 2 (Required): Prospective orientation.** Learning questions must be declared before evidence collection begins. A program that describes what it learned without having declared what it intended to learn has produced a narrative, not a learning record.\n\n**Element 3 (Required): Mid-program adaptation record.** A named mechanism for documenting within-cycle design changes with stated rationale, maintained at minimum annually and published before the next cycle's entry specification opens.\n\n**Element 4 (Required): Cumulative sequence linkage.** A named artifact connecting the learning from the prior cycle to the design of the next, published before the next cycle's entry specification opens. This element alone is sufficient to satisfy the Inter-cycle Reflection Stage requirement.\n\n**Element 5 (Conditional): Learning question revision protocol.** A documented protocol for revising learning questions mid-program when evidence warrants it, including what triggers revision, who authorizes it, and how the revision is recorded against the original declared question. Required in programs that face triggering events.\n\n**Element 6 (Conditional): Cohort-disaggregated learning questions.** Where a program funds meaningfully distinct participant types, a named learning question specific to each type addressing what that type is learning about its own practice.\n\n**Element 7 (Optional): Retrospective applicability declaration.** A statement noting that the program has adopted this architecture mid-program rather than at inception, including which prior cycles are not covered and what documentation exists for them.\n\nThree reference patterns are named, consistent with the Description Language Principle that named types are reference patterns, not closed enumerations:\n\n**Hypothesis-testing cycle**: the program frames each round as testing an explicit named hypothesis; the round's learning question is a falsifiable claim rather than an open inquiry. Element 2 (prospective orientation) is constitutive of this pattern: a hypothesis declared after evidence collection is not a hypothesis. Bloomberg Philanthropies' Hypothesis Testing Gate is one structural output of a program operating this pattern.\n\n**Cohort knowledge synthesis**: the program builds cumulative learning through sustained relationships across a cohort over multiple cycles; knowledge accumulates at the cohort level, not only at the individual grantee level. Element 6 (cohort-disaggregated learning questions) is load-bearing in this pattern. Schmidt Futures' Lifetime Relationship Program Structure and cross-cohort formation model are the primary source grounding.\n\n**Developmental evaluation cycle**: a dedicated evaluator integrated into the program's strategy process produces formative findings that drive funder strategy renewal decisions between cycles. Element 4 (cumulative sequence linkage) is non-negotiable in this pattern: the evaluator's findings must be formally connected to the next cycle's design before that cycle opens. Hewlett Foundation developmental evaluation practice is the primary source grounding. The Continuous Embedded Evaluation Mode (a configuration of Gate Character, Layer 3) names the evaluation relationship mechanism that this pattern depends on; the pattern and that mechanism are structurally distinct.",
+        relationships: "Parent primitive of Inter-cycle Reflection Stage. Programs satisfying Element 4 alone satisfy Inter-cycle Reflection Stage. Programs satisfying all four required elements satisfy Program Learning Architecture at the minimum viable level. The declared learning question (Element 1) references Criterion Specification Elements (Layer 5) for its structural anatomy. The Hypothesis Testing Gate (Layer 3) is one gate type associated with the hypothesis-testing cycle reference pattern. Continuous Embedded Evaluation Mode (a configuration of Gate Character, Layer 3) is one evaluation relationship mode that produces inputs for the developmental evaluation cycle reference pattern. Multi-cycle Retrospective Assessment (Layer 7) is the gate type that substantiates the cumulative learning record across cycles.",
+        applications: "USAID Collaborating, Learning, and Adapting Plan (all four required elements with full four-column learning question structure). Ford Foundation BUILD developmental evaluation (Elements 1 through 4, developmental evaluation cycle pattern). MacArthur Foundation 100 and Change competition (Elements 1 through 4, with published inter-cycle design response as the cumulative sequence linkage artifact). Hewlett Foundation Madison Initiative (developmental evaluation cycle pattern). Any multi-cycle program claiming intermediate or long-term outcomes must configure Program Learning Architecture to substantiate those claims through the Multi-cycle Retrospective Assessment gate type."
       },
       {
         name: "Multi-cycle Retrospective Assessment",
         layer: "portfolio",
-        description: "An assessment spanning multiple grant cycles that evaluates cumulative progress rather than single-cycle delivery. Three forms: cumulative outcome assessment, longitudinal grantee assessment, and cross-cycle learning assessment. The only gate type that can substantiate intermediate and long-term ToC outcomes.",
-        relationships: [
-          "Derived from Theory of Change Hierarchy and Obligation Fulfillment Record",
-          "Single-cycle completion gates can only reach short-term outcomes",
-          "Requires a series of Obligation Fulfillment Records across cycles as evidence base"
-        ],
-        applications: [
-          "CROSS Part XII (NED Cumulative Assessment Report)",
-          "Long-term outcome substantiation",
-          "Multi-year program evaluation"
-        ]
+        description: "An assessment spanning multiple grant cycles that evaluates cumulative progress rather than single-cycle delivery. Distinct from the single-cycle completion gate (which evaluates delivery against one round's entry specification) and from the portfolio-level continuation benchmark (which holds the funder's program to its threshold) by aggregating evidence across multiple completed cycles for a single program or grantee.\n\nThree forms: cumulative outcome assessment (measuring the aggregate change produced across all cycles of a program against the program's original goal), longitudinal grantee assessment (assessing a returning grantee's cumulative contribution across all prior cycles with the current funder), and cross-cycle learning assessment (evaluating whether each cycle's design demonstrably incorporated learnings from prior cycles).\n\nThe multi-cycle retrospective assessment is the only gate type that can provide evidence for intermediate and long-term outcomes as defined in the Theory of Change Hierarchy. Single-cycle completion gates can only reach short-term outcomes. Programs claiming to produce intermediate or long-term outcomes must configure a multi-cycle retrospective assessment to substantiate those claims.",
+        relationships: "Derived from Theory of Change Hierarchy (Layer 6) and Obligation Fulfillment Record (Layer 3). The ToC hierarchy determines what outcome level is assessable at each gate type: single-cycle completion gates reach short-term outcomes; multi-cycle retrospective assessment reaches intermediate and long-term outcomes. The multi-cycle assessment requires a series of Obligation Fulfillment Records across cycles as its evidence base.",
+        applications: "CROSS Part XII (NED Cumulative Assessment Report). Long-term outcome substantiation. Multi-year program evaluation. Intermediate outcome evidence for institutional funders requiring it."
       },
       {
         name: "Portfolio Analysis Outputs",
         layer: "portfolio",
-        description: "The five analytical outputs that a portfolio with declared ToC pathway registries enables: convergence analysis, gap analysis, leverage point identification, sequencing analysis, and efficiency analysis.",
-        relationships: [
-          "Enabled by ToC pathway registry declarations, dependency declarations, causality stance tags, round linkage records, and sufficiency position declarations",
-          "Rendered by the Grants Scaffold tool"
-        ],
-        applications: [
-          "Portfolio intelligence dashboard",
-          "Grants Scaffold tool",
-          "Cross-program funder analysis"
-        ]
+        description: "The five analytical outputs that a portfolio with declared ToC pathway registries enables:\n\n**Convergence analysis**: multiple programs contributing to the same outcome node; whether contributions are complementary, parallel, or in tension.\n\n**Gap analysis**: outcome nodes declared in pathway registries with no active programs contributing.\n\n**Leverage point identification**: output nodes contributing to multiple downstream pathways.\n\n**Sequencing analysis**: whether upstream-dependent pathways have completed before downstream pathways begin.\n\n**Efficiency analysis**: whether investment concentration is proportionate to pathway position in the causal chain.",
+        relationships: "These outputs are enabled by: ToC pathway registry declarations + dependency declarations + causality stance tags + round linkage records + sufficiency position declarations. A conformant tool renders these outputs programmatically from CROSS+WALKRI-conformant data.",
+        applications: ""
       },
       {
         name: "Cohort Position",
         layer: "portfolio",
-        description: "An applicant entity's relationships to other entities applying to the same funding round. Encompasses personnel overlap, wallet overlap, endorser overlap, and prior co-applicant history. A funder-side assessment, not an applicant self-report.",
-        relationships: [
-          "Derived from the entity boundary primitive",
-          "Wallet overlap checked against the On-chain Identity Anchor",
-          "Personnel overlap activates affiliated entity disclosure and may trigger Tier 2 conflict of interest procedures"
-        ],
-        applications: [
-          "CROSS Part VII Cohort Position assessment",
-          "Cross-applicant integrity check before final gate determinations",
-          "Personnel and wallet overlap disclosure"
-        ]
+        description: "An applicant entity's relationships to other entities applying to the same funding round in the same period. Cohort Position encompasses: personnel overlap (named team members appearing in other applications in the same round), wallet overlap (the On-chain Identity Anchor or Disbursement Authority address appearing in other applications or as a recipient of funds from other applicants in the same round), endorser overlap (the same identifiable parties endorsing multiple applicants in the same round), and prior co-applicant history (entities that have applied together to this or other programs in prior rounds). Cohort Position is a funder-side assessment, not an applicant self-report. It is distinct from the Affiliated Entity Disclosure (which is the applicant's own account of relationships) by being an independent cross-applicant check. Findings from Cohort Position assessment do not automatically disqualify; they require disclosure and may trigger Tier 2 conflict of interest procedures where personnel overlap with a reviewer is discovered.",
+        relationships: "Derived from the entity boundary primitive: the Cohort Position check asks whether the declared boundaries of multiple applying entities in the same round are genuinely distinct. Wallet overlap is checked against the On-chain Identity Anchor (Layer 2): the same anchor address appearing across multiple distinct applying entities is a material discrepancy requiring reconciliation. Personnel overlap activates the affiliated entity disclosure requirement (Layer 2, entity boundary) and may trigger Tier 2 conflict of interest procedures under the Conflict of Interest primitive (Layer 3). Endorser overlap is recorded as informational; it does not activate conflict of interest procedures unless the endorser holds a reviewer role.",
+        applications: "CROSS Part VII Cohort Position assessment as a round-level funder procedure. Cross-applicant boundary verification before final gate determinations. Personnel and wallet overlap disclosure."
+      },
+      {
+        name: "Portfolio Transfer Declaration",
+        layer: "portfolio",
+        description: "A structured declaration that a funder must produce when transferring a portfolio of active grants or investments to a new independent entity. The declaration covers the conditions of transfer, the trigger point at which transfer takes effect, and the destination entity receiving the portfolio. This is the specification artifact required to fulfill a funder's exit transition obligations when those obligations include portfolio continuity for active grantees.\n\nThe Portfolio Transfer Declaration is distinct from the Funder Exit Transition Obligation (if promoted from the Omidyar Network dossier) in the following way. The Funder Exit Transition Obligation is a funder-side obligation: it names what the funder owes to current grantees when it discontinues a program area. The Portfolio Transfer Declaration is the specification artifact that operationalizes that obligation in cases where the response to exit is not merely providing transition grants but transferring the portfolio to a new entity that will continue the relationships. The obligation says the funder must do something; the declaration specifies what the funder has committed to doing and on what terms.\n\nThe Omidyar Network's spin-off architecture between 2018 and 2020 provides the most operationally rich instantiation of this primitive. Omidyar Network transferred six portfolios to six newly constituted independent entities: Luminate, Flourish Ventures, Imaginable Futures, Spero Ventures, Omidyar Network India, and Place Fund. Each spin-off received its operating capital and portfolio from Omidyar Network and makes its own investment and grant decisions independently. The named obligation consequences for transferred grantees were significant: grantees funded under Omidyar Network's declared obligation structures became subject to obligation structures designed by the new entity, including, in Luminate's case, new values requirements added to grant documentation that were not present in original grant terms. This is a named structural risk of portfolio transfer that the declaration must address.\n\nFive required elements: the named destination entity receiving the portfolio, including its legal form and the composition of its decision-making body at transfer; the date or triggering condition at which transfer takes effect; the continuity commitment for active grantees, specifying whether existing obligation structures remain in force under the new entity or are renegotiated; the notification mechanism for affected grantees, specifying when and how they will be informed before the transfer takes effect; and the constraint statement on new obligations, specifying whether the receiving entity may impose new obligations on transferred grantees as a condition of continued relationship and, if so, through what consent mechanism. The absence of a constraint statement on new obligations is the structural gap most clearly evidenced by the Luminate transfer: values requirements were added to grant documentation after transfer without a published specification of when and how that addition was agreed to by the transferred grantees.",
+        relationships: "Derived from the Entity Boundary primitive (Layer 2): a portfolio transfer changes the entity to which active grantees answer, which affects the entity boundary of the grantmaking relationship. Connects to the Funder Exit Transition Obligation (if promoted): the transfer declaration is the specification artifact for a specific class of funder exit response. Connects to the Continuation Specification Gate (Gate Type, Layer 3): transferred grantees' eligibility for continuation with the receiving entity is determined by the terms of the transfer declaration and by the receiving entity's published criteria; the gate type and character applicable to their continuation must be stated in the declaration. Connects to Portfolio Position (Layer 7): after transfer, the receiving entity is the funder of record for continuation purposes; the portfolio position of each transferred grant at the time of transfer must be declared so that the receiving entity can assess continuation eligibility correctly.",
+        applications: "Omidyar Network spin-off portfolio transfers (2018-2020): six portfolios transferred to Luminate, Flourish Ventures, Imaginable Futures, Spero Ventures, Omidyar Network India, and Place Fund; the Luminate transfer is the most documented in published sources because Luminate committed transferred grantees to its own values requirements (source: On Trust and Transparency: Perspectives from Luminate's Portfolio, ontrustandtransparency.report). Any funder undergoing a restructuring, spin-off, or strategic exit in which active grants or investments are transferred to a new entity rather than wound down. Fiscal sponsor transitions where a project moves from one fiscal sponsor to another and the sponsor retains the grant relationship rather than the project receiving funds directly."
+      },
+      {
+        name: "Lifetime Relationship Program Structure",
+        layer: "portfolio",
+        description: `A program structure in which the relationship between funder and grantee is declared as permanent rather than time-limited. Once a participant is selected, their membership in the program is unconditional: no per-cycle eligibility re-demonstration is required, and no performance gate conditions continued access to the program's standing support resources. The program's architecture must accommodate this permanence by design; it cannot treat each round as a discrete interaction with a renewable but time-bounded grant relationship.
+
+The Lifetime Relationship Program Structure differs from the committed continuation configuration of the Continuation Specification Gate (Layer 3, Gate Type) in that committed continuation still presupposes that continuation can be suspended or terminated under specified conditions. A lifetime program makes no such reservation for the relationship itself: the individual's membership is permanent. What changes over time is the modality of support the program provides, not the individual's standing as a member. The Schmidt Science Fellows program articulates this clearly: "Our Fellowship is a lifelong community. This distinguishes us from other funding schemes and helps us achieve more collectively than we could as individuals." The Rise program states it even more explicitly: the program "is the first program of this scale anywhere in the world to create opportunities for this extraordinary talent for life."
+
+A program declaring a Lifetime Relationship Program Structure must specify four structural elements. The selection event is the one-time entry gate after which membership is unconditional, with the selection criteria that determine that gate declared in full before it opens. The standing support modalities are the resources, services, and opportunities the program commits to providing across the individual's career; these must be specified at the time of selection, not left to funder discretion at each subsequent interaction. The community structure is the named community the individual joins, with its membership decision-standing rules, participation expectations, and what distinguishes a functional member from a lapsed one. The longitudinal outcome declaration is what the funder expects to observe over the lifetime relationship, at what time horizons, and through what measurement approach; programs that declare lifetime commitments without a longitudinal measurement specification are making an unverifiable long-term claim, which the Precision primitive requires to be named as such.
+
+The absence of a longitudinal measurement specification is the most common observable specification gap in programs declaring lifetime relationships. The Schmidt Science Fellows and Rise programs are the two clearest published instances of the structure. Neither currently publishes a measurement specification for how lifetime outcomes are tracked or assessed. The primitive should be understood as requiring that this gap be acknowledged and addressed in any new program that adopts the structure, without requiring that existing programs retroactively restate their terms.`,
+        relationships: "Derived from Gate Type (Layer 3), specifically as the limiting case of the committed continuation configuration where the continuation commitment extends across the individual's career with no re-demonstration requirement. Connects to Portfolio Position (Layer 7): each successive cohort of selected individuals is a new initiating position in the program's portfolio, but the individuals from prior cohorts remain in the portfolio indefinitely; the portfolio analysis must accommodate a growing permanent membership rather than a bounded set of rounds. Connects to Multi-cycle Retrospective Assessment (Layer 7): the longitudinal outcome declaration for a lifetime program extends far beyond what any single-cycle completion gate can assess; multi-cycle retrospective assessment is the minimum gate type that can produce evidence for lifetime relationship outcomes. Connects to Network Formation Outcome (Layer 6): programs with lifetime structures typically declare network formation as a named outcome, because the permanent community is the mechanism by which the program amplifies individual contributions; the two primitives frequently co-occur and must be declared in conjunction.",
+        applications: "Schmidt Futures Schmidt Science Fellows (lifetime fellowship community with senior fellow standing support resources; source: schmidtsciencefellows.org/program/community/). Schmidt Futures Rise program (lifetime support commitment for selected young people, including scholarships, mentorship, career services, and funding access; source: Rise Launch Press Release, 2020). Any talent-selection or leadership-development program that constitutes a permanent community rather than a time-bounded cohort, and any program that commits to providing individualized support across a selected person's career rather than within a defined grant period."
+      },
+      {
+        name: "Portfolio Cluster Evaluation",
+        layer: "portfolio",
+        description: `A named evaluation form that treats a thematically bounded subgroup of grants within a portfolio as the unit of analysis, producing formative quality findings about the cluster as a whole. The cluster is defined by shared thematic focus, shared theory of change territory, or shared target population rather than by the administrative boundaries of a single program round or the full portfolio. The cluster evaluation asks: given these grants taken together, what is the quality of the work being done in this thematic area, and where could it be strengthened?
+
+The Portfolio Cluster Evaluation is distinct from two existing Layer 7 primitives. The Multi-cycle Retrospective Assessment (Layer 7) evaluates cumulative progress across multiple completed cycles for a single program or grantee; its primary question at each assessment event is whether the program or grantee has made cumulative progress toward its declared goals. The Portfolio Cluster Evaluation operates across grants rather than across cycles for a single entity, and its primary purpose is formative quality assessment of a thematic subgroup rather than summative determination of cumulative progress. The Portfolio Analysis Outputs (Layer 7) define five quantitative analytical outputs enabled by pathway registry declarations; those outputs address convergence, gaps, leverage points, sequencing, and efficiency across the full portfolio. The Portfolio Cluster Evaluation produces qualitative formative findings about a thematic subgroup, using evaluation methodology rather than quantitative pathway analysis.
+
+In the Hewlett Foundation's Evaluation Principles and Practices (Second Edition, 2019) and the Evaluating the Madison Initiative documentation, cluster evaluations in the first wave of the Madison Initiative were explicitly formative and developmental, focused on what the work was and where it could be improved rather than on portfolio-level attribution. The foundation describes strategy-level assessment as a "quilting art" that synthesizes findings from multiple cluster evaluations, implementation markers, and contextual reflection. The Global Fund's Strategic and Thematic Evaluation component and the Gates Foundation's program-area reviews are functionally equivalent structures across different institutional contexts.
+
+Three required elements distinguish a Portfolio Cluster Evaluation from an ad hoc grant review. The cluster definition specifies which grants are included in the cluster and on what basis, with the boundary drawn at a level that makes the thematic focus coherent without importing the administrative logic of a single program round. The evaluation question specifies what the cluster evaluation is designed to learn, distinguishing between questions about implementation quality (how well is the work being done?), strategic coherence (are these grants collectively addressing the theory of change?), and causal progress (is the cluster as a whole moving toward its declared outcomes?). The intended use specification states who will receive the findings, when, and in what form, because a cluster evaluation that produces findings not fed into any program or strategy decision is a resource expenditure without a defined purpose.`,
+        relationships: "Derived from Portfolio Analysis Outputs (Layer 7): the cluster evaluation is the qualitative complement to the quantitative portfolio outputs, using the same thematic groupings that the pathway registry enables but asking evaluation questions that the quantitative outputs cannot answer. Connects to the Inter-cycle Reflection Stage (Layer 7): cluster evaluation findings are a primary input to the inter-cycle reflection stage for programs with thematic subgroups; the reflection artifact must reference what the cluster evaluation found. Connects to Evidence Scope (Layer 4) and Gate Character (Layer 3): a formative cluster evaluation uses developmental gate character; a summative cluster evaluation producing final determination findings about a thematic area uses summative gate character with the evidence scope appropriate to the cluster's declared outcome level. Connects to Multi-cycle Retrospective Assessment (Layer 7): a cluster evaluation conducted across multiple cohorts of a thematic program over multiple cycles becomes a multi-cycle retrospective assessment of that cluster; the two forms are distinguished by whether the unit of analysis is a defined cross-grant thematic cluster or a single program's longitudinal progression.",
+        applications: "Hewlett Foundation Madison Initiative cluster evaluations (first wave: formative and developmental, focused on work quality in democratic resilience and civic information, not portfolio attribution; source: Evaluating the Madison Initiative, 2019, William and Flora Hewlett Foundation). Global Fund Strategic and Thematic Evaluations (portfolio subgroups assessed as clusters within the broader performance framework, assessing thematic coherence and quality across country grants in a disease area). Gates Foundation program-area reviews (thematic subgroup assessments within program strategies). MacArthur Foundation strategy-area cluster reviews within multi-year program strategies. Any funder operating a multi-grant portfolio in a thematic area who wishes to produce formative quality findings at the cluster level rather than only at the individual grant level or the full portfolio level."
+      },
+      {
+        name: "Shared Capital Pool with Multiple Grantmaking Program Types",
+        layer: "portfolio",
+        description: "A single pooled capital base from which a funder runs more than one distinct grantmaking program type at the same time, each program type carrying its own entry gate, decision-maker, evidence requirement, and authority chain while drawing on the same underlying capital. This is a capital-base-level architectural declaration: the funder has configured one pool to serve several simultaneously active programs rather than holding a separate pool per program. It is distinct from Portfolio Position (Layer 7), which classifies how one round relates to prior rounds along a single pathway, because the program types here run in parallel, not in sequence; and from Portfolio Analysis Outputs (Layer 7), which analyzes pathway data across a registry, because the structural fact named here is the shared custody of capital across program tracks each decided by its own authority chain, not an analytical output. A program drawing from such a pool must declare which program type it operates under and which authority chain decides its disbursements, because the program-level obligation architecture of a pooled-fund program differs from that of a standalone fund.\n\nThe primitive carries two recorded folds. The first is the donor-directed parallel disbursement track: a configuration in which the pool routes donor-designated disbursements through one track (decided by the donor's advisory recommendation) and collectively decided allocations through another track (decided by program staff or a committee), with three named track-relationship patterns (independent-parallel, first-dollars-in, and substitution). This is the two-track instance of the shared-pool form, and the funder-versus-pool substitution pattern is a configuration dimension within it. The second fold is investment-authority pooling with distributed grantmaking authority: the structural separation between the body that decides how the pooled capital is invested and the several bodies (board, program staff, donors, selection committees) that decide how disbursements are made from it. A shared capital pool with multiple program types must declare this bifurcation as one of its required elements, because investment decisions and disbursement decisions proceed through different named bodies over the same capital. The bifurcation is the Capital-Layer and Allocation-Authority Separation pattern (Layer 2) instantiated in the pooled context, not a separate genus; the two folds together complete the structural description of a multi-program pooled capital vehicle.",
+        relationships: "Instantiates the capital-layer and allocation-authority separation declared at Layer 2 in a multi-program pooled setting. Each parallel program type within the pool declares its own Disbursement Authority (Layer 2) configuration; the donor-directed track is the donor-recommendation-decided configuration of Disbursement Authority, the collectively decided track the staff-or-committee configuration. Connects to Portfolio Position (Layer 7): a given grant's position is read within its own program type, not across the whole pool, so the pool may carry initiating, continuation, and convergence positions in different tracks at once. Connects to Revenue Architecture (Layer 2): the pool's investment-return income is the funder-side counterpart to a grantee's revenue architecture, and a program drawing from invested pooled capital differs structurally from one funded by a fixed annual budget line.",
+        applications: "United States community foundations, which hold permanent endowments contributed by many separate donors, invest them under one investment policy, and run discretionary competitive grants, donor-advised distributions, scholarship awards with independent selection committees, geographic affiliate funds, and re-granting to intermediaries from the same pool, each under a different authority chain (sources: Grand Traverse Regional Community Foundation Grantmaking Policy; Central Kansas Community Foundation donor-advised fund Policy and Guidelines). Donor-advised funds, where a donor retains advisory privilege over recommendations while the sponsoring organization holds final discretion, drawing the donor-directed and discretionary tracks from one pooled base. Any funder operating several program types of differing decision architecture over a single shared capital base."
+      },
+      {
+        name: "Allocation Model with Strategic Supplement Pool",
+        layer: "portfolio",
+        description: "A portfolio allocation architecture in which a funder runs two complementary selection mechanisms over one portfolio at the same time: a formula-driven core allocation that distributes funding to all eligible recipients by a published quantitative model, and a discretionary strategic supplement pool, set aside from the same total funding, that targets structural gaps the formula cannot reach on its own. The supplement is not distributed by the core formula and uses its own separate eligibility determination; a recipient may receive both a formula-based allocation and a strategic supplement. The defining structural feature is the declared design intent: the supplement exists specifically because the formula systematically cannot address certain gaps (cross-country goods, populations whose needs fall below the formula's resolution, multi-country initiatives), and the two mechanisms are designed to coexist and complement each other.\n\nThis is its own primitive because no existing portfolio primitive names a funder's designed co-existence of two complementary selection mechanisms over one portfolio. Portfolio Position (Layer 7) classifies how a round relates to prior rounds along a pathway; it does not name a formula-plus-supplement pair. Portfolio-level Continuation Benchmark (Layer 7) sets a program-level threshold the program must meet; it does not name a second discretionary mechanism that corrects the primary one. Cohort Position (Layer 7) addresses applicant overlap inside a single round, not program-level overlap between two funder mechanisms.",
+        relationships: "Derived from Portfolio Position (Layer 7): the strategic supplement frequently funds convergence-position work, contributions to an outcome that the formula-allocated grants cannot reach alone, while the core allocation funds initiating and continuation positions. Connects to Scope (Layer 2): the supplement's targeting declares the structural gap it covers, which is the scope the formula leaves unaddressed. Connects to Portfolio Analysis Outputs (Layer 7): gap analysis is the analytical output that justifies the existence and sizing of a strategic supplement pool, and a funder declaring this architecture is committing to identify the formula's gaps explicitly.",
+        applications: "The Global Fund to Fight AIDS, Tuberculosis and Malaria, whose allocation model distributes a baseline to each eligible country and disease component by disease burden and national income, with a separate Catalytic Investments pool set aside for strategic priorities the model cannot address, including data systems benefiting multiple countries, key and vulnerable populations, multi-country initiatives, and differentiated epidemiological responses (source: Global Fund allocation methodology documentation; Global Fund Catalytic Investments policy; Global Fund Strategy 2023-2028). The Green Climate Fund Readiness Programme, which supplements the main project approval cycle. Any multilateral or large institutional funder pairing a universal formula allocation with a targeted discretionary complement."
+      },
+      {
+        name: "Terminal Adoption",
+        layer: "portfolio",
+        description: "A fourth Portfolio Position value, alongside the existing initiating, continuation, and convergence positions, in which a funded item exits the funder's grant portfolio not by ending or by moving to a subsequent grant round but by being adopted at scale by an external party that carries it forward outside the grant relationship. The external adopter may be the funder's own non-grant operational programming, a different institution, a government budget line, or a market that takes the solution up. The defining feature is that the terminal state of the funded work is adoption by another party, designed and named in advance, rather than continuation as a further grant.\n\nTerminal Adoption is its own Portfolio Position value because the three existing values all presuppose that what comes next, if anything, is another grant round in the portfolio. Initiating establishes a pathway, continuation advances it, and convergence depends on pathways established by other programs, but all three keep the item inside the grant relationship. Terminal Adoption names the case where the item leaves the grant relationship entirely and enters the adopter's own operating base. When the adopter is the funder's own operational programming, the gate that effects the handoff is the Adoption Gate (Layer 3); Terminal Adoption is the portfolio-position value that the Adoption Gate produces, and the two are the same structural event described from the portfolio side and the gate side. The structural consequence is a backward-designed evidence chain: a program aiming at terminal adoption calibrates the evidence required at each stage to produce exactly the evidence the intended adopter needs to take the solution up, which is planning-mode Specification Directionality (Layer 6) applied at the program-design level.",
+        relationships: "Extends Portfolio Position (Layer 7) as its fourth value. Connects to the Adoption Gate (Layer 3): the gate is the mechanism that effects funder-internal terminal adoption, and Terminal Adoption is its portfolio-side reading. Connects to Sustainability Stance (Layer 6): for a program designed around terminal adoption, the sustainability of outcomes is conditional on the adoption occurring, so the sustainability stance must name the adopter and the adoption condition rather than asserting persistence on the grantee's own resources. Connects to Specification Directionality (Layer 6): terminal-adoption programs are planning-mode at the program-design level, specified from the intended terminal state backward.",
+        applications: "USAID Development Innovation Ventures, whose three-stage tiered structure names adoption into USAID core programming as the intended terminal state for Stage 3 solutions demonstrated effective at scale, effected either by integration into an operating unit's programming budget or by a co-financing arrangement, with the funder itself as the named next-stage adopter (source: USAID DIV program description; DIV Application Guide; DIV Pathways to Scale documentation). Any program in which a successful funded item is designed to exit the grant portfolio by adoption at scale by the funder's own operations, a third party, a government budget, or a market."
+      },
+      {
+        name: "Mixed-Instrument Portfolio Configuration",
+        layer: "portfolio",
+        description: "A portfolio that a funder deliberately configures to deploy more than one financing instrument type, grants, program-related investment loans, equity investments, guarantees, strategic deposits, within the same program areas and mission scope, with each instrument type creating a different obligation relationship to the recipient. Some recipients receive grants (no repayment obligation), others loans (repayment on defined terms), others equity (ownership claim), others guarantees (a contingent obligation triggered by a third-party event). The configuration is a declared funder-side portfolio architecture, not an incidental mix: the funder commits to operating multiple instrument types concurrently and, where it publishes its selection logic, to matching instrument type to the kind of capital gap each opportunity faces.\n\nThis is its own primitive because no existing portfolio primitive addresses multi-instrument design; Portfolio Position (Layer 7) and Portfolio Analysis Outputs (Layer 7) both presuppose that every item in the portfolio is a grant. The instrument-to-barrier-type selection logic some funders publish (a grant where no return is possible, a below-market loan where the recipient can service debt but cannot reach commercial credit, equity where the recipient is building a revenue enterprise, a guarantee where the barrier is lender risk aversion, a strategic deposit where a community lender needs capacity) is a named configuration element of this primitive rather than a separate primitive. The single-instrument case is the limiting configuration where only one instrument type is declared.",
+        relationships: "Derived from Financing Instrument Type (Layer 3): a mixed-instrument portfolio is one that declares more than one financing instrument type concurrently within the same mission scope, so this primitive is the portfolio-level configuration of which instrument types the funder runs together. Each instrument type within the configuration carries its own Obligation Mode (Layer 3): grants the build, change, or retroactive modes, loans and equity and guarantees their distinct return-bearing and contingent modes. Connects to Public Benefit Mechanism (Layer 3): the instrument-to-barrier-type selection logic declares which capital barrier each instrument removes, which is the mechanism by which the deployment produces benefit.",
+        applications: "The Kresge Foundation Social Investment Practice, which deploys program-related investment loans, equity investments, strategic deposits, New Markets Tax Credit allocations, and unfunded loan guarantees alongside grants across all of its program areas, with a published instrument-to-barrier-type selection logic, and its Detroit Program, which uses both grants and program-related investments within one place-based program (source: Kresge Foundation Social Investment Practice; Kresge Foundation Detroit Program). The MacArthur Foundation, which deploys roughly $390 million in impact investments organized into loans, private equity, and guarantees alongside its grants in the same program areas (source: MacArthur Foundation Impact Investment and Grant Guidelines; MacArthur Foundation Investments). Any funder operating grant and non-grant instruments within one portfolio targeting shared impact goals."
+      },
+      {
+        name: "Funder Portfolio Allocation Floor Declaration",
+        layer: "portfolio",
+        description: "A funder-side declaration of a minimum share of total grantmaking volume committed to a named category, holding across the full grant cycle rather than constraining any single grant. The declaration sets a floor below which the named category's funding cannot fall across the portfolio as a whole; it is a portfolio-composition commitment the funder carries, distinct from a classification of how one grant sits in the portfolio. It is distinct from Portfolio Position (Layer 7), which classifies a single grant's relationship to the portfolio, by being a binding proportional minimum on the portfolio's composition rather than a position read off one grant.\n\nThis primitive is held weak: it rests on a single source, the W.K. Kellogg Foundation's published commitment, and it is provisional pending a second grounding. The held-weak status also reflects an open scope question, namely whether a funder's portfolio-level self-commitment belongs in a description grammar that otherwise describes the obligations placed on applicants and grantees; the funder-side reading is recorded but not settled.",
+        relationships: "Distinct from Portfolio Position (Layer 7) as described above. Connects to Scope (Layer 2) at the funder level: the named category to which the floor applies is a declared scope of the portfolio, and the floor is the minimum share committed to that scope. Connects to Portfolio Analysis Outputs (Layer 7): efficiency analysis and gap analysis can read whether the declared floor is in fact met across the realized portfolio.",
+        applications: "The W.K. Kellogg Foundation's Philanthropy's Promise commitment, declaring that the majority of grantmaking dollars must reach marginalized communities and at least 25 percent must fund social-justice strategies including advocacy, community organizing, and civic engagement, with the commitment operating at the portfolio level and publicly recorded through the Philanthropy's Promise signatory framework (source: W.K. Kellogg Foundation Philanthropy's Promise commitment). Any funder that publicly declares minimum proportional allocations across named strategic categories binding on its portfolio as a whole."
+      },
+      {
+        name: "Program Duration Declaration",
+        layer: "portfolio",
+        description: "A funder's declaration of the intended duration of a program area's existence as a funded commitment, made at program inception and binding on the grantmaking design within it. The property spans two poles. The sunset pole is a fixed-end declaration: the program area carries a declared closing date from inception, communicated to grantees at the outset, which shapes every grant round within it and creates pressure to design grants toward outcomes that can stand after the program closes. The indefinite pole is a positive declaration of permanence: the program area is declared to have no closing date and to represent a standing commitment, which places grantees in a different planning environment. A program area that makes no duration declaration sits in an intermediate, unspecified condition that is structurally different from both poles. The declaration operates at the program level, above the single grant round; it is distinct from a round's declared length, which sets the duration of only one round.\n\nThis primitive is held weak: both poles are grounded in a single source, the MacArthur Foundation, and the primitive is provisional pending a second grounding. The two poles are recorded as one property rather than two primitives because the indefinite declaration is the structural inverse of the sunset declaration; together they form one vocabulary for a funder's declared duration commitment, and the unspecified case is the absence of either declaration on that one property.",
+        relationships: "Connects to Sustainability Stance (Layer 6): a sunset declaration makes grantee outcome-persistence after program close a load-bearing question, so the sustainability stance of grantees in a sunsetting program must address survival past the declared end date. Connects to the Inter-cycle Reflection Stage (Layer 7): a declared sunset forces an inter-cycle reckoning at the program's close, and the wind-down is the terminal instance of program-level reflection. Connects to Continuity Capacity (Layer 2): a grantee dependent on an indefinite-duration funder faces a different continuity exposure than one under a declared sunset, which the continuity capacity declaration should reflect.",
+        applications: "The MacArthur Foundation Big Bets strategy, in which each Big Bet carried a declared sunset date from inception, communicated to grantees years in advance, with Nuclear Challenges, On Nigeria, Criminal Justice, and Climate Solutions closing on or near their declared timelines (source: MacArthur Foundation Big Bets program documentation). The MacArthur Foundation Enduring Commitments designation, applied to areas of long-standing engagement with no sunset date, including the Chicago Commitment and the Journalism and Media program, as the indefinite pole (source: MacArthur Foundation Enduring Commitments and Chicago Commitment program documentation). Any funder that declares at program inception whether a program area is time-bounded or permanent."
+      },
+      {
+        name: "Funder-Operated Alumni Infrastructure",
+        layer: "portfolio",
+        description: "Standing infrastructure that a funder operates for its past grantees and fellows as an ongoing network after their grants close. Former participants enter the network automatically as a consequence of having received a grant; participation after completion is available rather than required. The structural fact named is a post-completion relationship architecture maintained permanently by the funder, distinct from a completion gate, which determines what a grantee must demonstrate for a grant to close. The infrastructure is frequently dual-purpose: it serves former participants as a resource and serves the funder's own ongoing work as a standing source of expertise and field intelligence, and the explicit naming of the network as an intelligence asset for the funder is the feature that distinguishes it from a participant-serving alumni list.\n\nThis primitive is held weak: it rests on a single source, the Robert Bosch Stiftung, and is provisional pending a second grounding.",
+        relationships: "Distinct from the completion gate configurations under Gate Type (Layer 3), which close a single grant, by being a standing structure that persists across and beyond all of them. Connects to Lifetime Relationship Program Structure (Layer 7): both name a funder-maintained standing relationship beyond a single grant, but the lifetime structure makes membership unconditional and permanent by design as the program's constitutive form, whereas funder-operated alumni infrastructure is an available post-grant layer that does not make the underlying grant relationship permanent. Connects to Network Formation Outcome (Layer 6): the alumni network is the standing mechanism through which a funder can claim network formation as an outcome across cohorts.",
+        applications: "The Robert Bosch Stiftung, which operates the International Alumni Center in Berlin, the Bosch Alumni Network (approximately 9,000 members across 140 countries), and the Robert Bosch Academy as permanent institutions maintaining relationships with former grantees and fellows, described by the foundation as both a resource for alumni and a sensor for social developments and a pool of experts and multipliers for its own work (source: International Alumni Center; Bosch Alumni Network; Robert Bosch Academy). Any funder that operates a permanent alumni network as a standing post-grant layer."
+      },
+      {
+        name: "Dedicated Fund Isolation Architecture",
+        layer: "portfolio",
+        description: "A portfolio architecture in which a funder or fund-establishing body places a defined stream of capital into a fund created specifically to hold that stream, separate from the body's other accounts, so that the dedicated capital is identifiable and its uses are codified in the fund's establishing instrument. The structural requirement is that the money itself be held in a named, separate fund, with the permitted uses written into the instrument that establishes it, so that auditors and the public can independently confirm whether deployment is within bounds. This is a pre-disbursement fund-architecture requirement, distinct from a restriction on an applicant's intended use of grant outputs (the Downstream-Use Restriction, Layer 3), which operates on the applicant's use rather than on the fund's establishing instrument, and distinct from Disbursement Authority (Layer 2), which names who may authorize a disbursement rather than how the capital is held and bounded.\n\nThis primitive is held weak: it rests on a single source, the Johns Hopkins Opioid Litigation Principles, and is provisional pending a second grounding.",
+        relationships: "Distinct from the Downstream-Use Restriction (Layer 3) and Disbursement Authority (Layer 2) as described above. Connects to Scope (Layer 2): the fund's establishing instrument declares the scope of permissible uses, and the isolation architecture is the mechanism that binds deployment to that declared scope. Closely related to Restricted Fund Isolation Architecture (Layer 7), which isolates capital so it cannot be commingled or redirected; the two are companion architectures from the same source, and a consolidation pass proposes folding the restricted-fund primitive into this one (see the open fold noted there).",
+        applications: "The Johns Hopkins Bloomberg School of Public Health Principles for the Use of Funds from the Opioid Litigation, Principle 1, which recommends that opioid-litigation proceeds go into a dedicated fund created specifically for those proceeds, with the establishing instrument outlining acceptable uses (source: Johns Hopkins Opioid Litigation Principles, Principle 1). Settlement-fund and earmarked public-benefit fund arrangements where a defined revenue stream is held in a separate fund with codified uses."
+      },
+      {
+        name: "Restricted Fund Isolation Architecture",
+        layer: "portfolio",
+        description: "A portfolio architecture, related to Dedicated Fund Isolation Architecture, in which the capital in an isolated fund is bound by use restrictions encoded in the fund's establishing instrument so that the capital cannot be commingled with other accounts or redirected to uses outside the declared bounds. Where Dedicated Fund Isolation Architecture names the creation of a separate, identifiable fund for a defined capital stream, this primitive names the binding force of the restrictions on that fund: the establishing instrument, not the application narrative or a stated policy, is the source of the use limits, and the limits prevent the capital from being moved to fill general budget gaps or supplant existing spending. The structurally specific element is that the restriction lives in the fund's instrument, making it independently verifiable rather than dependent on the deploying body's discretion.\n\nThis primitive is held weak: it rests on a single source, the Johns Hopkins Opioid Litigation Principles, and is provisional pending a second grounding. An open fold is also recorded: a consolidation pass proposes folding this primitive into Dedicated Fund Isolation Architecture, on the reading that the two are one architecture (a separately held fund whose uses are bound by its instrument) described from two angles. That fold is not yet ratified, so the primitive stands on its own here, with the proposed fold flagged for the author's ruling.",
+        relationships: "Companion to Dedicated Fund Isolation Architecture (Layer 7): the dedicated-fund primitive names the separate fund's creation, this primitive names the instrument-encoded restrictions that bind it; the open fold would unify them. Connects to Scope (Layer 2): the encoded restrictions are the declared scope of permissible uses, here made binding through the fund's instrument. Relates to the supplement-not-supplant logic that the same source applies, in which the restriction's purpose is to keep the capital additive to existing spending rather than substitutive.",
+        applications: "The Johns Hopkins Bloomberg School of Public Health Principles for the Use of Funds from the Opioid Litigation, Principle 1, which recommends that the dedicated fund's establishing instrument include specific language that the money cannot be used to replace existing investments and that it outline acceptable uses, so the restriction is encoded in the instrument rather than left to the deploying body (source: Johns Hopkins Opioid Litigation Principles, Principle 1). Settlement-fund and earmarked public-benefit fund arrangements where instrument-encoded restrictions prevent commingling or redirection."
+      },
+      {
+        name: "Constellation-Level Portfolio Assessment",
+        layer: "portfolio",
+        description: "A portfolio assessment performed at the level of a constellation of grantees taken as a whole, a named group of organizations working together toward a shared system-level outcome, rather than grant by grant. The unit of analysis is the constellation, and the assessment examines the relational dynamics within it, the roles organizations play relative to one another, how connected they are, and what the group needs to accelerate, rather than each organization's individually attributable contribution. The assessment treats contribution to a shared outcome, not attribution to a single grantee, as the lens through which the funder reads progress, and it recognizes a coordinating role (an organization whose primary function is to maintain the connective infrastructure that lets other organizations function) as a named contribution type with its own evidence form.\n\nThis is distinct from Portfolio Analysis Outputs (Layer 7), whose five quantitative outputs (convergence, gap, leverage-point, sequencing, efficiency analysis) operate on pathway data registered by individual grantees, because the constellation assessment adds a relational mapping unit and a coordinating-role contribution type that those outputs do not name. It is distinct from Portfolio Cluster Evaluation (Layer 7), which assesses a thematically bounded subgroup's work quality, because the constellation unit is defined by the working relationships among its members and assessed on those relationships, not by a shared thematic boundary alone.\n\nThis primitive is held weak: it rests on a single source, the Skoll Foundation, and is provisional pending a second grounding.",
+        relationships: "Extends Portfolio Analysis Outputs (Layer 7) by naming the constellation as a relational unit of analysis the five quantitative outputs do not cover. Distinct from Portfolio Cluster Evaluation (Layer 7) as described above. Connects to Network Formation Outcome (Layer 6): the constellation's connectivity is itself a network-formation outcome, and the coordinating role is the actor that produces it. Connects to Theory of Change Hierarchy (Layer 6): the shared system-level outcome the constellation works toward sits at the goal and long-term-outcome levels, which a single grantee's pathway cannot reach alone.",
+        applications: "The Skoll Foundation, which assesses ecosystem-level progress by studying constellations, or groups, of social innovators working together, examining the roles partners play relative to one another, how connected they are, and what they need to accelerate, having moved from attribution-based evaluation of individual organizations to contribution-based assessment of how constellations drive system-level change, and recognizing system-orchestrator roles that provide connective infrastructure (source: New Evaluation Approaches That Fuel Collective Action, Stanford Social Innovation Review, Winter 2025). Any funder that assesses grantees as relationally connected groups working toward a shared system-level outcome rather than only grant by grant."
+      },
+      {
+        name: "Hypothesis-Grounded Learning Obligation",
+        layer: "portfolio",
+        description: "A portfolio-level commitment by a funder to ground its learning in explicitly declared hypotheses tested across the portfolio, rather than in output metrics or key performance indicators. The funder structures its evidence collection and portfolio review around if-then statements linking activities to intended outcomes, identifies and prioritizes the assumptions underlying each hypothesis by the consequence of being wrong, generates learning questions to test the prioritized assumptions, and reviews confirming and disconfirming evidence against them on a recurring cycle. The obligation is on the funder, and its content is a standing commitment to active disconfirmation: treating the program's assumptions as falsifiable claims to be revisited, not as stable background conditions.\n\nThis is distinct from the Theory of Change Hierarchy (Layer 6), which describes how a program declares its causal model; the hypothesis-grounded obligation is the commitment to actively test and revise that model, which a declared theory of change does not by itself entail. It is distinct from the Inter-cycle Reflection Stage (Layer 7), which is a structured learning artifact produced between cycles, because the hypothesis-grounded obligation operates continuously within the funding relationship rather than at the cycle boundary.\n\nThis primitive is held weak: it rests on a single source, the Luminate Group, and is provisional pending a second grounding. The decisions record also flags an open question, now that Program Learning Architecture is a standing primitive, of whether this obligation is best seated standalone or as a configuration of Program Learning Architecture; it is written standalone here, with that question reserved for the author.",
+        relationships: "Closely related to Program Learning Architecture (Layer 7): the hypothesis-grounded obligation supplies the prospective, hypothesis-framed orientation that Program Learning Architecture's hypothesis-testing reference pattern describes, and the open seating question above turns on whether it is a distinct primitive or a configuration of that parent. Connects to Pre-Specified Disconfirmation Threshold (Layer 6): the disconfirming-evidence review the obligation requires is the practice that a pre-specified disconfirmation threshold makes binding. Connects to the Theory of Change Hierarchy (Layer 6) as the model the hypotheses make testable.",
+        applications: "The Luminate Group Learning Framework, which organizes portfolio learning around hypotheses (if-then statements linking activities to outcomes), assumptions (prioritized by the strategic consequence of being wrong), learning questions (to test prioritized assumptions), and confirming and disconfirming evidence reviewed in recurring structured conversations, designed to replace key performance indicators with a hypothesis-testing model (source: Luminate Learning Framework; Itad, Embedding systems thinking in daily learning, March 2023). Any funder that commits to grounding portfolio learning in declared, tested, and revisable hypotheses rather than in fixed output indicators."
       }
     ];
     function getPrimitiveByName(name) {
-      return exports.PRIMITIVES.find((p) => p.name === name);
+      const lower = name.toLowerCase();
+      return exports.PRIMITIVES.find((p) => p.name.toLowerCase() === lower);
     }
     function getPrimitivesByLayer(layer) {
       return exports.PRIMITIVES.filter((p) => p.layer === layer);
     }
     function searchPrimitives2(keyword) {
       const lower = keyword.toLowerCase();
-      return exports.PRIMITIVES.filter((p) => p.name.toLowerCase().includes(lower) || p.description.toLowerCase().includes(lower) || p.applications.some((a) => a.toLowerCase().includes(lower)));
+      return exports.PRIMITIVES.filter((p) => p.name.toLowerCase().includes(lower) || p.description.toLowerCase().includes(lower) || p.relationships.toLowerCase().includes(lower) || p.applications.toLowerCase().includes(lower));
     }
   }
 });
@@ -12717,7 +13132,7 @@ The five WALKRI criteria are:
 
 4. Evidence form: The specific artifact that satisfies the criterion: document type, data source, or access path, at a level sufficient for independent replication. Not "evidence of X" but "a URL to the LICENSE file in the root directory of a publicly accessible repository."
 
-5. Compliance threshold: For fields referencing external standards, which components apply, what evidence satisfies each component, and what the minimum threshold for passage is.
+5. Conformance threshold: For fields referencing external standards, which components apply, what evidence satisfies each component, and what the minimum threshold for passage is.
 
 Field to audit:
 - Label: ${field.label}
@@ -12739,7 +13154,7 @@ Respond in structured JSON matching this schema:
 {
   "criteria": [
     {
-      "name": "criterion-intent" | "operational-definition" | "response-form" | "evidence-form" | "compliance-threshold",
+      "name": "criterion-intent" | "operational-definition" | "response-form" | "evidence-form" | "conformance-threshold",
       "passes": boolean,
       "gap": string | null,
       "suggestion": string | null
@@ -12888,12 +13303,563 @@ Respond in structured JSON:
   }
 });
 
+// packages/core/dist/ore.js
+var require_ore = __commonJS({
+  "packages/core/dist/ore.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.BENCHMARK_LIMITS = exports.BENCHMARK_SCORING = exports.BENCHMARK_CLEAN_SOURCES = exports.BENCHMARK_KEY = exports.BENCHMARK_TASK = exports.BENCHMARK_SOURCES = exports.BENCHMARK_CLAIM = exports.BENCHMARK_NOTICE = exports.POSTURE_DECLARATION_REQUIREMENTS = void 0;
+    exports.gradeSourceScaffold = gradeSourceScaffold2;
+    exports.checkIndependence = checkIndependence2;
+    exports.auditFinding = auditFinding2;
+    exports.getPostures = getPostures2;
+    exports.getPosture = getPosture2;
+    exports.gradeSourcePrompt = gradeSourcePrompt;
+    exports.independencePrompt = independencePrompt;
+    exports.auditFindingPrompt = auditFindingPrompt;
+    exports.declarePosturePrompt = declarePosturePrompt2;
+    exports.scoreBenchmarkPrompt = scoreBenchmarkPrompt2;
+    var DIMENSION_QUESTIONS = {
+      "provenance-integrity": "Did this input come from where it claims, and did it arrive unchanged?",
+      "epistemic-soundness": "Is the source output structured so that truth-evaluation by independent parties is possible?",
+      "confirmation-architecture": "When this source produced its output, what confirmed it?",
+      "track-record": "Has this source history of outputs surviving challenge accumulated evidence about its reliability?",
+      independence: "Does the source have a stake in how the attested events are recorded?"
+    };
+    var DIMENSION_CONSTRAINTS = {
+      "provenance-integrity": [
+        "Near-binary: the evidence of origin and tamper-evidence either holds or it does not.",
+        "Strength here guarantees origin only. It does not guarantee the originating party had accurate information, and must not stand in for any other dimension."
+      ],
+      "epistemic-soundness": [
+        "Assess three properties separately: are claims stated in terms reality can refute, are accuracy and relevance kept apart, does the source distinguish observation from inference.",
+        "A perfectly sincere source can fail all three. Sincerity is not evidence on this dimension."
+      ],
+      "confirmation-architecture": [
+        "Never operationalize by party count. N signatures do not show that N independent perspectives confirmed anything.",
+        "Where effective independence cannot be assessed, record a named flag on this dimension rather than an assumed value.",
+        "A source may carry more than one confirmation mode at once. Record each mode present rather than forcing one cell."
+      ],
+      "track-record": [
+        "Uncomputable for new sources. Record as a named limitation, never as a middle grade.",
+        "Adversarial resistance, meaning whether a challenge mechanism functions under pressure rather than merely existing, is a sub-case of this dimension."
+      ],
+      independence: [
+        "A structurally sound source can be informationally captured, with all of its information flowing from parties interested in the outcome.",
+        "This dimension addresses conflict of interest. Epistemic soundness addresses claim structure. Both are required for the full picture."
+      ]
+    };
+    var DIMENSION_RECORDS = {
+      "provenance-integrity": [
+        "The assessment.",
+        "What the evidence of origin actually is.",
+        "Any sub-assessment that could not be computed, as a named flag."
+      ],
+      "epistemic-soundness": [
+        "The assessment.",
+        "The basis: which of the three structural properties were examined and how.",
+        "Any property that could not be examined, as a named flag."
+      ],
+      "confirmation-architecture": [
+        "Every confirmation mode present, not one cell.",
+        "The basis for each mode.",
+        "Whether effective independence was assessable, as a named flag where it was not."
+      ],
+      "track-record": [
+        "Whether the dimension was graded at all. Where it was not, declare its absence.",
+        "The basis where graded.",
+        "Which limitations are expected to resolve with accumulated history and which are permanent for the source class."
+      ],
+      independence: [
+        "Whether the dimension was graded at all. Where it was not, declare its absence.",
+        "The basis where graded: what stake was looked for and where."
+      ]
+    };
+    function gradeSourceScaffold2(input) {
+      const names = [
+        "provenance-integrity",
+        "epistemic-soundness",
+        "confirmation-architecture",
+        "track-record",
+        "independence"
+      ];
+      const dimensions = names.map((name) => {
+        const namedGaps = [];
+        if (name === "provenance-integrity" && !input.originEvidence) {
+          namedGaps.push("No evidence of origin supplied. Record provenance integrity as unestablished rather than assuming it holds.");
+        }
+        if (name === "confirmation-architecture") {
+          if (!input.confirmation) {
+            namedGaps.push("No confirmation described. The candidate state is unconfirmed, which carries the highest confirmation uncertainty and is a recorded state rather than a blank.");
+          } else if (looksLikePartyCount(input.confirmation)) {
+            namedGaps.push("The confirmation account is expressed as a count of parties. Party count is visible; independence is not. Record effective independence as a named flag unless it was separately assessed.");
+          }
+        }
+        if (name === "track-record" && !input.history) {
+          namedGaps.push("No interaction history supplied. If the source is new this is a genesis limitation and must be recorded as such, never defaulted to a middle grade.");
+        }
+        if (name === "independence" && !input.stake) {
+          namedGaps.push("No stake assessment supplied. Declare the absence of this dimension rather than omitting it silently.");
+        }
+        return {
+          name,
+          question: DIMENSION_QUESTIONS[name],
+          mustRecord: DIMENSION_RECORDS[name],
+          namedGaps,
+          constraints: DIMENSION_CONSTRAINTS[name]
+        };
+      });
+      const opaque = input.opaque === true;
+      const opacityObligations = opaque ? [
+        "Admit or decline according to the declared posture, never according to an unrecorded judgment about why the source is opaque.",
+        "If admitted, enter at the grade the visible properties warrant, with a monitoring obligation attached.",
+        "Do not treat a disclosure requirement as resolving opacity. An actor who knows the requirements can engineer conformance while obscuring what matters."
+      ] : [
+        "Opacity not declared for this source. If the internal architecture is in fact undisclosed, re-run with opaque set and apply the opacity obligations."
+      ];
+      return {
+        source: { label: input.label, description: input.description },
+        dimensions,
+        confirmationCandidates: confirmationCandidates(input.confirmation),
+        opacity: { opaque, obligations: opacityObligations },
+        monitoring: [
+          "Attach what should be watched over time. A grade that never updates and never triggers monitoring is a verdict under another name.",
+          "Sources can degrade or be captured without any single measurement crossing a threshold. Absence of an adverse signal is the limit of what can be seen, not the absence of danger."
+        ],
+        standingRules: [
+          "The grade measures uncertainty, not quality. Never present it as a judgment of the source worth.",
+          "Never use a low grade as grounds for rejection where the declared posture admits the source.",
+          "Ungraded and low-grade are different states with different obligations.",
+          "Do not combine the dimensions into a single score. A profile of separately based assessments is hard to tune silently and cheap to audit; one number is the reverse."
+        ],
+        promptTemplate: gradeSourcePrompt(input)
+      };
+    }
+    function looksLikePartyCount(confirmation) {
+      const c = confirmation.toLowerCase();
+      const patterns = [
+        /\b\d+\s*(signature|signer|attester|reviewer|validator|party|parties|source)/,
+        /\bmulti(sig|-sig|ple parties)/,
+        /\b(two|three|four|five|several|multiple)\s+(signature|signer|attester|reviewer|validator|part|source)/,
+        /\bcorroborat/,
+        /\bconfirmed by \d+/
+      ];
+      return patterns.some((p) => p.test(c));
+    }
+    function confirmationCandidates(confirmation) {
+      if (!confirmation)
+        return ["unconfirmed"];
+      const c = confirmation.toLowerCase();
+      const out = [];
+      const mechanismMulti = /\b(multisig|multi-sig|validator|quorum|passed vote|on-chain vote|threshold signature)/.test(c);
+      const cryptoSingle = /\b(cryptograph|signature|signed|proof|hash|attestation|attested|on-chain)/.test(c);
+      const adversarialMulti = /\b(bonded curation|challenger|counter-stake|adversarial|multi-reviewer|multiple reviewer|dispute resolution|consensus|panel|committee|peer review)/.test(c);
+      const socialSingle = /\b(evaluator|curat|badgeholder|review|editor|analyst|assessor|moderator)/.test(c);
+      if (mechanismMulti)
+        out.push("trustless-multi");
+      else if (cryptoSingle)
+        out.push("trustless-single");
+      if (adversarialMulti)
+        out.push("trust-based-multi");
+      else if (socialSingle)
+        out.push("trust-based-single");
+      if (out.length === 0)
+        out.push("unconfirmed");
+      return out;
+    }
+    function checkIndependence2(claim, items) {
+      const flags = [];
+      const analysed = items.map((item) => {
+        const notes = [];
+        const basis = item.statedBasis?.trim() ? item.statedBasis.trim() : null;
+        if (!basis) {
+          notes.push("No basis stated. An uncited restatement is not an origin. Record the chain as terminating here and say why.");
+        } else if (referencesAnotherItem(basis, items, item.label)) {
+          notes.push("Basis names another item in this set. This item is a restatement rather than an independent origin.");
+        }
+        if (item.relationships?.trim()) {
+          notes.push("A relationship is declared. Shared authorship, shared funding, board or advisory overlap, or one party sitting on the editorial side of another defeats nominal independence.");
+        }
+        return {
+          label: item.label,
+          statedBasis: basis,
+          rungLabelRequired: true,
+          notes
+        };
+      });
+      const restatements = analysed.filter((a) => a.notes.some((n) => n.startsWith("Basis names another item"))).length;
+      const uncited = analysed.filter((a) => a.statedBasis === null).length;
+      const related = items.filter((i) => i.relationships?.trim()).length;
+      if (restatements > 0) {
+        flags.push(`${restatements} of ${items.length} items name another item in this set as their basis. The apparent source count overstates the origin count by at least that much.`);
+      }
+      if (uncited > 0) {
+        flags.push(`${uncited} of ${items.length} items state no basis. These cannot be counted as independent origins without a walk that establishes one.`);
+      }
+      if (related > 0) {
+        flags.push(`${related} of ${items.length} items declare a relationship to another party. Nominal independence is not effective independence.`);
+      }
+      if (items.length > 1 && restatements === 0 && uncited === 0 && related === 0) {
+        flags.push("No shared origin detected from the supplied accounts. This is the limit of what the supplied accounts show, not a finding of independence. Establishing independence requires walking each chain to its origin.");
+      }
+      return {
+        claim,
+        items: analysed,
+        distinctOriginsClaimed: items.length,
+        distinctOriginsEstablished: null,
+        flags,
+        constraints: [
+          "Count distinct origins, never sources.",
+          "Label every rung for what it is: originating observation, primary record, aggregator, secondary reporting, review, restatement.",
+          "Never present a review as the study or an aggregator as the registry.",
+          "Where two apparently distinct chains reach the same origin, record the convergence. This is the derivation-side form of the joint-support flag.",
+          "A truncated chain honestly labeled is conformant. A chain presented as reaching origin when it stops short is not."
+        ],
+        promptTemplate: independencePrompt(claim, items)
+      };
+    }
+    function referencesAnotherItem(basis, items, selfLabel) {
+      const b = basis.toLowerCase();
+      return items.some((other) => {
+        if (other.label === selfLabel)
+          return false;
+        const label = other.label.toLowerCase().trim();
+        return label.length > 1 && b.includes(label);
+      });
+    }
+    var COMBINED_SCORE = /\b(\d{1,3}\s*%|\d(\.\d+)?\s*\/\s*(5|10|100)|confidence(?: score| level)?[:=]\s*\S+|high|medium|low)\s*confidence\b|confidence[:=]\s*\d/i;
+    var EXPOSURE_HINTS = /\b(provenance|source grade|grade profile|weakest|flag(ged|s)?|ungraded|joint[- ]support|per[- ]dimension)\b/i;
+    var REFUTATION_HINTS = /\b(refut\w+|would be (wrong|overturned|withdrawn)|overturn\w*|falsif\w+|disconfirm\w+|this fails if|would require (revision|withdrawal))\b/i;
+    var PROCESS_REFUTATION = /\b(further review|additional analysis|more research|if we learn more|subsequent review)\b/i;
+    var AVERAGING = /\b(on average|the mean|median of|midpoint|averaging|averaged|consensus (figure|value|estimate)|split the difference)\b/i;
+    var CONTEST_HINTS = /\b(disagree\w*|contested|conflict\w* (evidence|accounts|reports)|two (surveys|sources|estimates)|ranges? from|dissent\w*)\b/i;
+    var RUNG_HINTS = /\b(primary (record|source)|originating|aggregator|secondary reporting|restat\w+|review of|cites?|according to|derived from)\b/i;
+    var ADEQUACY = /\b(sufficient (evidence|support)|conclusive\w*|adequate to|establishes? (that|conclusively)|proves?|we can be confident|this confirms)\b/i;
+    var CONSUMER_HINTS = /\b(whether this suffices|the reader|the consumer|depends on what|for your decision|you will need to judge|raise confidence)\b/i;
+    function auditFinding2(finding) {
+      const text = finding ?? "";
+      const obligations = [];
+      const hasExposure = EXPOSURE_HINTS.test(text);
+      const hasCombined = COMBINED_SCORE.test(text);
+      obligations.push({
+        name: "graded-evidence",
+        status: hasExposure ? "indicated" : hasCombined ? "absent" : "undetermined",
+        observed: hasCombined ? "A single combined confidence expression is present." : hasExposure ? "Language indicating per-dimension exposure of support is present." : "No language indicating exposure of the support profile was found.",
+        gap: hasCombined ? "A single confidence figure stands where a per-dimension profile is required. One number is easy to tune and hard to audit." : hasExposure ? null : "The finding does not appear to expose what it rests on.",
+        fix: hasExposure ? null : "For each dimension, state the weakest assessment anywhere in the material support, plus every flag any source in it carries. Where support is ungraded, say so on the face of the finding. Where separately obtained sources cannot be shown distinct in origin, carry the joint-support flag."
+      });
+      const hasRefutation = REFUTATION_HINTS.test(text);
+      const processOnly = PROCESS_REFUTATION.test(text) && !/\bif (the|a|any) \w+ (shows|reports|records|contains|differs)/i.test(text);
+      obligations.push({
+        name: "refutation-conditions",
+        status: hasRefutation && !processOnly ? "indicated" : hasRefutation ? "undetermined" : "absent",
+        observed: hasRefutation ? processOnly ? "Refutation language is present but appears to be phrased as further process rather than as an observation." : "Refutation language is present." : "No refutation condition was found.",
+        gap: hasRefutation ? processOnly ? 'A condition phrased as process cannot be recognized in the world. "If further review disagrees" is not a refutation condition.' : null : "The finding does not say what would overturn it, so a reader cannot know what the author would accept as being wrong.",
+        fix: hasRefutation && !processOnly ? null : "State what could be found in the world that would require withdrawal or revision, concretely enough that a reader would recognize it on encountering it. If nothing could refute the claim, say so and name why."
+      });
+      const hasAveraging = AVERAGING.test(text);
+      const hasContest = CONTEST_HINTS.test(text);
+      obligations.push({
+        name: "contested-regions",
+        status: hasAveraging && !hasContest ? "absent" : hasContest ? "indicated" : "undetermined",
+        observed: hasAveraging ? hasContest ? "Both averaging language and contest language are present." : "Averaging language is present with no representation of disagreement." : hasContest ? "Disagreement in the support is represented." : "No disagreement is represented, and none is declared absent.",
+        gap: hasAveraging && !hasContest ? "A central value may stand where a contest should be represented. Check whether any cited source actually asserts the reported figure." : hasContest ? null : "Where no disagreement exists because only one line of support was consulted, that is an unexamined state rather than agreement, and the difference must be recorded.",
+        fix: hasContest ? null : "Name what is disputed, which support sits on each side, and what the disagreement turns on. Where a contest is resolved, state the basis and retain the losing position."
+      });
+      const hasRungs = RUNG_HINTS.test(text);
+      obligations.push({
+        name: "derivation-to-origin",
+        status: hasRungs ? "undetermined" : "absent",
+        observed: hasRungs ? "Attribution language is present. Whether every rung is labeled for what it actually is cannot be determined mechanically." : "No attribution or derivation language was found.",
+        gap: hasRungs ? "Attribution alone does not establish that a review is not being cited as a study, or an aggregator as a registry." : "The finding does not trace its support, so a reader cannot tell an origin from a restatement.",
+        fix: "Label every rung by its role: originating observation, primary record, aggregator, secondary reporting, review, restatement. Where a chain cannot be walked to origin, record where the walk stopped and why."
+      });
+      const assertsAdequacy = ADEQUACY.test(text);
+      const leavesJudgment = CONSUMER_HINTS.test(text);
+      obligations.push({
+        name: "judgment-with-consumer",
+        status: assertsAdequacy && !leavesJudgment ? "absent" : leavesJudgment ? "indicated" : "undetermined",
+        observed: assertsAdequacy ? "Language asserting the sufficiency or conclusiveness of the support is present." : leavesJudgment ? "The sufficiency judgment appears to be left with the reader." : "No explicit adequacy claim and no explicit hand-off of the judgment.",
+        gap: assertsAdequacy && !leavesJudgment ? "The finding declares its own support adequate. Whether support suffices depends on what is being decided and what being wrong would cost, neither of which the producer generally knows." : null,
+        fix: assertsAdequacy && !leavesJudgment ? "Report what the support is and leave sufficiency to the consumer. Stating what would raise confidence, and what that would cost, is an aid rather than a substitute." : null
+      });
+      const absent = obligations.filter((o) => o.status === "absent").map((o) => o.name);
+      const systemicPatterns = [];
+      if (absent.includes("graded-evidence") && absent.includes("derivation-to-origin")) {
+        systemicPatterns.push("Unsourced conclusion: the finding neither exposes the quality of its support nor traces it. A reader has no route from the claim back to anything.");
+      }
+      if (absent.includes("contested-regions") && absent.includes("refutation-conditions")) {
+        systemicPatterns.push("Closed finding: disagreement is not represented and nothing would overturn the claim. This is the structural shape of an impressionistic claim, whatever its accuracy.");
+      }
+      if (absent.length >= 4) {
+        systemicPatterns.push("The finding carries almost none of the contract obligations. It may be entirely accurate and it is not checkable, which is the more durable problem.");
+      }
+      return {
+        obligations,
+        systemicPatterns,
+        verdictNote: 'Statuses are heuristic. "Indicated" means the language of an obligation is present, not that the obligation is met. Whether a finding fails is a judgment; use the prompt template to make it, and distinguish "this finding is wrong" from "this finding cannot be checked" when reporting.',
+        promptTemplate: auditFindingPrompt(finding)
+      };
+    }
+    var POSTURES = {
+      screened: {
+        posture: "screened",
+        whatItMeans: "Nothing enters without being graded first. The ingestion boundary is the review boundary.",
+        fits: "Every record may carry decision weight, and volume is low enough for eyes at entry.",
+        downstreamCondition: "All held material is graded, and outputs expose grades on their support.",
+        cautions: [
+          "What a screened intake declines is declared in advance as scope and posture, covering source classes and opacity treatment. It is never a grade verdict on a particular source."
+        ]
+      },
+      graded: {
+        posture: "graded",
+        whatItMeans: "Everything admitted enters immediately at the grade its visible properties warrant, and review effort is prioritized by uncertainty: the thinnest accounts get eyes first.",
+        fits: "Volume exceeds entry-review capacity, but decisions draw continuously on the store.",
+        downstreamCondition: "Outputs may rest on any graded material and expose the profile. Flagged dimensions travel with the record.",
+        cautions: [
+          "Prioritizing by uncertainty is the mechanism that makes this posture honest. Without it, thin accounts accumulate unreviewed and the posture is Open with extra steps."
+        ]
+      },
+      open: {
+        posture: "open",
+        whatItMeans: "Bulk material enters ungraded into a quarantined state. It may serve discovery, search and lead generation. It may not support findings, attestations or decisions until graded.",
+        fits: "Corpus migration and exploratory ingestion, where the value of having the material inside the system precedes the capacity to grade it.",
+        downstreamCondition: "The citation boundary is absolute. An output cannot cite quarantined material as support.",
+        cautions: [
+          "Enforce the quarantine boundary structurally rather than procedurally. A policy that people are asked to follow is not a boundary.",
+          "One channel stays open and must be declared rather than denied: a quarantined item read by a person who then produces a finding that never cites it. That is the residual channel.",
+          "This is the posture most systems are in without having declared it, which is how ungraded material comes to support decisions."
+        ]
+      }
+    };
+    function getPostures2() {
+      return [POSTURES.screened, POSTURES.graded, POSTURES.open];
+    }
+    function getPosture2(posture) {
+      return POSTURES[posture];
+    }
+    exports.POSTURE_DECLARATION_REQUIREMENTS = [
+      "Declare the posture, or different postures per source class, before ingestion begins.",
+      "State the treatment of opaque sources in advance: which classes are admitted at the grades their visible properties warrant, and which if any are declined.",
+      "Record with every admitted record which posture was in force when it entered, so no record grading history is ambiguous later.",
+      "Enforce the declared posture downstream condition. A declared posture with an unenforced condition is a description rather than a commitment.",
+      "Specify the standing-loss process: how eligibility can be reduced or withdrawn, with the evidence, the basis and the decision recorded and retained with the source.",
+      "Never silently discard an adverse finding about a source, however the assessment resolves.",
+      "Treat standing loss as changing eligibility going forward, not as a retroactive verdict on outputs already produced."
+    ];
+    exports.BENCHMARK_NOTICE = "Every organisation, project, person, document and figure in this case is fabricated. Nothing here refers to any real entity, and no part of it should be cited as evidence about anything in the world. Its only use is as a test.";
+    exports.BENCHMARK_CLAIM = "The Meridian Basin Water Restoration Initiative restored 4,200 hectares of degraded riparian land between March 2023 and December 2025, improving downstream water quality in the Calder catchment and achieving a 61 percent survival rate among plantings.";
+    exports.BENCHMARK_SOURCES = [
+      { id: "S1", text: 'Initiative self-report, "Restoration Outcomes 2023 to 2025." Published by Meridian Basin Trust, January 2026. States the 4,200 hectare figure, the 61 percent survival rate, and the water quality improvement. Names no methodology for the hectare count. Signed by the Trust programme director.' },
+      { id: "S2", text: 'Calder Regional Environmental Bulletin, issue 44, March 2026. A quarterly newsletter from a regional environmental association. Reports that "the Meridian Basin initiative restored over 4,200 hectares." Carries no citation. The bulletin editor is listed in S11 as a member of the Trust advisory panel.' },
+      { id: "S3", text: "Grant completion report to the Halvard Fund, February 2026. Submitted by Meridian Basin Trust. States 4,200 hectares. Includes a methodology appendix describing hectare counting by polygon digitisation from satellite imagery, naming the digitisation operator and giving the imagery capture dates as August and September 2022." },
+      { id: "S4", text: "Independent field survey, Ostrand Ecological Consulting, November 2025. Commissioned by the Halvard Fund. Sampled 40 plots across the intervention area using fixed-radius plot counts. Reports a planting survival rate of 61 percent, with a stated confidence interval and the sampling frame described." },
+      { id: "S5", text: '"Regional Restoration in Review," Calder Basin Water Authority annual report, April 2026. A public-sector annual report. In a section on partner activity, states that the Meridian initiative "restored 4,200 hectares." A footnote attributes the figure to the Calder Regional Environmental Bulletin.' },
+      { id: "S6", text: "Independent field survey, Petrin Land Assessment, October 2025. Commissioned by the Calder Basin Water Authority, with no contractual or ownership relationship to Ostrand or to the Trust. Sampled 55 transects across the same intervention area using line-intercept sampling. Reports a planting survival rate of 38 percent, with a stated confidence interval and the sampling frame described. Notes that line-intercept and fixed-radius methods are known to diverge on sparse plantings and does not assert that its figure supersedes any other." },
+      { id: "S7", text: "Calder catchment water quality monitoring dataset, 2019 to 2026. Published by the Calder Basin Water Authority as an open dataset with per-station readings. Shows a measurable improvement in turbidity and nitrate levels at downstream stations beginning in the second quarter of 2024." },
+      { id: "S8", text: "Regional regulatory notice, Calder Basin Water Authority, January 2024. Announces mandatory effluent treatment upgrades for licensed agricultural operations in the upper catchment, with a compliance deadline of March 2024. Applies to 31 operations upstream of the monitoring stations in S7." },
+      { id: "S9", text: 'Conference presentation, "Restoration at Scale in the Calder," June 2026. Delivered by the Trust programme director at a regional practitioners conference. States 4,200 hectares and cites S5 for the figure.' },
+      { id: "S10", text: "Land title and tenure records, Meridian district registry. Public records covering the intervention area. Confirm that 3,980 hectares within the claimed intervention boundary were under restoration agreements during the period. A further 340 hectares within the boundary are recorded as under a separate conservation covenant predating 2019, with no restoration agreement." },
+      { id: "S11", text: "Meridian Basin Trust governance disclosure, 2026. Lists trustees, advisory panel members, and related parties. The advisory panel includes the editor of the Calder Regional Environmental Bulletin (S2). The Trust is recorded as legally independent of Meridian Basin Foundation, a grant-making body of similar name operating in an adjacent region, with no shared officers." },
+      { id: "S12", text: 'Aggregated funder track record entry, Philanthropic Outcomes Index. A third-party database entry for "Meridian Basin" showing fourteen completed projects since 2011 with a 93 percent completion rate. The entry source field lists both Meridian Basin Trust and Meridian Basin Foundation as contributing organisations under one identifier.' }
+    ];
+    exports.BENCHMARK_TASK = [
+      "What can be concluded about the hectare figure, and on what support.",
+      "What can be concluded about the survival rate.",
+      "What can be concluded about the water quality improvement and its cause.",
+      "What can be concluded about the implementing organisation track record.",
+      "For each conclusion, what would overturn it.",
+      "Any integrity concerns about the dossier itself."
+    ];
+    exports.BENCHMARK_KEY = [
+      {
+        name: "Circular corroboration on the hectare figure",
+        isFailure: true,
+        where: "S1, S2, S3, S5, S9",
+        correctHandling: "The figure has one originating party. S1 and S3 are both Trust documents. S2 carries no citation and its editor sits on the Trust advisory panel per S11. S5 footnotes S2. S9 cites S5. Record a single origin with no independent confirmation and carry the joint-support flag. The only independent record, S10, supports 3,980 hectares under restoration agreement, with 340 further hectares inside the boundary under a covenant predating the project, so the claimed figure appears to measure the boundary rather than the restored area."
+      },
+      {
+        name: "Impossible provenance in the only stated methodology",
+        isFailure: true,
+        where: "S3",
+        correctHandling: "The methodology appendix dates its satellite imagery to August and September 2022, before the March 2023 intervention start. Imagery predating the intervention cannot show restored land. Record provenance integrity as failing on S3, and note that this leaves the headline figure with no stated method rather than a weak one. Most often missed, because the appendix is well formed and reads as rigour."
+      },
+      {
+        name: "Phantom merge in the track record",
+        isFailure: true,
+        where: "S12 against S11",
+        correctHandling: "S12 merges Meridian Basin Trust and Meridian Basin Foundation under one identifier; S11 records them as legally independent with no shared officers. The aggregate cannot be attributed to the Trust. Record the track record as unestablished rather than strong, and treat the merge as a defect in S12 rather than a fact about either organisation."
+      },
+      {
+        name: "Proxy attribution on the water quality improvement",
+        isFailure: true,
+        where: "S1 attributing S7, against S8",
+        correctHandling: "The improvement in S7 is real and well sourced; its attribution to the restoration is not. S8 records mandatory effluent upgrades for 31 upstream operations with a compliance deadline immediately preceding the observed change. Record the improvement as established and the causal attribution as unsupported, naming the confound. Discarding the measurement is also an error, since only the attribution fails."
+      },
+      {
+        name: "Genuine contested region on the survival rate. This is the control.",
+        isFailure: false,
+        where: "S4 against S6",
+        correctHandling: "Two independent surveys, 61 percent from fixed-radius plots and 38 percent from line-intercept transects, both with described sampling frames, using methods known to diverge on sparse plantings. Represent the contest: what is disputed, which support sits on each side, and that it turns on survey method. Do not average to roughly 50 percent, a figure neither survey asserts. Do not resolve without stating a basis. Flagging this as an integrity failure is a false positive and the more damaging error; silently dropping S6 because it disagrees with the headline claim is the most common of the three ways to fail this item."
+      }
+    ];
+    exports.BENCHMARK_CLEAN_SOURCES = ["S4", "S6", "S7", "S8", "S10", "S11"];
+    exports.BENCHMARK_SCORING = [
+      "One point for each of the four seeded failures identified by substance rather than by name: four points.",
+      "One point for representing the survival-rate contest without averaging or resolving it.",
+      "One point for not flagging any of the six clean sources (S4, S6, S7, S8, S10, S11) as compromised.",
+      "One point for stating refutation conditions on at least three of the four conclusions.",
+      "One point for not carrying the hectare figure forward as corroborated.",
+      "One point for leaving the sufficiency judgment to the reader rather than declaring the dossier adequate or inadequate to a decision it does not name."
+    ];
+    exports.BENCHMARK_LIMITS = [
+      "Publishing a benchmark alongside the specifications it tests contaminates it for any system trained on public text after publication. A system that reproduces the key may have read it. Declare whether the system under test could have.",
+      "The case is small, single-domain, and constructed by the author of the specifications it exercises, so the failures it seeds are the failures that author knows to look for. It is a floor, not a survey.",
+      "The dossier is fabricated, so every source says exactly what it was written to say. Real dossiers are harder in ways this one cannot represent."
+    ];
+    function gradeSourcePrompt(input) {
+      return `Grade the source below using ORE. A grade measures uncertainty, not quality: you are
+answering how much of this source reliability can currently be seen, and what is being
+trusted that cannot be seen. You are not answering whether the source is good.
+
+For each dimension state the assessment, the basis you made it on, and any part you could
+not assess, recorded as a named gap. Never fill an unknown with a middle value.
+
+1. Provenance integrity. Did this come from where it claims, and arrive unchanged?
+2. Epistemic soundness. Is the output structured so an independent party could evaluate its
+   truth? Are claims refutable, are accuracy and relevance kept separate, does the source
+   distinguish observation from inference?
+3. Confirmation architecture. What confirmed this output when it was produced? Classify on
+   two axes, trustless or trust-based and single-party or multi-party, and record every mode
+   present. If nothing confirmed it, say unconfirmed. Do not treat party count as evidence of
+   independence.
+4. Track record and independence, if assessable. Uncomputable dimensions are named
+   limitations, not middle grades.
+
+Then handle opacity: it raises uncertainty and never constitutes a verdict. Finally state what
+would change this grading and what should be monitored over time.
+
+Do not combine the dimensions into a single score.
+
+SOURCE: ${input.label}
+${input.description}
+${input.originEvidence ? `ORIGIN EVIDENCE: ${input.originEvidence}
+` : ""}${input.confirmation ? `CONFIRMATION: ${input.confirmation}
+` : ""}${input.stake ? `STAKE: ${input.stake}
+` : ""}${input.history ? `HISTORY: ${input.history}
+` : ""}`;
+    }
+    function independencePrompt(claim, items) {
+      const list = items.map((i) => `- ${i.label}${i.statedBasis ? ` (states basis: ${i.statedBasis})` : " (no basis stated)"}${i.relationships ? ` (relationship: ${i.relationships})` : ""}`).join("\n");
+      return `Determine whether the sources below are independent, or whether their agreement is an
+artifact of shared origin. Agreement is evidence only when the agreeing sources are distinct in
+origin; sources that share an origin agree because they must.
+
+For each source, identify what it rests on, following every citation, attribution, footnote and
+acknowledgement. Build its derivation chain and label every rung for what it actually is:
+originating observation, primary record, aggregator, secondary reporting, review, restatement.
+Say where each chain terminates, and where a chain cannot be walked to origin, record where the
+walk stopped and why.
+
+Then identify convergence: where two apparently distinct chains reach the same origin, say so.
+Check for related parties, since shared authorship, shared funding, board or advisory overlap,
+or one party sitting on the editorial side of another defeats nominal independence.
+
+Report how many genuinely independent origins support the claim, and how many sources restate
+them. Count origins, never sources. Close by saying what would establish real independent
+confirmation and where to look for it.
+
+CLAIM: ${claim}
+
+SOURCES:
+${list}`;
+    }
+    function auditFindingPrompt(finding) {
+      return `Audit the finding below against the finding contract. Report pass, fail, or not applicable
+with a stated reason for each of the five obligations, name the specific passage for every
+failure, and say what would fix it.
+
+1. Does it expose what it rests on, per dimension, including the weakest support and any gaps,
+   rather than asserting a conclusion with a single confidence figure?
+2. Does it state what would overturn it, in terms of what could be found in the world rather
+   than in terms of further process?
+3. Where its material disagreed, did it represent the disagreement, or did it average, silently
+   resolve, or drop the dissenting side? Check specifically for a central value that no cited
+   source actually asserts.
+4. Are its derivation chains walked to origin with rungs labeled honestly? Look for a review
+   cited as a study, an aggregator cited as a registry, or a chain presented as complete that
+   stops at a restatement.
+5. Does it leave the sufficiency judgment to its reader, or does it declare its own support
+   adequate?
+
+Close with a verdict that distinguishes two different claims. A finding failing an obligation is
+not thereby false; it is a finding its reader cannot check. Say which you are asserting, and do
+not claim the finding is wrong when what you have established is that it is unverifiable.
+
+FINDING:
+${finding}`;
+    }
+    function declarePosturePrompt2(systemDescription) {
+      return `Recommend an intake posture for the system described below, or different postures for
+different classes of source, and say why each fits.
+
+The three postures:
+
+Screened: nothing enters without being graded first; the ingestion boundary is the review
+boundary. What a screened intake declines is declared in advance as scope, never decided per
+source as a verdict.
+
+Graded: everything admitted enters at the grade its visible properties warrant, and review
+effort goes first to the thinnest accounts.
+
+Open: bulk material enters ungraded into quarantine, may serve discovery, search and lead
+generation, and may not support any finding, attestation or decision until graded. The citation
+boundary is absolute.
+
+For your recommendation, state concretely what the system must enforce downstream; how opaque
+sources are treated, declared in advance rather than decided per source; and if any part is
+Open, how the quarantine boundary is enforced structurally rather than by policy, naming the
+residual channel where a person reads quarantined material and then acts on it in a finding
+that never cites it.
+
+Then state what must be recorded with each admitted record so its grading history is never
+ambiguous later, including which posture was in force when it entered. Finally give the
+standing-loss process: how eligibility can be reduced or withdrawn, with evidence and basis
+recorded, never silently discarding an adverse finding, and not applied retroactively to
+outputs already produced.
+
+THE SYSTEM:
+${systemDescription}`;
+    }
+    function scoreBenchmarkPrompt2(answer) {
+      const key = exports.BENCHMARK_KEY.map((k) => `- ${k.name} (${k.isFailure ? "seeded failure" : "control, must NOT be flagged as a defect"}), at ${k.where}.
+  Correct handling: ${k.correctHandling}`).join("\n");
+      return `Score the answer below against the Meridian Basin benchmark key. Nine points, equally
+weighted.
+
+${exports.BENCHMARK_SCORING.map((s) => `- ${s}`).join("\n")}
+
+THE KEY:
+${key}
+
+Clean sources that must not be flagged as compromised: ${exports.BENCHMARK_CLEAN_SOURCES.join(", ")}.
+
+Report the score with a per-item breakdown, and state explicitly whether the system under test
+could have read the published key, since that changes what the score means.
+
+THE ANSWER:
+${answer}`;
+    }
+  }
+});
+
 // packages/core/dist/index.js
 var require_dist2 = __commonJS({
   "packages/core/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.getFalsifiabilityFailureMode = exports.getFalsifiabilityType = exports.getFalsifiabilityElements = exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = exports.getAllLensIds = exports.getLensValue = exports.getLens = exports.LENSES = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
+    exports.auditFindingPrompt = exports.independencePrompt = exports.gradeSourcePrompt = exports.BENCHMARK_LIMITS = exports.BENCHMARK_SCORING = exports.BENCHMARK_CLEAN_SOURCES = exports.BENCHMARK_KEY = exports.BENCHMARK_TASK = exports.BENCHMARK_SOURCES = exports.BENCHMARK_CLAIM = exports.BENCHMARK_NOTICE = exports.POSTURE_DECLARATION_REQUIREMENTS = exports.getPosture = exports.getPostures = exports.auditFinding = exports.checkIndependence = exports.gradeSourceScaffold = exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.getFalsifiabilityFailureMode = exports.getFalsifiabilityType = exports.getFalsifiabilityElements = exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = exports.getAllLensIds = exports.getLensValue = exports.getLens = exports.LENSES = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
+    exports.scoreBenchmarkPrompt = exports.declarePosturePrompt = void 0;
     var schemas_js_1 = require_schemas();
     Object.defineProperty(exports, "walkriFieldTypeSchema", { enumerable: true, get: function() {
       return schemas_js_1.walkriFieldTypeSchema;
@@ -13000,55 +13966,200 @@ var require_dist2 = __commonJS({
     Object.defineProperty(exports, "evaluateRoundPrompt", { enumerable: true, get: function() {
       return prompts_js_1.evaluateRoundPrompt;
     } });
+    var ore_js_1 = require_ore();
+    Object.defineProperty(exports, "gradeSourceScaffold", { enumerable: true, get: function() {
+      return ore_js_1.gradeSourceScaffold;
+    } });
+    Object.defineProperty(exports, "checkIndependence", { enumerable: true, get: function() {
+      return ore_js_1.checkIndependence;
+    } });
+    Object.defineProperty(exports, "auditFinding", { enumerable: true, get: function() {
+      return ore_js_1.auditFinding;
+    } });
+    Object.defineProperty(exports, "getPostures", { enumerable: true, get: function() {
+      return ore_js_1.getPostures;
+    } });
+    Object.defineProperty(exports, "getPosture", { enumerable: true, get: function() {
+      return ore_js_1.getPosture;
+    } });
+    Object.defineProperty(exports, "POSTURE_DECLARATION_REQUIREMENTS", { enumerable: true, get: function() {
+      return ore_js_1.POSTURE_DECLARATION_REQUIREMENTS;
+    } });
+    Object.defineProperty(exports, "BENCHMARK_NOTICE", { enumerable: true, get: function() {
+      return ore_js_1.BENCHMARK_NOTICE;
+    } });
+    Object.defineProperty(exports, "BENCHMARK_CLAIM", { enumerable: true, get: function() {
+      return ore_js_1.BENCHMARK_CLAIM;
+    } });
+    Object.defineProperty(exports, "BENCHMARK_SOURCES", { enumerable: true, get: function() {
+      return ore_js_1.BENCHMARK_SOURCES;
+    } });
+    Object.defineProperty(exports, "BENCHMARK_TASK", { enumerable: true, get: function() {
+      return ore_js_1.BENCHMARK_TASK;
+    } });
+    Object.defineProperty(exports, "BENCHMARK_KEY", { enumerable: true, get: function() {
+      return ore_js_1.BENCHMARK_KEY;
+    } });
+    Object.defineProperty(exports, "BENCHMARK_CLEAN_SOURCES", { enumerable: true, get: function() {
+      return ore_js_1.BENCHMARK_CLEAN_SOURCES;
+    } });
+    Object.defineProperty(exports, "BENCHMARK_SCORING", { enumerable: true, get: function() {
+      return ore_js_1.BENCHMARK_SCORING;
+    } });
+    Object.defineProperty(exports, "BENCHMARK_LIMITS", { enumerable: true, get: function() {
+      return ore_js_1.BENCHMARK_LIMITS;
+    } });
+    Object.defineProperty(exports, "gradeSourcePrompt", { enumerable: true, get: function() {
+      return ore_js_1.gradeSourcePrompt;
+    } });
+    Object.defineProperty(exports, "independencePrompt", { enumerable: true, get: function() {
+      return ore_js_1.independencePrompt;
+    } });
+    Object.defineProperty(exports, "auditFindingPrompt", { enumerable: true, get: function() {
+      return ore_js_1.auditFindingPrompt;
+    } });
+    Object.defineProperty(exports, "declarePosturePrompt", { enumerable: true, get: function() {
+      return ore_js_1.declarePosturePrompt;
+    } });
+    Object.defineProperty(exports, "scoreBenchmarkPrompt", { enumerable: true, get: function() {
+      return ore_js_1.scoreBenchmarkPrompt;
+    } });
   }
 });
 
 // packages/mcp-server/src/http.ts
 import { createServer as createHttpServer } from "node:http";
 
-// node_modules/.pnpm/@hono+node-server@1.19.14_hono@4.12.19/node_modules/@hono/node-server/dist/index.mjs
-import { Http2ServerRequest as Http2ServerRequest2, constants as h2constants } from "http2";
-import { Http2ServerRequest } from "http2";
-import { Readable } from "stream";
-import crypto2 from "crypto";
+// node_modules/.pnpm/@hono+node-server@2.0.11_hono@4.12.31/node_modules/@hono/node-server/dist/constants-BLSFu_RU.mjs
+var X_ALREADY_SENT = "x-hono-already-sent";
+
+// node_modules/.pnpm/@hono+node-server@2.0.11_hono@4.12.31/node_modules/@hono/node-server/dist/index.mjs
+import { Http2ServerRequest, constants } from "node:http2";
+import { Readable } from "node:stream";
+
+// node_modules/.pnpm/hono@4.12.31/node_modules/hono/dist/helper/websocket/index.js
+var defineWebSocketHelper = (handler) => {
+  return ((...args) => {
+    if (typeof args[0] === "function") {
+      const [createEvents, options] = args;
+      return async function upgradeWebSocket2(c, next) {
+        const events = await createEvents(c);
+        const result = await handler(c, events, options);
+        if (result) {
+          return result;
+        }
+        await next();
+      };
+    } else {
+      const [c, events, options] = args;
+      return (async () => {
+        const upgraded = await handler(c, events, options);
+        if (!upgraded) {
+          throw new Error("Failed to upgrade WebSocket");
+        }
+        return upgraded;
+      })();
+    }
+  });
+};
+
+// node_modules/.pnpm/@hono+node-server@2.0.11_hono@4.12.31/node_modules/@hono/node-server/dist/index.mjs
 var RequestError = class extends Error {
   constructor(message, options) {
     super(message, options);
     this.name = "RequestError";
   }
 };
-var toRequestError = (e) => {
-  if (e instanceof RequestError) {
-    return e;
+var reValidRequestUrl = /^\/[!#$&-;=?-\[\]_a-z~]*$/;
+var reDotSegment = /\/\.\.?(?:[/?#]|$)/;
+var reValidHost = /^[a-z0-9._-]+(?::(?:[1-5]\d{3,4}|[6-9]\d{3}))?$/;
+var buildUrl = (scheme, host, incomingUrl) => {
+  const url = `${scheme}://${host}${incomingUrl}`;
+  if (!reValidHost.test(host)) {
+    const urlObj = new URL(url);
+    if (urlObj.hostname.length !== host.length && urlObj.hostname !== (host.includes(":") ? host.replace(/:\d+$/, "") : host).toLowerCase()) throw new RequestError("Invalid host header");
+    return urlObj.href;
+  } else if (incomingUrl.length === 0) return url + "/";
+  else {
+    if (incomingUrl.charCodeAt(0) !== 47) throw new RequestError("Invalid URL");
+    if (!reValidRequestUrl.test(incomingUrl) || reDotSegment.test(incomingUrl)) return new URL(url).href;
+    return url;
   }
+};
+var toRequestError = (e) => {
+  if (e instanceof RequestError) return e;
   return new RequestError(e.message, { cause: e });
 };
 var GlobalRequest = global.Request;
-var Request = class extends GlobalRequest {
+var Request$1 = class extends GlobalRequest {
   constructor(input, options) {
     if (typeof input === "object" && getRequestCache in input) {
+      const hasReplacementBody = options !== void 0 && "body" in options && options.body != null;
+      if (input[bodyConsumedDirectlyKey] && !hasReplacementBody) throw new TypeError("Cannot construct a Request with a Request object that has already been used.");
       input = input[getRequestCache]();
     }
-    if (typeof options?.body?.getReader !== "undefined") {
-      ;
-      options.duplex ??= "half";
-    }
+    if (typeof options?.body?.getReader !== "undefined") options.duplex ??= "half";
     super(input, options);
   }
 };
 var newHeadersFromIncoming = (incoming) => {
   const headerRecord = [];
   const rawHeaders = incoming.rawHeaders;
-  for (let i = 0; i < rawHeaders.length; i += 2) {
-    const { [i]: key, [i + 1]: value } = rawHeaders;
-    if (key.charCodeAt(0) !== /*:*/
-    58) {
-      headerRecord.push([key, value]);
-    }
+  for (let i = 0, len = rawHeaders.length; i < len; i += 2) {
+    const key = rawHeaders[i];
+    if (key.charCodeAt(0) !== 58) headerRecord.push([key, rawHeaders[i + 1]]);
   }
   return new Headers(headerRecord);
 };
 var wrapBodyStream = /* @__PURE__ */ Symbol("wrapBodyStream");
+var byteExactEncodings = /* @__PURE__ */ new Set([
+  "latin1",
+  "binary",
+  "hex",
+  "base64",
+  "base64url"
+]);
+var isByteExactEncoding = (encoding) => encoding === null || byteExactEncodings.has(encoding);
+var bodyBufferedBeforeDisconnectKey = /* @__PURE__ */ Symbol("bodyBufferedBeforeDisconnect");
+var bodyBufferedLengthBeforeDisconnectKey = /* @__PURE__ */ Symbol("bodyBufferedLengthBeforeDisconnect");
+var toBufferChunk = (chunk, encoding) => Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding ?? "utf8");
+var isRecoverableDisconnectedIncoming = (incoming) => !(incoming instanceof Http2ServerRequest) && !!incoming.complete && !!incoming.readableAborted && typeof incoming.read === "function" && isByteExactEncoding(incoming.readableEncoding);
+var recordBodyBufferedBeforeDisconnect = (incoming) => {
+  if (incoming.readableDidRead || !isRecoverableDisconnectedIncoming(incoming)) return;
+  const incomingWithRecovery = incoming;
+  incomingWithRecovery[bodyBufferedLengthBeforeDisconnectKey] ??= incoming.readableLength;
+};
+var readBodyBufferedBeforeDisconnect = (incoming, chunks) => {
+  if (incoming.readableDidRead && !chunks || !isRecoverableDisconnectedIncoming(incoming)) return;
+  const incomingWithRecovery = incoming;
+  if (incomingWithRecovery[bodyBufferedBeforeDisconnectKey] !== void 0) return incomingWithRecovery[bodyBufferedBeforeDisconnectKey];
+  let result;
+  const errored = incoming.errored;
+  if (errored && errored.code !== "ECONNRESET") result = errored;
+  else if (incomingWithRecovery[bodyBufferedLengthBeforeDisconnectKey] !== void 0 && incoming.readableLength !== incomingWithRecovery[bodyBufferedLengthBeforeDisconnectKey]) result = newBodyUnusableError();
+  else {
+    const bodyChunks = chunks ?? [];
+    const chunk = incoming.read();
+    if (chunk !== null) bodyChunks.push(toBufferChunk(chunk, incoming.readableEncoding));
+    const buffer = bodyChunks.length === 1 ? bodyChunks[0] : Buffer.concat(bodyChunks);
+    result = buffer;
+    const contentLength = incoming.headers["content-length"];
+    if (typeof contentLength === "string" && /^\d+$/.test(contentLength)) {
+      const expectedLength = Number(contentLength);
+      if (Number.isSafeInteger(expectedLength) && buffer.length !== expectedLength) result = newBodyUnusableError();
+    }
+  }
+  incomingWithRecovery[bodyBufferedBeforeDisconnectKey] = result;
+  return result;
+};
+var enqueueBufferedBody = (controller, buffered) => {
+  if (buffered instanceof Error) {
+    controller.error(buffered);
+    return;
+  }
+  if (buffered.length > 0) controller.enqueue(buffered);
+  controller.close();
+};
 var newRequestFromIncoming = (method, url, headers, incoming, abortController) => {
   const init = {
     method,
@@ -13057,55 +14168,224 @@ var newRequestFromIncoming = (method, url, headers, incoming, abortController) =
   };
   if (method === "TRACE") {
     init.method = "GET";
-    const req = new Request(url, init);
-    Object.defineProperty(req, "method", {
-      get() {
-        return "TRACE";
-      }
-    });
+    const req = new Request$1(url, init);
+    Object.defineProperty(req, "method", { get() {
+      return "TRACE";
+    } });
     return req;
   }
-  if (!(method === "GET" || method === "HEAD")) {
-    if ("rawBody" in incoming && incoming.rawBody instanceof Buffer) {
-      init.body = new ReadableStream({
-        start(controller) {
-          controller.enqueue(incoming.rawBody);
-          controller.close();
-        }
-      });
-    } else if (incoming[wrapBodyStream]) {
-      let reader;
-      init.body = new ReadableStream({
-        async pull(controller) {
-          try {
-            reader ||= Readable.toWeb(incoming).getReader();
-            const { done, value } = await reader.read();
-            if (done) {
-              controller.close();
-            } else {
-              controller.enqueue(value);
-            }
-          } catch (error2) {
-            controller.error(error2);
+  if (!(method === "GET" || method === "HEAD")) if ("rawBody" in incoming && incoming.rawBody instanceof Buffer) init.body = new ReadableStream({ start(controller) {
+    controller.enqueue(incoming.rawBody);
+    controller.close();
+  } });
+  else if (incoming[wrapBodyStream]) {
+    let reader;
+    init.body = new ReadableStream({ async pull(controller) {
+      try {
+        if (!reader) {
+          const buffered = readBodyBufferedBeforeDisconnect(incoming);
+          if (buffered !== void 0) {
+            enqueueBufferedBody(controller, buffered);
+            return;
           }
         }
-      });
-    } else {
-      init.body = Readable.toWeb(incoming);
-    }
+        reader ||= Readable.toWeb(incoming).getReader();
+        const { done, value } = await reader.read();
+        if (done) controller.close();
+        else controller.enqueue(value);
+      } catch (error2) {
+        controller.error(error2);
+      }
+    } });
+  } else {
+    const buffered = readBodyBufferedBeforeDisconnect(incoming);
+    if (buffered !== void 0) init.body = new ReadableStream({ start(controller) {
+      enqueueBufferedBody(controller, buffered);
+    } });
+    else init.body = Readable.toWeb(incoming);
   }
-  return new Request(url, init);
+  return new Request$1(url, init);
 };
 var getRequestCache = /* @__PURE__ */ Symbol("getRequestCache");
 var requestCache = /* @__PURE__ */ Symbol("requestCache");
 var incomingKey = /* @__PURE__ */ Symbol("incomingKey");
 var urlKey = /* @__PURE__ */ Symbol("urlKey");
+var methodKey = /* @__PURE__ */ Symbol("methodKey");
 var headersKey = /* @__PURE__ */ Symbol("headersKey");
 var abortControllerKey = /* @__PURE__ */ Symbol("abortControllerKey");
 var getAbortController = /* @__PURE__ */ Symbol("getAbortController");
+var abortRequest = /* @__PURE__ */ Symbol("abortRequest");
+var bodyBufferKey = /* @__PURE__ */ Symbol("bodyBuffer");
+var bodyReadPromiseKey = /* @__PURE__ */ Symbol("bodyReadPromise");
+var bodyConsumedDirectlyKey = /* @__PURE__ */ Symbol("bodyConsumedDirectly");
+var bodyLockReaderKey = /* @__PURE__ */ Symbol("bodyLockReader");
+var abortReasonKey = /* @__PURE__ */ Symbol("abortReason");
+var newBodyUnusableError = () => {
+  return /* @__PURE__ */ new TypeError("Body is unusable");
+};
+var rejectBodyUnusable = () => {
+  return Promise.reject(newBodyUnusableError());
+};
+var textDecoder = new TextDecoder();
+var consumeBodyDirectOnce = (request) => {
+  if (request[bodyConsumedDirectlyKey]) return rejectBodyUnusable();
+  request[bodyConsumedDirectlyKey] = true;
+};
+var toArrayBuffer = (buf) => {
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+};
+var contentType = (request) => {
+  return (request[headersKey] ||= newHeadersFromIncoming(request[incomingKey])).get("content-type") || "";
+};
+var methodTokenRegExp = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+var normalizeIncomingMethod = (method) => {
+  if (typeof method !== "string" || method.length === 0) return "GET";
+  switch (method) {
+    case "DELETE":
+    case "GET":
+    case "HEAD":
+    case "OPTIONS":
+    case "PATCH":
+    case "POST":
+    case "PUT":
+    case "QUERY":
+      return method;
+  }
+  const upper = method.toUpperCase();
+  switch (upper) {
+    case "DELETE":
+    case "GET":
+    case "HEAD":
+    case "OPTIONS":
+    case "POST":
+    case "PUT":
+      return upper;
+    default:
+      return method;
+  }
+};
+var validateDirectReadMethod = (method) => {
+  if (!methodTokenRegExp.test(method)) return /* @__PURE__ */ new TypeError(`'${method}' is not a valid HTTP method.`);
+  const normalized = method.toUpperCase();
+  if (normalized === "CONNECT" || normalized === "TRACK" || normalized === "TRACE" && method !== "TRACE") return /* @__PURE__ */ new TypeError(`'${method}' HTTP method is unsupported.`);
+};
+var readBodyWithFastPath = (request, method, fromBuffer) => {
+  if (request[bodyConsumedDirectlyKey]) return rejectBodyUnusable();
+  const methodName = request.method;
+  if (methodName === "GET" || methodName === "HEAD") return request[getRequestCache]()[method]();
+  const methodValidationError = validateDirectReadMethod(methodName);
+  if (methodValidationError) return Promise.reject(methodValidationError);
+  if (request[requestCache]) {
+    if (methodName !== "TRACE") return request[requestCache][method]();
+  }
+  const alreadyUsedError = consumeBodyDirectOnce(request);
+  if (alreadyUsedError) return alreadyUsedError;
+  const raw = readRawBodyIfAvailable(request);
+  if (raw) {
+    const result = Promise.resolve(fromBuffer(raw, request));
+    request[bodyBufferKey] = void 0;
+    return result;
+  }
+  return readBodyDirect(request).then((buf) => {
+    const result = fromBuffer(buf, request);
+    request[bodyBufferKey] = void 0;
+    return result;
+  });
+};
+var readRawBodyIfAvailable = (request) => {
+  const incoming = request[incomingKey];
+  if ("rawBody" in incoming && incoming.rawBody instanceof Buffer) return incoming.rawBody;
+};
+var normalizeAbortError = (request, incoming) => {
+  if (incoming.errored) return incoming.errored;
+  const reason = request[abortReasonKey];
+  if (reason !== void 0) return reason instanceof Error ? reason : new Error(String(reason));
+  return /* @__PURE__ */ new Error("Client connection prematurely closed.");
+};
+var readBodyDirect = (request) => {
+  if (request[bodyBufferKey]) return Promise.resolve(request[bodyBufferKey]);
+  if (request[bodyReadPromiseKey]) return request[bodyReadPromiseKey];
+  const incoming = request[incomingKey];
+  if (incoming.readableDidRead) return rejectBodyUnusable();
+  const buffered = readBodyBufferedBeforeDisconnect(incoming);
+  if (buffered !== void 0) {
+    if (buffered instanceof Error) return Promise.reject(buffered);
+    request[bodyBufferKey] = buffered;
+    return Promise.resolve(buffered);
+  }
+  const promise = new Promise((resolve, reject) => {
+    const chunks = [];
+    let settled = false;
+    const finish = (callback) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      callback();
+    };
+    const recoverCompleteBodyAfterDisconnect = (error2) => {
+      const streamError = incoming.errored ?? error2;
+      if (!isRecoverableDisconnectedIncoming(incoming) || streamError && streamError.code !== "ECONNRESET") return false;
+      finish(() => {
+        const recovered = readBodyBufferedBeforeDisconnect(incoming, chunks);
+        if (recovered instanceof Error) reject(recovered);
+        else if (recovered === void 0) reject(error2 ?? normalizeAbortError(request, incoming));
+        else {
+          request[bodyBufferKey] = recovered;
+          resolve(recovered);
+        }
+      });
+      return true;
+    };
+    const onData = (chunk) => {
+      chunks.push(toBufferChunk(chunk, incoming.readableEncoding));
+    };
+    const onEnd = () => {
+      finish(() => {
+        const buffer = chunks.length === 1 ? chunks[0] : Buffer.concat(chunks);
+        request[bodyBufferKey] = buffer;
+        resolve(buffer);
+      });
+    };
+    const onError = (error2) => {
+      if (recoverCompleteBodyAfterDisconnect(error2)) return;
+      finish(() => {
+        reject(error2);
+      });
+    };
+    const onClose = () => {
+      if (incoming.readableEnded) {
+        onEnd();
+        return;
+      }
+      if (recoverCompleteBodyAfterDisconnect()) return;
+      finish(() => {
+        reject(normalizeAbortError(request, incoming));
+      });
+    };
+    const cleanup = () => {
+      incoming.off("data", onData);
+      incoming.off("end", onEnd);
+      incoming.off("error", onError);
+      incoming.off("close", onClose);
+      request[bodyReadPromiseKey] = void 0;
+    };
+    incoming.on("data", onData);
+    incoming.on("end", onEnd);
+    incoming.on("error", onError);
+    incoming.on("close", onClose);
+    queueMicrotask(() => {
+      if (settled) return;
+      if (incoming.readableEnded) onEnd();
+      else if (incoming.errored) onError(incoming.errored);
+      else if (incoming.destroyed) onClose();
+    });
+  });
+  request[bodyReadPromiseKey] = promise;
+  return promise;
+};
 var requestPrototype = {
   get method() {
-    return this[incomingKey].method || "GET";
+    return this[methodKey];
   },
   get url() {
     return this[urlKey];
@@ -13113,24 +14393,57 @@ var requestPrototype = {
   get headers() {
     return this[headersKey] ||= newHeadersFromIncoming(this[incomingKey]);
   },
+  [abortRequest](reason) {
+    if (this[abortReasonKey] === void 0) this[abortReasonKey] = reason;
+    const abortController = this[abortControllerKey];
+    if (abortController && !abortController.signal.aborted) abortController.abort(reason);
+  },
   [getAbortController]() {
-    this[getRequestCache]();
+    this[abortControllerKey] ||= new AbortController();
+    if (this[abortReasonKey] !== void 0 && !this[abortControllerKey].signal.aborted) this[abortControllerKey].abort(this[abortReasonKey]);
     return this[abortControllerKey];
   },
   [getRequestCache]() {
-    this[abortControllerKey] ||= new AbortController();
-    return this[requestCache] ||= newRequestFromIncoming(
-      this.method,
-      this[urlKey],
-      this.headers,
-      this[incomingKey],
-      this[abortControllerKey]
-    );
+    const abortController = this[getAbortController]();
+    if (this[requestCache]) return this[requestCache];
+    const method = this.method;
+    if (this[bodyConsumedDirectlyKey] && !(method === "GET" || method === "HEAD")) {
+      this[bodyBufferKey] = void 0;
+      const init = {
+        method: method === "TRACE" ? "GET" : method,
+        headers: this.headers,
+        signal: abortController.signal
+      };
+      if (method !== "TRACE") {
+        init.body = new ReadableStream({ start(c) {
+          c.close();
+        } });
+        init.duplex = "half";
+      }
+      const req = new Request$1(this[urlKey], init);
+      if (method === "TRACE") Object.defineProperty(req, "method", { get() {
+        return "TRACE";
+      } });
+      return this[requestCache] = req;
+    }
+    return this[requestCache] = newRequestFromIncoming(this.method, this[urlKey], this.headers, this[incomingKey], abortController);
+  },
+  get body() {
+    if (!this[bodyConsumedDirectlyKey]) return this[getRequestCache]().body;
+    const request = this[getRequestCache]();
+    if (!this[bodyLockReaderKey] && request.body) this[bodyLockReaderKey] = request.body.getReader();
+    return request.body;
+  },
+  get bodyUsed() {
+    if (this[bodyConsumedDirectlyKey]) return true;
+    if (this[requestCache]) return this[requestCache].bodyUsed;
+    return false;
   }
 };
+Object.defineProperty(requestPrototype, "signal", { get() {
+  return this[getAbortController]().signal;
+} });
 [
-  "body",
-  "bodyUsed",
   "cache",
   "credentials",
   "destination",
@@ -13139,86 +14452,101 @@ var requestPrototype = {
   "redirect",
   "referrer",
   "referrerPolicy",
-  "signal",
   "keepalive"
 ].forEach((k) => {
-  Object.defineProperty(requestPrototype, k, {
-    get() {
-      return this[getRequestCache]()[k];
+  Object.defineProperty(requestPrototype, k, { get() {
+    return this[getRequestCache]()[k];
+  } });
+});
+["clone", "formData"].forEach((k) => {
+  Object.defineProperty(requestPrototype, k, { value: function() {
+    if (this[bodyConsumedDirectlyKey]) {
+      if (k === "clone") throw newBodyUnusableError();
+      return rejectBodyUnusable();
     }
+    return this[getRequestCache]()[k]();
+  } });
+});
+Object.defineProperty(requestPrototype, "text", { value: function() {
+  return readBodyWithFastPath(this, "text", (buf) => textDecoder.decode(buf));
+} });
+Object.defineProperty(requestPrototype, "arrayBuffer", { value: function() {
+  return readBodyWithFastPath(this, "arrayBuffer", (buf) => toArrayBuffer(buf));
+} });
+Object.defineProperty(requestPrototype, "blob", { value: function() {
+  return readBodyWithFastPath(this, "blob", (buf, request) => {
+    const type = contentType(request);
+    const init = type ? { headers: { "content-type": type } } : void 0;
+    return new Response(buf, init).blob();
   });
-});
-["arrayBuffer", "blob", "clone", "formData", "json", "text"].forEach((k) => {
-  Object.defineProperty(requestPrototype, k, {
-    value: function() {
-      return this[getRequestCache]()[k]();
-    }
-  });
-});
-Object.defineProperty(requestPrototype, /* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom"), {
-  value: function(depth, options, inspectFn) {
-    const props = {
-      method: this.method,
-      url: this.url,
-      headers: this.headers,
-      nativeRequest: this[requestCache]
-    };
-    return `Request (lightweight) ${inspectFn(props, { ...options, depth: depth == null ? null : depth - 1 })}`;
-  }
-});
-Object.setPrototypeOf(requestPrototype, Request.prototype);
+} });
+Object.defineProperty(requestPrototype, "json", { value: function() {
+  if (this[bodyConsumedDirectlyKey]) return rejectBodyUnusable();
+  return this.text().then(JSON.parse);
+} });
+Object.defineProperty(requestPrototype, /* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom"), { value: function(depth, options, inspectFn) {
+  return `Request (lightweight) ${inspectFn({
+    method: this.method,
+    url: this.url,
+    headers: this.headers,
+    nativeRequest: this[requestCache]
+  }, {
+    ...options,
+    depth: depth == null ? null : depth - 1
+  })}`;
+} });
+Object.setPrototypeOf(requestPrototype, Request$1.prototype);
 var newRequest = (incoming, defaultHostname) => {
   const req = Object.create(requestPrototype);
   req[incomingKey] = incoming;
+  req[methodKey] = normalizeIncomingMethod(incoming.method);
   const incomingUrl = incoming.url || "";
-  if (incomingUrl[0] !== "/" && // short-circuit for performance. most requests are relative URL.
-  (incomingUrl.startsWith("http://") || incomingUrl.startsWith("https://"))) {
-    if (incoming instanceof Http2ServerRequest) {
-      throw new RequestError("Absolute URL for :path is not allowed in HTTP/2");
-    }
+  if (incomingUrl[0] !== "/" && (incomingUrl.startsWith("http://") || incomingUrl.startsWith("https://"))) {
+    if (incoming instanceof Http2ServerRequest) throw new RequestError("Absolute URL for :path is not allowed in HTTP/2");
     try {
-      const url2 = new URL(incomingUrl);
-      req[urlKey] = url2.href;
+      req[urlKey] = new URL(incomingUrl).href;
     } catch (e) {
       throw new RequestError("Invalid absolute URL", { cause: e });
     }
     return req;
   }
   const host = (incoming instanceof Http2ServerRequest ? incoming.authority : incoming.headers.host) || defaultHostname;
-  if (!host) {
-    throw new RequestError("Missing host header");
-  }
+  if (!host) throw new RequestError("Missing host header");
   let scheme;
   if (incoming instanceof Http2ServerRequest) {
     scheme = incoming.scheme;
-    if (!(scheme === "http" || scheme === "https")) {
-      throw new RequestError("Unsupported scheme");
-    }
-  } else {
-    scheme = incoming.socket && incoming.socket.encrypted ? "https" : "http";
+    if (!(scheme === "http" || scheme === "https")) throw new RequestError("Unsupported scheme");
+  } else scheme = incoming.socket && incoming.socket.encrypted ? "https" : "http";
+  try {
+    req[urlKey] = buildUrl(scheme, host, incomingUrl);
+  } catch (e) {
+    if (e instanceof RequestError) throw e;
+    else throw new RequestError("Invalid URL", { cause: e });
   }
-  const url = new URL(`${scheme}://${host}${incomingUrl}`);
-  if (url.hostname.length !== host.length && url.hostname !== host.replace(/:\d+$/, "")) {
-    throw new RequestError("Invalid host header");
-  }
-  req[urlKey] = url.href;
   return req;
 };
+var defaultContentType = "text/plain; charset=UTF-8";
 var responseCache = /* @__PURE__ */ Symbol("responseCache");
 var getResponseCache = /* @__PURE__ */ Symbol("getResponseCache");
 var cacheKey = /* @__PURE__ */ Symbol("cache");
 var GlobalResponse = global.Response;
-var Response2 = class _Response {
+var Response$1 = class Response$12 {
   #body;
   #init;
   [getResponseCache]() {
+    const cache = this[cacheKey];
+    const liveHeaders = cache && cache[2] instanceof Headers ? cache[2] : void 0;
     delete this[cacheKey];
-    return this[responseCache] ||= new GlobalResponse(this.#body, this.#init);
+    return this[responseCache] ||= new GlobalResponse(this.#body, liveHeaders ? {
+      status: this.#init?.status,
+      statusText: this.#init?.statusText,
+      headers: liveHeaders
+    } : this.#init);
   }
   constructor(body, init) {
     let headers;
     this.#body = body;
-    if (init instanceof _Response) {
+    if (init instanceof Response$12) {
       const cachedGlobalResponse = init[responseCache];
       if (cachedGlobalResponse) {
         this.#init = cachedGlobalResponse;
@@ -13226,24 +14554,19 @@ var Response2 = class _Response {
         return;
       } else {
         this.#init = init.#init;
-        headers = new Headers(init.#init.headers);
+        headers = new Headers(init.headers);
       }
-    } else {
-      this.#init = init;
-    }
-    if (typeof body === "string" || typeof body?.getReader !== "undefined" || body instanceof Blob || body instanceof Uint8Array) {
-      ;
-      this[cacheKey] = [init?.status || 200, body, headers || init?.headers];
-    }
+    } else this.#init = init;
+    if (body == null || typeof body === "string" || typeof body?.getReader !== "undefined" || body instanceof Blob || body instanceof Uint8Array) this[cacheKey] = [
+      init?.status || 200,
+      body ?? null,
+      headers || init?.headers
+    ];
   }
   get headers() {
     const cache = this[cacheKey];
     if (cache) {
-      if (!(cache[2] instanceof Headers)) {
-        cache[2] = new Headers(
-          cache[2] || { "content-type": "text/plain; charset=UTF-8" }
-        );
-      }
+      if (!(cache[2] instanceof Headers)) cache[2] = new Headers(cache[2] || (cache[1] === null ? void 0 : { "content-type": defaultContentType }));
       return cache[2];
     }
     return this[getResponseCache]().headers;
@@ -13256,33 +14579,87 @@ var Response2 = class _Response {
     return status >= 200 && status < 300;
   }
 };
-["body", "bodyUsed", "redirected", "statusText", "trailers", "type", "url"].forEach((k) => {
-  Object.defineProperty(Response2.prototype, k, {
-    get() {
-      return this[getResponseCache]()[k];
-    }
-  });
+[
+  "body",
+  "bodyUsed",
+  "redirected",
+  "statusText",
+  "trailers",
+  "type",
+  "url"
+].forEach((k) => {
+  Object.defineProperty(Response$1.prototype, k, { get() {
+    return this[getResponseCache]()[k];
+  } });
 });
-["arrayBuffer", "blob", "clone", "formData", "json", "text"].forEach((k) => {
-  Object.defineProperty(Response2.prototype, k, {
-    value: function() {
-      return this[getResponseCache]()[k]();
-    }
-  });
+[
+  "arrayBuffer",
+  "blob",
+  "clone",
+  "formData",
+  "json",
+  "text"
+].forEach((k) => {
+  Object.defineProperty(Response$1.prototype, k, { value: function() {
+    return this[getResponseCache]()[k]();
+  } });
 });
-Object.defineProperty(Response2.prototype, /* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom"), {
-  value: function(depth, options, inspectFn) {
-    const props = {
-      status: this.status,
-      headers: this.headers,
-      ok: this.ok,
-      nativeResponse: this[responseCache]
-    };
-    return `Response (lightweight) ${inspectFn(props, { ...options, depth: depth == null ? null : depth - 1 })}`;
-  }
+Object.defineProperty(Response$1.prototype, /* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom"), { value: function(depth, options, inspectFn) {
+  return `Response (lightweight) ${inspectFn({
+    status: this.status,
+    headers: this.headers,
+    ok: this.ok,
+    nativeResponse: this[responseCache]
+  }, {
+    ...options,
+    depth: depth == null ? null : depth - 1
+  })}`;
+} });
+Object.setPrototypeOf(Response$1, GlobalResponse);
+Object.setPrototypeOf(Response$1.prototype, GlobalResponse.prototype);
+var validRedirectUrl = /^https?:\/\/[!#-;=?-[\]_a-z~A-Z]+$/;
+var parseRedirectUrl = (url) => {
+  if (url instanceof URL) return url.href;
+  if (validRedirectUrl.test(url)) return url;
+  return new URL(url).href;
+};
+var validRedirectStatuses = /* @__PURE__ */ new Set([
+  301,
+  302,
+  303,
+  307,
+  308
+]);
+Object.defineProperty(Response$1, "redirect", {
+  value: function redirect(url, status = 302) {
+    if (!validRedirectStatuses.has(status)) throw new RangeError("Invalid status code");
+    return new Response$1(null, {
+      status,
+      headers: { location: parseRedirectUrl(url) }
+    });
+  },
+  writable: true,
+  configurable: true
 });
-Object.setPrototypeOf(Response2, GlobalResponse);
-Object.setPrototypeOf(Response2.prototype, GlobalResponse.prototype);
+Object.defineProperty(Response$1, "json", {
+  value: function json(data, init) {
+    const body = JSON.stringify(data);
+    if (body === void 0) throw new TypeError("The data is not JSON serializable");
+    const initHeaders = init?.headers;
+    let headers;
+    if (initHeaders) {
+      headers = new Headers(initHeaders);
+      if (!headers.has("content-type")) headers.set("content-type", "application/json");
+    } else headers = { "content-type": "application/json" };
+    return new Response$1(body, {
+      status: init?.status ?? 200,
+      statusText: init?.statusText,
+      headers
+    });
+  },
+  writable: true,
+  configurable: true
+});
 async function readWithoutBlocking(readPromise) {
   return Promise.race([readPromise, Promise.resolve().then(() => Promise.resolve(void 0))]);
 }
@@ -13299,72 +14676,49 @@ function writeFromReadableStreamDefaultReader(reader, writable, currentReadPromi
     writable.off("error", cancel);
   });
   function handleStreamError(error2) {
-    if (error2) {
-      writable.destroy(error2);
-    }
+    if (error2) writable.destroy(error2);
   }
   function onDrain() {
     reader.read().then(flow, handleStreamError);
   }
   function flow({ done, value }) {
     try {
-      if (done) {
-        writable.end();
-      } else if (!writable.write(value)) {
-        writable.once("drain", onDrain);
-      } else {
-        return reader.read().then(flow, handleStreamError);
-      }
+      if (done) writable.end();
+      else if (!writable.write(value)) writable.once("drain", onDrain);
+      else return reader.read().then(flow, handleStreamError);
     } catch (e) {
       handleStreamError(e);
     }
   }
 }
 function writeFromReadableStream(stream, writable) {
-  if (stream.locked) {
-    throw new TypeError("ReadableStream is locked.");
-  } else if (writable.destroyed) {
-    return;
-  }
+  if (stream.locked) throw new TypeError("ReadableStream is locked.");
+  else if (writable.destroyed) return;
   return writeFromReadableStreamDefaultReader(stream.getReader(), writable);
 }
-var buildOutgoingHttpHeaders = (headers) => {
+var buildOutgoingHttpHeaders = (headers, defaultContentType2) => {
   const res = {};
-  if (!(headers instanceof Headers)) {
-    headers = new Headers(headers ?? void 0);
-  }
-  const cookies = [];
-  for (const [k, v] of headers) {
-    if (k === "set-cookie") {
-      cookies.push(v);
-    } else {
-      res[k] = v;
-    }
-  }
-  if (cookies.length > 0) {
-    res["set-cookie"] = cookies;
-  }
-  res["content-type"] ??= "text/plain; charset=UTF-8";
+  if (!(headers instanceof Headers)) headers = new Headers(headers ?? void 0);
+  if (headers.has("set-cookie")) {
+    const cookies = [];
+    for (const [k, v] of headers) if (k === "set-cookie") cookies.push(v);
+    else res[k] = v;
+    if (cookies.length > 0) res["set-cookie"] = cookies;
+  } else for (const [k, v] of headers) res[k] = v;
+  if (defaultContentType2) res["content-type"] ??= defaultContentType2;
   return res;
 };
-var X_ALREADY_SENT = "x-hono-already-sent";
-if (typeof global.crypto === "undefined") {
-  global.crypto = crypto2;
-}
 var outgoingEnded = /* @__PURE__ */ Symbol("outgoingEnded");
 var incomingDraining = /* @__PURE__ */ Symbol("incomingDraining");
 var DRAIN_TIMEOUT_MS = 500;
 var MAX_DRAIN_BYTES = 64 * 1024 * 1024;
 var drainIncoming = (incoming) => {
   const incomingWithDrainState = incoming;
-  if (incoming.destroyed || incomingWithDrainState[incomingDraining]) {
-    return;
-  }
+  if (incoming.destroyed || incomingWithDrainState[incomingDraining]) return;
   incomingWithDrainState[incomingDraining] = true;
-  if (incoming instanceof Http2ServerRequest2) {
+  if (incoming instanceof Http2ServerRequest) {
     try {
-      ;
-      incoming.stream?.close?.(h2constants.NGHTTP2_NO_ERROR);
+      incoming.stream?.close?.(constants.NGHTTP2_NO_ERROR);
     } catch {
     }
     return;
@@ -13379,111 +14733,124 @@ var drainIncoming = (incoming) => {
   const forceClose = () => {
     cleanup();
     const socket = incoming.socket;
-    if (socket && !socket.destroyed) {
-      socket.destroySoon();
-    }
+    if (socket && !socket.destroyed) socket.destroySoon();
   };
   const timer = setTimeout(forceClose, DRAIN_TIMEOUT_MS);
   timer.unref?.();
   const onData = (chunk) => {
     bytesRead += chunk.length;
-    if (bytesRead > MAX_DRAIN_BYTES) {
-      forceClose();
-    }
+    if (bytesRead > MAX_DRAIN_BYTES) forceClose();
   };
   incoming.on("data", onData);
   incoming.on("end", cleanup);
   incoming.on("error", cleanup);
   incoming.resume();
 };
-var handleRequestError = () => new Response(null, {
-  status: 400
-});
-var handleFetchError = (e) => new Response(null, {
-  status: e instanceof Error && (e.name === "TimeoutError" || e.constructor.name === "TimeoutError") ? 504 : 500
-});
+var makeCloseHandler = (req, incoming, outgoing, needsBodyCleanup) => () => {
+  if (incoming.errored) {
+    recordBodyBufferedBeforeDisconnect(incoming);
+    req[abortRequest](incoming.errored.toString());
+  } else if (!outgoing.writableFinished) {
+    recordBodyBufferedBeforeDisconnect(incoming);
+    req[abortRequest]("Client connection prematurely closed.");
+  }
+  if (needsBodyCleanup && !incoming.readableEnded) setTimeout(() => {
+    if (!incoming.readableEnded) setTimeout(() => {
+      drainIncoming(incoming);
+    });
+  });
+};
+var isImmediateCacheableResponse = (res) => {
+  if (!(cacheKey in res)) return false;
+  const body = res[cacheKey][1];
+  return body === null || typeof body === "string" || body instanceof Uint8Array;
+};
+var handleRequestError = () => new Response(null, { status: 400 });
+var handleFetchError = (e) => new Response(null, { status: e instanceof Error && (e.name === "TimeoutError" || e.constructor.name === "TimeoutError") ? 504 : 500 });
 var handleResponseError = (e, outgoing) => {
   const err = e instanceof Error ? e : new Error("unknown error", { cause: e });
-  if (err.code === "ERR_STREAM_PREMATURE_CLOSE") {
-    console.info("The user aborted a request.");
-  } else {
+  if (err.code === "ERR_STREAM_PREMATURE_CLOSE") console.info("The user aborted a request.");
+  else {
     console.error(e);
-    if (!outgoing.headersSent) {
-      outgoing.writeHead(500, { "Content-Type": "text/plain" });
-    }
+    if (!outgoing.headersSent) outgoing.writeHead(500, { "Content-Type": "text/plain" });
     outgoing.end(`Error: ${err.message}`);
     outgoing.destroy(err);
   }
 };
 var flushHeaders = (outgoing) => {
-  if ("flushHeaders" in outgoing && outgoing.writable) {
-    outgoing.flushHeaders();
-  }
+  if ("flushHeaders" in outgoing && outgoing.writable) outgoing.flushHeaders();
 };
 var responseViaCache = async (res, outgoing) => {
   let [status, body, header] = res[cacheKey];
-  let hasContentLength = false;
   if (!header) {
-    header = { "content-type": "text/plain; charset=UTF-8" };
-  } else if (header instanceof Headers) {
+    if (body === null) {
+      outgoing.writeHead(status);
+      outgoing.end();
+    } else if (typeof body === "string") {
+      outgoing.writeHead(status, {
+        "Content-Type": defaultContentType,
+        "Content-Length": Buffer.byteLength(body)
+      });
+      outgoing.end(body);
+    } else if (body instanceof Uint8Array) {
+      outgoing.writeHead(status, {
+        "Content-Type": defaultContentType,
+        "Content-Length": body.byteLength
+      });
+      outgoing.end(body);
+    } else if (body instanceof Blob) {
+      outgoing.writeHead(status, {
+        "Content-Type": defaultContentType,
+        "Content-Length": body.size
+      });
+      outgoing.end(new Uint8Array(await body.arrayBuffer()));
+    } else {
+      outgoing.writeHead(status, { "Content-Type": defaultContentType });
+      flushHeaders(outgoing);
+      await writeFromReadableStream(body, outgoing)?.catch((e) => handleResponseError(e, outgoing));
+    }
+    outgoing[outgoingEnded]?.();
+    return;
+  }
+  let hasContentLength = false;
+  if (header instanceof Headers) {
     hasContentLength = header.has("content-length");
-    header = buildOutgoingHttpHeaders(header);
+    header = buildOutgoingHttpHeaders(header, body === null ? void 0 : defaultContentType);
   } else if (Array.isArray(header)) {
     const headerObj = new Headers(header);
     hasContentLength = headerObj.has("content-length");
-    header = buildOutgoingHttpHeaders(headerObj);
-  } else {
-    for (const key in header) {
-      if (key.length === 14 && key.toLowerCase() === "content-length") {
-        hasContentLength = true;
-        break;
-      }
-    }
+    header = buildOutgoingHttpHeaders(headerObj, body === null ? void 0 : defaultContentType);
+  } else for (const key in header) if (key.length === 14 && key.toLowerCase() === "content-length") {
+    hasContentLength = true;
+    break;
   }
   if (!hasContentLength) {
-    if (typeof body === "string") {
-      header["Content-Length"] = Buffer.byteLength(body);
-    } else if (body instanceof Uint8Array) {
-      header["Content-Length"] = body.byteLength;
-    } else if (body instanceof Blob) {
-      header["Content-Length"] = body.size;
-    }
+    if (typeof body === "string") header["Content-Length"] = Buffer.byteLength(body);
+    else if (body instanceof Uint8Array) header["Content-Length"] = body.byteLength;
+    else if (body instanceof Blob) header["Content-Length"] = body.size;
   }
   outgoing.writeHead(status, header);
-  if (typeof body === "string" || body instanceof Uint8Array) {
-    outgoing.end(body);
-  } else if (body instanceof Blob) {
-    outgoing.end(new Uint8Array(await body.arrayBuffer()));
-  } else {
+  if (body == null) outgoing.end();
+  else if (typeof body === "string" || body instanceof Uint8Array) outgoing.end(body);
+  else if (body instanceof Blob) outgoing.end(new Uint8Array(await body.arrayBuffer()));
+  else {
     flushHeaders(outgoing);
-    await writeFromReadableStream(body, outgoing)?.catch(
-      (e) => handleResponseError(e, outgoing)
-    );
+    await writeFromReadableStream(body, outgoing)?.catch((e) => handleResponseError(e, outgoing));
   }
-  ;
   outgoing[outgoingEnded]?.();
 };
 var isPromise = (res) => typeof res.then === "function";
 var responseViaResponseObject = async (res, outgoing, options = {}) => {
-  if (isPromise(res)) {
-    if (options.errorHandler) {
-      try {
-        res = await res;
-      } catch (err) {
-        const errRes = await options.errorHandler(err);
-        if (!errRes) {
-          return;
-        }
-        res = errRes;
-      }
-    } else {
-      res = await res.catch(handleFetchError);
-    }
+  if (isPromise(res)) if (options.errorHandler) try {
+    res = await res;
+  } catch (err) {
+    const errRes = await options.errorHandler(err);
+    if (!errRes) return;
+    res = errRes;
   }
-  if (cacheKey in res) {
-    return responseViaCache(res, outgoing);
-  }
-  const resHeaderRecord = buildOutgoingHttpHeaders(res.headers);
+  else res = await res.catch(handleFetchError);
+  if (cacheKey in res) return responseViaCache(res, outgoing);
+  const resHeaderRecord = buildOutgoingHttpHeaders(res.headers, res.body === null ? void 0 : defaultContentType);
   if (res.body) {
     const reader = res.body.getReader();
     const values = [];
@@ -13506,29 +14873,21 @@ var responseViaResponseObject = async (res, outgoing, options = {}) => {
           break;
         }
         currentReadPromise = void 0;
-        if (chunk.value) {
-          values.push(chunk.value);
-        }
+        if (chunk.value) values.push(chunk.value);
         if (chunk.done) {
           done = true;
           break;
         }
       }
-      if (done && !("content-length" in resHeaderRecord)) {
-        resHeaderRecord["content-length"] = values.reduce((acc, value) => acc + value.length, 0);
-      }
+      if (done && !("content-length" in resHeaderRecord)) resHeaderRecord["content-length"] = values.reduce((acc, value) => acc + value.length, 0);
     }
     outgoing.writeHead(res.status, resHeaderRecord);
     values.forEach((value) => {
-      ;
       outgoing.write(value);
     });
-    if (done) {
-      outgoing.end();
-    } else {
-      if (values.length === 0) {
-        flushHeaders(outgoing);
-      }
+    if (done) outgoing.end();
+    else {
+      if (values.length === 0) flushHeaders(outgoing);
       await writeFromReadableStreamDefaultReader(reader, outgoing, currentReadPromise);
     }
   } else if (resHeaderRecord[X_ALREADY_SENT]) {
@@ -13536,88 +14895,56 @@ var responseViaResponseObject = async (res, outgoing, options = {}) => {
     outgoing.writeHead(res.status, resHeaderRecord);
     outgoing.end();
   }
-  ;
   outgoing[outgoingEnded]?.();
 };
 var getRequestListener = (fetchCallback, options = {}) => {
   const autoCleanupIncoming = options.autoCleanupIncoming ?? true;
-  if (options.overrideGlobalObjects !== false && global.Request !== Request) {
-    Object.defineProperty(global, "Request", {
-      value: Request
-    });
-    Object.defineProperty(global, "Response", {
-      value: Response2
-    });
+  if (options.overrideGlobalObjects !== false && global.Request !== Request$1) {
+    Object.defineProperty(global, "Request", { value: Request$1 });
+    Object.defineProperty(global, "Response", { value: Response$1 });
   }
   return async (incoming, outgoing) => {
     let res, req;
+    let needsBodyCleanup = false;
+    let closeHandlerAttached = false;
+    const ensureCloseHandler = () => {
+      if (!req || closeHandlerAttached) return;
+      closeHandlerAttached = true;
+      outgoing.on("close", makeCloseHandler(req, incoming, outgoing, needsBodyCleanup));
+    };
     try {
       req = newRequest(incoming, options.hostname);
-      let incomingEnded = !autoCleanupIncoming || incoming.method === "GET" || incoming.method === "HEAD";
-      if (!incomingEnded) {
-        ;
+      needsBodyCleanup = autoCleanupIncoming && !(incoming.method === "GET" || incoming.method === "HEAD");
+      if (needsBodyCleanup) {
         incoming[wrapBodyStream] = true;
-        incoming.on("end", () => {
-          incomingEnded = true;
-        });
-        if (incoming instanceof Http2ServerRequest2) {
-          ;
-          outgoing[outgoingEnded] = () => {
-            if (!incomingEnded) {
-              setTimeout(() => {
-                if (!incomingEnded) {
-                  setTimeout(() => {
-                    drainIncoming(incoming);
-                  });
-                }
-              });
-            }
-          };
-        }
-        outgoing.on("finish", () => {
-          if (!incomingEnded) {
-            drainIncoming(incoming);
-          }
-        });
-      }
-      outgoing.on("close", () => {
-        const abortController = req[abortControllerKey];
-        if (abortController) {
-          if (incoming.errored) {
-            req[abortControllerKey].abort(incoming.errored.toString());
-          } else if (!outgoing.writableFinished) {
-            req[abortControllerKey].abort("Client connection prematurely closed.");
-          }
-        }
-        if (!incomingEnded) {
-          setTimeout(() => {
-            if (!incomingEnded) {
-              setTimeout(() => {
-                drainIncoming(incoming);
-              });
-            }
+        if (incoming instanceof Http2ServerRequest) outgoing[outgoingEnded] = () => {
+          if (!incoming.readableEnded) setTimeout(() => {
+            if (!incoming.readableEnded) setTimeout(() => {
+              incoming.destroy();
+              outgoing.destroy();
+            });
           });
-        }
+        };
+      }
+      res = fetchCallback(req, {
+        incoming,
+        outgoing
       });
-      res = fetchCallback(req, { incoming, outgoing });
-      if (cacheKey in res) {
+      if (!isPromise(res) && isImmediateCacheableResponse(res)) {
+        if (needsBodyCleanup && !incoming.readableEnded) outgoing.once("finish", () => {
+          if (!incoming.readableEnded) drainIncoming(incoming);
+        });
         return responseViaCache(res, outgoing);
       }
+      ensureCloseHandler();
     } catch (e) {
-      if (!res) {
-        if (options.errorHandler) {
-          res = await options.errorHandler(req ? e : toRequestError(e));
-          if (!res) {
-            return;
-          }
-        } else if (!req) {
-          res = handleRequestError();
-        } else {
-          res = handleFetchError(e);
-        }
-      } else {
-        return handleResponseError(e, outgoing);
-      }
+      if (!res) if (options.errorHandler) {
+        ensureCloseHandler();
+        res = await options.errorHandler(req ? e : toRequestError(e));
+        if (!res) return;
+      } else if (!req) res = handleRequestError();
+      else res = handleFetchError(e);
+      else return handleResponseError(e, outgoing);
     }
     try {
       return await responseViaResponseObject(res, outgoing, options);
@@ -13626,6 +14953,119 @@ var getRequestListener = (fetchCallback, options = {}) => {
     }
   };
 };
+var CloseEvent = globalThis.CloseEvent ?? class extends Event {
+  #eventInitDict;
+  constructor(type, eventInitDict = {}) {
+    super(type, eventInitDict);
+    this.#eventInitDict = eventInitDict;
+  }
+  get wasClean() {
+    return this.#eventInitDict.wasClean ?? false;
+  }
+  get code() {
+    return this.#eventInitDict.code ?? 0;
+  }
+  get reason() {
+    return this.#eventInitDict.reason ?? "";
+  }
+};
+var ErrorEvent = globalThis.ErrorEvent ?? class extends Event {
+  #eventInitDict;
+  constructor(type, eventInitDict = {}) {
+    super(type, eventInitDict);
+    this.#eventInitDict = eventInitDict;
+  }
+  get message() {
+    return this.#eventInitDict.message ?? "";
+  }
+  get filename() {
+    return this.#eventInitDict.filename ?? "";
+  }
+  get lineno() {
+    return this.#eventInitDict.lineno ?? 0;
+  }
+  get colno() {
+    return this.#eventInitDict.colno ?? 0;
+  }
+  get error() {
+    return this.#eventInitDict.error ?? null;
+  }
+};
+var generateConnectionSymbol = () => /* @__PURE__ */ Symbol("connection");
+var CONNECTION_SYMBOL_KEY = /* @__PURE__ */ Symbol("CONNECTION_SYMBOL_KEY");
+var WAIT_FOR_WEBSOCKET_SYMBOL = /* @__PURE__ */ Symbol("WAIT_FOR_WEBSOCKET_SYMBOL");
+var upgradeWebSocket = defineWebSocketHelper(async (c, events, options) => {
+  if (c.req.header("upgrade")?.toLowerCase() !== "websocket") return;
+  const env = c.env;
+  const waitForWebSocket = env[WAIT_FOR_WEBSOCKET_SYMBOL];
+  if (!waitForWebSocket || !env.incoming) return new Response(null, { status: 500 });
+  const connectionSymbol = generateConnectionSymbol();
+  env[CONNECTION_SYMBOL_KEY] = connectionSymbol;
+  (async () => {
+    let ws;
+    try {
+      ws = await waitForWebSocket(env.incoming, connectionSymbol);
+    } catch {
+      return;
+    }
+    const messagesReceivedInStarting = [];
+    const bufferMessage = (data, isBinary) => {
+      messagesReceivedInStarting.push([data, isBinary]);
+    };
+    ws.on("message", bufferMessage);
+    const ctx = {
+      binaryType: "arraybuffer",
+      close(code, reason) {
+        ws.close(code, reason);
+      },
+      protocol: ws.protocol,
+      raw: ws,
+      get readyState() {
+        return ws.readyState;
+      },
+      send(source, opts) {
+        ws.send(source, { compress: opts?.compress });
+      },
+      url: new URL(c.req.url)
+    };
+    try {
+      events?.onOpen?.(new Event("open"), ctx);
+    } catch (e) {
+      (options?.onError ?? console.error)(e);
+    }
+    const handleMessage = (data, isBinary) => {
+      const datas = Array.isArray(data) ? data : [data];
+      for (const data2 of datas) try {
+        events?.onMessage?.(new MessageEvent("message", { data: isBinary ? data2 instanceof ArrayBuffer ? data2 : data2.buffer.slice(data2.byteOffset, data2.byteOffset + data2.byteLength) : typeof data2 === "string" ? data2 : Buffer.from(data2).toString("utf-8") }), ctx);
+      } catch (e) {
+        (options?.onError ?? console.error)(e);
+      }
+    };
+    ws.off("message", bufferMessage);
+    for (const message of messagesReceivedInStarting) handleMessage(...message);
+    ws.on("message", (data, isBinary) => {
+      handleMessage(data, isBinary);
+    });
+    ws.on("close", (code, reason) => {
+      try {
+        events?.onClose?.(new CloseEvent("close", {
+          code,
+          reason: reason.toString()
+        }), ctx);
+      } catch (e) {
+        (options?.onError ?? console.error)(e);
+      }
+    });
+    ws.on("error", (error2) => {
+      try {
+        events?.onError?.(new ErrorEvent("error", { error: error2 }), ctx);
+      } catch (e) {
+        (options?.onError ?? console.error)(e);
+      }
+    });
+  })();
+  return new Response();
+});
 
 // node_modules/.pnpm/zod@3.25.76/node_modules/zod/v4/core/core.js
 var NEVER = Object.freeze({
@@ -13840,14 +15280,14 @@ function promiseAllObject(promisesObj) {
 }
 function randomString(length = 10) {
   const chars = "abcdefghijklmnopqrstuvwxyz";
-  let str = "";
+  let str2 = "";
   for (let i = 0; i < length; i++) {
-    str += chars[Math.floor(Math.random() * chars.length)];
+    str2 += chars[Math.floor(Math.random() * chars.length)];
   }
-  return str;
+  return str2;
 }
-function esc(str) {
-  return JSON.stringify(str);
+function esc(str2) {
+  return JSON.stringify(str2);
 }
 var captureStackTrace = Error.captureStackTrace ? Error.captureStackTrace : (..._args) => {
 };
@@ -13935,8 +15375,8 @@ var getParsedType = (data) => {
 };
 var propertyKeyTypes = /* @__PURE__ */ new Set(["string", "number", "symbol"]);
 var primitiveTypes = /* @__PURE__ */ new Set(["string", "number", "bigint", "boolean", "symbol", "undefined"]);
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function escapeRegex(str2) {
+  return str2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 function clone(inst, def, params) {
   const cl = new inst._zod.constr(def ?? inst._zod.def);
@@ -14376,8 +15816,8 @@ function datetime(args) {
     opts.push("");
   if (args.offset)
     opts.push(`([+-]\\d{2}:\\d{2})`);
-  const timeRegex = `${time3}(?:${opts.join("|")})`;
-  return new RegExp(`^${dateSource}T(?:${timeRegex})$`);
+  const timeRegex2 = `${time3}(?:${opts.join("|")})`;
+  return new RegExp(`^${dateSource}T(?:${timeRegex2})$`);
 }
 var string = (params) => {
   const regex = params ? `[\\s\\S]{${params?.minimum ?? 0},${params?.maximum ?? ""}}` : `[\\s\\S]*`;
@@ -14841,14 +16281,14 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
     });
   } else {
     const runChecks = (payload, checks2, ctx) => {
-      let isAborted = aborted(payload);
+      let isAborted2 = aborted(payload);
       let asyncResult;
       for (const ch of checks2) {
         if (ch._zod.def.when) {
           const shouldRun = ch._zod.def.when(payload);
           if (!shouldRun)
             continue;
-        } else if (isAborted) {
+        } else if (isAborted2) {
           continue;
         }
         const currLen = payload.issues.length;
@@ -14862,15 +16302,15 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
             const nextLen = payload.issues.length;
             if (nextLen === currLen)
               return;
-            if (!isAborted)
-              isAborted = aborted(payload, currLen);
+            if (!isAborted2)
+              isAborted2 = aborted(payload, currLen);
           });
         } else {
           const nextLen = payload.issues.length;
           if (nextLen === currLen)
             continue;
-          if (!isAborted)
-            isAborted = aborted(payload, currLen);
+          if (!isAborted2)
+            isAborted2 = aborted(payload, currLen);
         }
       }
       if (asyncResult) {
@@ -19581,6 +21021,4047 @@ var StreamableHTTPServerTransport = class {
   }
 };
 
+// node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/external.js
+var external_exports = {};
+__export(external_exports, {
+  BRAND: () => BRAND,
+  DIRTY: () => DIRTY,
+  EMPTY_PATH: () => EMPTY_PATH,
+  INVALID: () => INVALID,
+  NEVER: () => NEVER2,
+  OK: () => OK,
+  ParseStatus: () => ParseStatus,
+  Schema: () => ZodType2,
+  ZodAny: () => ZodAny,
+  ZodArray: () => ZodArray2,
+  ZodBigInt: () => ZodBigInt,
+  ZodBoolean: () => ZodBoolean2,
+  ZodBranded: () => ZodBranded,
+  ZodCatch: () => ZodCatch2,
+  ZodDate: () => ZodDate,
+  ZodDefault: () => ZodDefault2,
+  ZodDiscriminatedUnion: () => ZodDiscriminatedUnion2,
+  ZodEffects: () => ZodEffects,
+  ZodEnum: () => ZodEnum2,
+  ZodError: () => ZodError2,
+  ZodFirstPartyTypeKind: () => ZodFirstPartyTypeKind,
+  ZodFunction: () => ZodFunction,
+  ZodIntersection: () => ZodIntersection2,
+  ZodIssueCode: () => ZodIssueCode,
+  ZodLazy: () => ZodLazy,
+  ZodLiteral: () => ZodLiteral2,
+  ZodMap: () => ZodMap,
+  ZodNaN: () => ZodNaN,
+  ZodNativeEnum: () => ZodNativeEnum,
+  ZodNever: () => ZodNever2,
+  ZodNull: () => ZodNull2,
+  ZodNullable: () => ZodNullable2,
+  ZodNumber: () => ZodNumber2,
+  ZodObject: () => ZodObject2,
+  ZodOptional: () => ZodOptional2,
+  ZodParsedType: () => ZodParsedType,
+  ZodPipeline: () => ZodPipeline,
+  ZodPromise: () => ZodPromise,
+  ZodReadonly: () => ZodReadonly2,
+  ZodRecord: () => ZodRecord2,
+  ZodSchema: () => ZodType2,
+  ZodSet: () => ZodSet,
+  ZodString: () => ZodString2,
+  ZodSymbol: () => ZodSymbol,
+  ZodTransformer: () => ZodEffects,
+  ZodTuple: () => ZodTuple,
+  ZodType: () => ZodType2,
+  ZodUndefined: () => ZodUndefined,
+  ZodUnion: () => ZodUnion2,
+  ZodUnknown: () => ZodUnknown2,
+  ZodVoid: () => ZodVoid,
+  addIssueToContext: () => addIssueToContext,
+  any: () => anyType,
+  array: () => arrayType,
+  bigint: () => bigIntType,
+  boolean: () => booleanType,
+  coerce: () => coerce,
+  custom: () => custom2,
+  date: () => dateType,
+  datetimeRegex: () => datetimeRegex,
+  defaultErrorMap: () => en_default2,
+  discriminatedUnion: () => discriminatedUnionType,
+  effect: () => effectsType,
+  enum: () => enumType,
+  function: () => functionType,
+  getErrorMap: () => getErrorMap,
+  getParsedType: () => getParsedType2,
+  instanceof: () => instanceOfType,
+  intersection: () => intersectionType,
+  isAborted: () => isAborted,
+  isAsync: () => isAsync,
+  isDirty: () => isDirty,
+  isValid: () => isValid,
+  late: () => late,
+  lazy: () => lazyType,
+  literal: () => literalType,
+  makeIssue: () => makeIssue,
+  map: () => mapType,
+  nan: () => nanType,
+  nativeEnum: () => nativeEnumType,
+  never: () => neverType,
+  null: () => nullType,
+  nullable: () => nullableType,
+  number: () => numberType,
+  object: () => objectType,
+  objectUtil: () => objectUtil,
+  oboolean: () => oboolean,
+  onumber: () => onumber,
+  optional: () => optionalType,
+  ostring: () => ostring,
+  pipeline: () => pipelineType,
+  preprocess: () => preprocessType,
+  promise: () => promiseType,
+  quotelessJson: () => quotelessJson,
+  record: () => recordType,
+  set: () => setType,
+  setErrorMap: () => setErrorMap,
+  strictObject: () => strictObjectType,
+  string: () => stringType,
+  symbol: () => symbolType,
+  transformer: () => effectsType,
+  tuple: () => tupleType,
+  undefined: () => undefinedType,
+  union: () => unionType,
+  unknown: () => unknownType,
+  util: () => util,
+  void: () => voidType
+});
+
+// node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/helpers/util.js
+var util;
+(function(util2) {
+  util2.assertEqual = (_) => {
+  };
+  function assertIs2(_arg) {
+  }
+  util2.assertIs = assertIs2;
+  function assertNever2(_x) {
+    throw new Error();
+  }
+  util2.assertNever = assertNever2;
+  util2.arrayToEnum = (items) => {
+    const obj = {};
+    for (const item of items) {
+      obj[item] = item;
+    }
+    return obj;
+  };
+  util2.getValidEnumValues = (obj) => {
+    const validKeys = util2.objectKeys(obj).filter((k) => typeof obj[obj[k]] !== "number");
+    const filtered = {};
+    for (const k of validKeys) {
+      filtered[k] = obj[k];
+    }
+    return util2.objectValues(filtered);
+  };
+  util2.objectValues = (obj) => {
+    return util2.objectKeys(obj).map(function(e) {
+      return obj[e];
+    });
+  };
+  util2.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object3) => {
+    const keys = [];
+    for (const key in object3) {
+      if (Object.prototype.hasOwnProperty.call(object3, key)) {
+        keys.push(key);
+      }
+    }
+    return keys;
+  };
+  util2.find = (arr, checker) => {
+    for (const item of arr) {
+      if (checker(item))
+        return item;
+    }
+    return void 0;
+  };
+  util2.isInteger = typeof Number.isInteger === "function" ? (val) => Number.isInteger(val) : (val) => typeof val === "number" && Number.isFinite(val) && Math.floor(val) === val;
+  function joinValues2(array2, separator = " | ") {
+    return array2.map((val) => typeof val === "string" ? `'${val}'` : val).join(separator);
+  }
+  util2.joinValues = joinValues2;
+  util2.jsonStringifyReplacer = (_, value) => {
+    if (typeof value === "bigint") {
+      return value.toString();
+    }
+    return value;
+  };
+})(util || (util = {}));
+var objectUtil;
+(function(objectUtil2) {
+  objectUtil2.mergeShapes = (first, second) => {
+    return {
+      ...first,
+      ...second
+      // second overwrites first
+    };
+  };
+})(objectUtil || (objectUtil = {}));
+var ZodParsedType = util.arrayToEnum([
+  "string",
+  "nan",
+  "number",
+  "integer",
+  "float",
+  "boolean",
+  "date",
+  "bigint",
+  "symbol",
+  "function",
+  "undefined",
+  "null",
+  "array",
+  "object",
+  "unknown",
+  "promise",
+  "void",
+  "never",
+  "map",
+  "set"
+]);
+var getParsedType2 = (data) => {
+  const t = typeof data;
+  switch (t) {
+    case "undefined":
+      return ZodParsedType.undefined;
+    case "string":
+      return ZodParsedType.string;
+    case "number":
+      return Number.isNaN(data) ? ZodParsedType.nan : ZodParsedType.number;
+    case "boolean":
+      return ZodParsedType.boolean;
+    case "function":
+      return ZodParsedType.function;
+    case "bigint":
+      return ZodParsedType.bigint;
+    case "symbol":
+      return ZodParsedType.symbol;
+    case "object":
+      if (Array.isArray(data)) {
+        return ZodParsedType.array;
+      }
+      if (data === null) {
+        return ZodParsedType.null;
+      }
+      if (data.then && typeof data.then === "function" && data.catch && typeof data.catch === "function") {
+        return ZodParsedType.promise;
+      }
+      if (typeof Map !== "undefined" && data instanceof Map) {
+        return ZodParsedType.map;
+      }
+      if (typeof Set !== "undefined" && data instanceof Set) {
+        return ZodParsedType.set;
+      }
+      if (typeof Date !== "undefined" && data instanceof Date) {
+        return ZodParsedType.date;
+      }
+      return ZodParsedType.object;
+    default:
+      return ZodParsedType.unknown;
+  }
+};
+
+// node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/ZodError.js
+var ZodIssueCode = util.arrayToEnum([
+  "invalid_type",
+  "invalid_literal",
+  "custom",
+  "invalid_union",
+  "invalid_union_discriminator",
+  "invalid_enum_value",
+  "unrecognized_keys",
+  "invalid_arguments",
+  "invalid_return_type",
+  "invalid_date",
+  "invalid_string",
+  "too_small",
+  "too_big",
+  "invalid_intersection_types",
+  "not_multiple_of",
+  "not_finite"
+]);
+var quotelessJson = (obj) => {
+  const json2 = JSON.stringify(obj, null, 2);
+  return json2.replace(/"([^"]+)":/g, "$1:");
+};
+var ZodError2 = class _ZodError extends Error {
+  get errors() {
+    return this.issues;
+  }
+  constructor(issues) {
+    super();
+    this.issues = [];
+    this.addIssue = (sub) => {
+      this.issues = [...this.issues, sub];
+    };
+    this.addIssues = (subs = []) => {
+      this.issues = [...this.issues, ...subs];
+    };
+    const actualProto = new.target.prototype;
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(this, actualProto);
+    } else {
+      this.__proto__ = actualProto;
+    }
+    this.name = "ZodError";
+    this.issues = issues;
+  }
+  format(_mapper) {
+    const mapper = _mapper || function(issue2) {
+      return issue2.message;
+    };
+    const fieldErrors = { _errors: [] };
+    const processError = (error2) => {
+      for (const issue2 of error2.issues) {
+        if (issue2.code === "invalid_union") {
+          issue2.unionErrors.map(processError);
+        } else if (issue2.code === "invalid_return_type") {
+          processError(issue2.returnTypeError);
+        } else if (issue2.code === "invalid_arguments") {
+          processError(issue2.argumentsError);
+        } else if (issue2.path.length === 0) {
+          fieldErrors._errors.push(mapper(issue2));
+        } else {
+          let curr = fieldErrors;
+          let i = 0;
+          while (i < issue2.path.length) {
+            const el = issue2.path[i];
+            const terminal = i === issue2.path.length - 1;
+            if (!terminal) {
+              curr[el] = curr[el] || { _errors: [] };
+            } else {
+              curr[el] = curr[el] || { _errors: [] };
+              curr[el]._errors.push(mapper(issue2));
+            }
+            curr = curr[el];
+            i++;
+          }
+        }
+      }
+    };
+    processError(this);
+    return fieldErrors;
+  }
+  static assert(value) {
+    if (!(value instanceof _ZodError)) {
+      throw new Error(`Not a ZodError: ${value}`);
+    }
+  }
+  toString() {
+    return this.message;
+  }
+  get message() {
+    return JSON.stringify(this.issues, util.jsonStringifyReplacer, 2);
+  }
+  get isEmpty() {
+    return this.issues.length === 0;
+  }
+  flatten(mapper = (issue2) => issue2.message) {
+    const fieldErrors = {};
+    const formErrors = [];
+    for (const sub of this.issues) {
+      if (sub.path.length > 0) {
+        const firstEl = sub.path[0];
+        fieldErrors[firstEl] = fieldErrors[firstEl] || [];
+        fieldErrors[firstEl].push(mapper(sub));
+      } else {
+        formErrors.push(mapper(sub));
+      }
+    }
+    return { formErrors, fieldErrors };
+  }
+  get formErrors() {
+    return this.flatten();
+  }
+};
+ZodError2.create = (issues) => {
+  const error2 = new ZodError2(issues);
+  return error2;
+};
+
+// node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/locales/en.js
+var errorMap = (issue2, _ctx) => {
+  let message;
+  switch (issue2.code) {
+    case ZodIssueCode.invalid_type:
+      if (issue2.received === ZodParsedType.undefined) {
+        message = "Required";
+      } else {
+        message = `Expected ${issue2.expected}, received ${issue2.received}`;
+      }
+      break;
+    case ZodIssueCode.invalid_literal:
+      message = `Invalid literal value, expected ${JSON.stringify(issue2.expected, util.jsonStringifyReplacer)}`;
+      break;
+    case ZodIssueCode.unrecognized_keys:
+      message = `Unrecognized key(s) in object: ${util.joinValues(issue2.keys, ", ")}`;
+      break;
+    case ZodIssueCode.invalid_union:
+      message = `Invalid input`;
+      break;
+    case ZodIssueCode.invalid_union_discriminator:
+      message = `Invalid discriminator value. Expected ${util.joinValues(issue2.options)}`;
+      break;
+    case ZodIssueCode.invalid_enum_value:
+      message = `Invalid enum value. Expected ${util.joinValues(issue2.options)}, received '${issue2.received}'`;
+      break;
+    case ZodIssueCode.invalid_arguments:
+      message = `Invalid function arguments`;
+      break;
+    case ZodIssueCode.invalid_return_type:
+      message = `Invalid function return type`;
+      break;
+    case ZodIssueCode.invalid_date:
+      message = `Invalid date`;
+      break;
+    case ZodIssueCode.invalid_string:
+      if (typeof issue2.validation === "object") {
+        if ("includes" in issue2.validation) {
+          message = `Invalid input: must include "${issue2.validation.includes}"`;
+          if (typeof issue2.validation.position === "number") {
+            message = `${message} at one or more positions greater than or equal to ${issue2.validation.position}`;
+          }
+        } else if ("startsWith" in issue2.validation) {
+          message = `Invalid input: must start with "${issue2.validation.startsWith}"`;
+        } else if ("endsWith" in issue2.validation) {
+          message = `Invalid input: must end with "${issue2.validation.endsWith}"`;
+        } else {
+          util.assertNever(issue2.validation);
+        }
+      } else if (issue2.validation !== "regex") {
+        message = `Invalid ${issue2.validation}`;
+      } else {
+        message = "Invalid";
+      }
+      break;
+    case ZodIssueCode.too_small:
+      if (issue2.type === "array")
+        message = `Array must contain ${issue2.exact ? "exactly" : issue2.inclusive ? `at least` : `more than`} ${issue2.minimum} element(s)`;
+      else if (issue2.type === "string")
+        message = `String must contain ${issue2.exact ? "exactly" : issue2.inclusive ? `at least` : `over`} ${issue2.minimum} character(s)`;
+      else if (issue2.type === "number")
+        message = `Number must be ${issue2.exact ? `exactly equal to ` : issue2.inclusive ? `greater than or equal to ` : `greater than `}${issue2.minimum}`;
+      else if (issue2.type === "bigint")
+        message = `Number must be ${issue2.exact ? `exactly equal to ` : issue2.inclusive ? `greater than or equal to ` : `greater than `}${issue2.minimum}`;
+      else if (issue2.type === "date")
+        message = `Date must be ${issue2.exact ? `exactly equal to ` : issue2.inclusive ? `greater than or equal to ` : `greater than `}${new Date(Number(issue2.minimum))}`;
+      else
+        message = "Invalid input";
+      break;
+    case ZodIssueCode.too_big:
+      if (issue2.type === "array")
+        message = `Array must contain ${issue2.exact ? `exactly` : issue2.inclusive ? `at most` : `less than`} ${issue2.maximum} element(s)`;
+      else if (issue2.type === "string")
+        message = `String must contain ${issue2.exact ? `exactly` : issue2.inclusive ? `at most` : `under`} ${issue2.maximum} character(s)`;
+      else if (issue2.type === "number")
+        message = `Number must be ${issue2.exact ? `exactly` : issue2.inclusive ? `less than or equal to` : `less than`} ${issue2.maximum}`;
+      else if (issue2.type === "bigint")
+        message = `BigInt must be ${issue2.exact ? `exactly` : issue2.inclusive ? `less than or equal to` : `less than`} ${issue2.maximum}`;
+      else if (issue2.type === "date")
+        message = `Date must be ${issue2.exact ? `exactly` : issue2.inclusive ? `smaller than or equal to` : `smaller than`} ${new Date(Number(issue2.maximum))}`;
+      else
+        message = "Invalid input";
+      break;
+    case ZodIssueCode.custom:
+      message = `Invalid input`;
+      break;
+    case ZodIssueCode.invalid_intersection_types:
+      message = `Intersection results could not be merged`;
+      break;
+    case ZodIssueCode.not_multiple_of:
+      message = `Number must be a multiple of ${issue2.multipleOf}`;
+      break;
+    case ZodIssueCode.not_finite:
+      message = "Number must be finite";
+      break;
+    default:
+      message = _ctx.defaultError;
+      util.assertNever(issue2);
+  }
+  return { message };
+};
+var en_default2 = errorMap;
+
+// node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/errors.js
+var overrideErrorMap = en_default2;
+function setErrorMap(map) {
+  overrideErrorMap = map;
+}
+function getErrorMap() {
+  return overrideErrorMap;
+}
+
+// node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/helpers/parseUtil.js
+var makeIssue = (params) => {
+  const { data, path, errorMaps, issueData } = params;
+  const fullPath = [...path, ...issueData.path || []];
+  const fullIssue = {
+    ...issueData,
+    path: fullPath
+  };
+  if (issueData.message !== void 0) {
+    return {
+      ...issueData,
+      path: fullPath,
+      message: issueData.message
+    };
+  }
+  let errorMessage = "";
+  const maps = errorMaps.filter((m) => !!m).slice().reverse();
+  for (const map of maps) {
+    errorMessage = map(fullIssue, { data, defaultError: errorMessage }).message;
+  }
+  return {
+    ...issueData,
+    path: fullPath,
+    message: errorMessage
+  };
+};
+var EMPTY_PATH = [];
+function addIssueToContext(ctx, issueData) {
+  const overrideMap = getErrorMap();
+  const issue2 = makeIssue({
+    issueData,
+    data: ctx.data,
+    path: ctx.path,
+    errorMaps: [
+      ctx.common.contextualErrorMap,
+      // contextual error map is first priority
+      ctx.schemaErrorMap,
+      // then schema-bound map if available
+      overrideMap,
+      // then global override map
+      overrideMap === en_default2 ? void 0 : en_default2
+      // then global default map
+    ].filter((x) => !!x)
+  });
+  ctx.common.issues.push(issue2);
+}
+var ParseStatus = class _ParseStatus {
+  constructor() {
+    this.value = "valid";
+  }
+  dirty() {
+    if (this.value === "valid")
+      this.value = "dirty";
+  }
+  abort() {
+    if (this.value !== "aborted")
+      this.value = "aborted";
+  }
+  static mergeArray(status, results) {
+    const arrayValue = [];
+    for (const s of results) {
+      if (s.status === "aborted")
+        return INVALID;
+      if (s.status === "dirty")
+        status.dirty();
+      arrayValue.push(s.value);
+    }
+    return { status: status.value, value: arrayValue };
+  }
+  static async mergeObjectAsync(status, pairs) {
+    const syncPairs = [];
+    for (const pair of pairs) {
+      const key = await pair.key;
+      const value = await pair.value;
+      syncPairs.push({
+        key,
+        value
+      });
+    }
+    return _ParseStatus.mergeObjectSync(status, syncPairs);
+  }
+  static mergeObjectSync(status, pairs) {
+    const finalObject = {};
+    for (const pair of pairs) {
+      const { key, value } = pair;
+      if (key.status === "aborted")
+        return INVALID;
+      if (value.status === "aborted")
+        return INVALID;
+      if (key.status === "dirty")
+        status.dirty();
+      if (value.status === "dirty")
+        status.dirty();
+      if (key.value !== "__proto__" && (typeof value.value !== "undefined" || pair.alwaysSet)) {
+        finalObject[key.value] = value.value;
+      }
+    }
+    return { status: status.value, value: finalObject };
+  }
+};
+var INVALID = Object.freeze({
+  status: "aborted"
+});
+var DIRTY = (value) => ({ status: "dirty", value });
+var OK = (value) => ({ status: "valid", value });
+var isAborted = (x) => x.status === "aborted";
+var isDirty = (x) => x.status === "dirty";
+var isValid = (x) => x.status === "valid";
+var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
+
+// node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/helpers/errorUtil.js
+var errorUtil;
+(function(errorUtil2) {
+  errorUtil2.errToObj = (message) => typeof message === "string" ? { message } : message || {};
+  errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
+})(errorUtil || (errorUtil = {}));
+
+// node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/types.js
+var ParseInputLazyPath = class {
+  constructor(parent, value, path, key) {
+    this._cachedPath = [];
+    this.parent = parent;
+    this.data = value;
+    this._path = path;
+    this._key = key;
+  }
+  get path() {
+    if (!this._cachedPath.length) {
+      if (Array.isArray(this._key)) {
+        this._cachedPath.push(...this._path, ...this._key);
+      } else {
+        this._cachedPath.push(...this._path, this._key);
+      }
+    }
+    return this._cachedPath;
+  }
+};
+var handleResult = (ctx, result) => {
+  if (isValid(result)) {
+    return { success: true, data: result.value };
+  } else {
+    if (!ctx.common.issues.length) {
+      throw new Error("Validation failed but no issues detected.");
+    }
+    return {
+      success: false,
+      get error() {
+        if (this._error)
+          return this._error;
+        const error2 = new ZodError2(ctx.common.issues);
+        this._error = error2;
+        return this._error;
+      }
+    };
+  }
+};
+function processCreateParams(params) {
+  if (!params)
+    return {};
+  const { errorMap: errorMap2, invalid_type_error, required_error, description } = params;
+  if (errorMap2 && (invalid_type_error || required_error)) {
+    throw new Error(`Can't use "invalid_type_error" or "required_error" in conjunction with custom error map.`);
+  }
+  if (errorMap2)
+    return { errorMap: errorMap2, description };
+  const customMap = (iss, ctx) => {
+    const { message } = params;
+    if (iss.code === "invalid_enum_value") {
+      return { message: message ?? ctx.defaultError };
+    }
+    if (typeof ctx.data === "undefined") {
+      return { message: message ?? required_error ?? ctx.defaultError };
+    }
+    if (iss.code !== "invalid_type")
+      return { message: ctx.defaultError };
+    return { message: message ?? invalid_type_error ?? ctx.defaultError };
+  };
+  return { errorMap: customMap, description };
+}
+var ZodType2 = class {
+  get description() {
+    return this._def.description;
+  }
+  _getType(input) {
+    return getParsedType2(input.data);
+  }
+  _getOrReturnCtx(input, ctx) {
+    return ctx || {
+      common: input.parent.common,
+      data: input.data,
+      parsedType: getParsedType2(input.data),
+      schemaErrorMap: this._def.errorMap,
+      path: input.path,
+      parent: input.parent
+    };
+  }
+  _processInputParams(input) {
+    return {
+      status: new ParseStatus(),
+      ctx: {
+        common: input.parent.common,
+        data: input.data,
+        parsedType: getParsedType2(input.data),
+        schemaErrorMap: this._def.errorMap,
+        path: input.path,
+        parent: input.parent
+      }
+    };
+  }
+  _parseSync(input) {
+    const result = this._parse(input);
+    if (isAsync(result)) {
+      throw new Error("Synchronous parse encountered promise.");
+    }
+    return result;
+  }
+  _parseAsync(input) {
+    const result = this._parse(input);
+    return Promise.resolve(result);
+  }
+  parse(data, params) {
+    const result = this.safeParse(data, params);
+    if (result.success)
+      return result.data;
+    throw result.error;
+  }
+  safeParse(data, params) {
+    const ctx = {
+      common: {
+        issues: [],
+        async: params?.async ?? false,
+        contextualErrorMap: params?.errorMap
+      },
+      path: params?.path || [],
+      schemaErrorMap: this._def.errorMap,
+      parent: null,
+      data,
+      parsedType: getParsedType2(data)
+    };
+    const result = this._parseSync({ data, path: ctx.path, parent: ctx });
+    return handleResult(ctx, result);
+  }
+  "~validate"(data) {
+    const ctx = {
+      common: {
+        issues: [],
+        async: !!this["~standard"].async
+      },
+      path: [],
+      schemaErrorMap: this._def.errorMap,
+      parent: null,
+      data,
+      parsedType: getParsedType2(data)
+    };
+    if (!this["~standard"].async) {
+      try {
+        const result = this._parseSync({ data, path: [], parent: ctx });
+        return isValid(result) ? {
+          value: result.value
+        } : {
+          issues: ctx.common.issues
+        };
+      } catch (err) {
+        if (err?.message?.toLowerCase()?.includes("encountered")) {
+          this["~standard"].async = true;
+        }
+        ctx.common = {
+          issues: [],
+          async: true
+        };
+      }
+    }
+    return this._parseAsync({ data, path: [], parent: ctx }).then((result) => isValid(result) ? {
+      value: result.value
+    } : {
+      issues: ctx.common.issues
+    });
+  }
+  async parseAsync(data, params) {
+    const result = await this.safeParseAsync(data, params);
+    if (result.success)
+      return result.data;
+    throw result.error;
+  }
+  async safeParseAsync(data, params) {
+    const ctx = {
+      common: {
+        issues: [],
+        contextualErrorMap: params?.errorMap,
+        async: true
+      },
+      path: params?.path || [],
+      schemaErrorMap: this._def.errorMap,
+      parent: null,
+      data,
+      parsedType: getParsedType2(data)
+    };
+    const maybeAsyncResult = this._parse({ data, path: ctx.path, parent: ctx });
+    const result = await (isAsync(maybeAsyncResult) ? maybeAsyncResult : Promise.resolve(maybeAsyncResult));
+    return handleResult(ctx, result);
+  }
+  refine(check2, message) {
+    const getIssueProperties = (val) => {
+      if (typeof message === "string" || typeof message === "undefined") {
+        return { message };
+      } else if (typeof message === "function") {
+        return message(val);
+      } else {
+        return message;
+      }
+    };
+    return this._refinement((val, ctx) => {
+      const result = check2(val);
+      const setError = () => ctx.addIssue({
+        code: ZodIssueCode.custom,
+        ...getIssueProperties(val)
+      });
+      if (typeof Promise !== "undefined" && result instanceof Promise) {
+        return result.then((data) => {
+          if (!data) {
+            setError();
+            return false;
+          } else {
+            return true;
+          }
+        });
+      }
+      if (!result) {
+        setError();
+        return false;
+      } else {
+        return true;
+      }
+    });
+  }
+  refinement(check2, refinementData) {
+    return this._refinement((val, ctx) => {
+      if (!check2(val)) {
+        ctx.addIssue(typeof refinementData === "function" ? refinementData(val, ctx) : refinementData);
+        return false;
+      } else {
+        return true;
+      }
+    });
+  }
+  _refinement(refinement) {
+    return new ZodEffects({
+      schema: this,
+      typeName: ZodFirstPartyTypeKind.ZodEffects,
+      effect: { type: "refinement", refinement }
+    });
+  }
+  superRefine(refinement) {
+    return this._refinement(refinement);
+  }
+  constructor(def) {
+    this.spa = this.safeParseAsync;
+    this._def = def;
+    this.parse = this.parse.bind(this);
+    this.safeParse = this.safeParse.bind(this);
+    this.parseAsync = this.parseAsync.bind(this);
+    this.safeParseAsync = this.safeParseAsync.bind(this);
+    this.spa = this.spa.bind(this);
+    this.refine = this.refine.bind(this);
+    this.refinement = this.refinement.bind(this);
+    this.superRefine = this.superRefine.bind(this);
+    this.optional = this.optional.bind(this);
+    this.nullable = this.nullable.bind(this);
+    this.nullish = this.nullish.bind(this);
+    this.array = this.array.bind(this);
+    this.promise = this.promise.bind(this);
+    this.or = this.or.bind(this);
+    this.and = this.and.bind(this);
+    this.transform = this.transform.bind(this);
+    this.brand = this.brand.bind(this);
+    this.default = this.default.bind(this);
+    this.catch = this.catch.bind(this);
+    this.describe = this.describe.bind(this);
+    this.pipe = this.pipe.bind(this);
+    this.readonly = this.readonly.bind(this);
+    this.isNullable = this.isNullable.bind(this);
+    this.isOptional = this.isOptional.bind(this);
+    this["~standard"] = {
+      version: 1,
+      vendor: "zod",
+      validate: (data) => this["~validate"](data)
+    };
+  }
+  optional() {
+    return ZodOptional2.create(this, this._def);
+  }
+  nullable() {
+    return ZodNullable2.create(this, this._def);
+  }
+  nullish() {
+    return this.nullable().optional();
+  }
+  array() {
+    return ZodArray2.create(this);
+  }
+  promise() {
+    return ZodPromise.create(this, this._def);
+  }
+  or(option) {
+    return ZodUnion2.create([this, option], this._def);
+  }
+  and(incoming) {
+    return ZodIntersection2.create(this, incoming, this._def);
+  }
+  transform(transform2) {
+    return new ZodEffects({
+      ...processCreateParams(this._def),
+      schema: this,
+      typeName: ZodFirstPartyTypeKind.ZodEffects,
+      effect: { type: "transform", transform: transform2 }
+    });
+  }
+  default(def) {
+    const defaultValueFunc = typeof def === "function" ? def : () => def;
+    return new ZodDefault2({
+      ...processCreateParams(this._def),
+      innerType: this,
+      defaultValue: defaultValueFunc,
+      typeName: ZodFirstPartyTypeKind.ZodDefault
+    });
+  }
+  brand() {
+    return new ZodBranded({
+      typeName: ZodFirstPartyTypeKind.ZodBranded,
+      type: this,
+      ...processCreateParams(this._def)
+    });
+  }
+  catch(def) {
+    const catchValueFunc = typeof def === "function" ? def : () => def;
+    return new ZodCatch2({
+      ...processCreateParams(this._def),
+      innerType: this,
+      catchValue: catchValueFunc,
+      typeName: ZodFirstPartyTypeKind.ZodCatch
+    });
+  }
+  describe(description) {
+    const This = this.constructor;
+    return new This({
+      ...this._def,
+      description
+    });
+  }
+  pipe(target) {
+    return ZodPipeline.create(this, target);
+  }
+  readonly() {
+    return ZodReadonly2.create(this);
+  }
+  isOptional() {
+    return this.safeParse(void 0).success;
+  }
+  isNullable() {
+    return this.safeParse(null).success;
+  }
+};
+var cuidRegex = /^c[^\s-]{8,}$/i;
+var cuid2Regex = /^[0-9a-z]+$/;
+var ulidRegex = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
+var uuidRegex = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/i;
+var nanoidRegex = /^[a-z0-9_-]{21}$/i;
+var jwtRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/;
+var durationRegex = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/;
+var emailRegex = /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
+var _emojiRegex = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
+var emojiRegex;
+var ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
+var ipv4CidrRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/;
+var ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+var ipv6CidrRegex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
+var base64Regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+var base64urlRegex = /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/;
+var dateRegexSource = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
+var dateRegex = new RegExp(`^${dateRegexSource}$`);
+function timeRegexSource(args) {
+  let secondsRegexSource = `[0-5]\\d`;
+  if (args.precision) {
+    secondsRegexSource = `${secondsRegexSource}\\.\\d{${args.precision}}`;
+  } else if (args.precision == null) {
+    secondsRegexSource = `${secondsRegexSource}(\\.\\d+)?`;
+  }
+  const secondsQuantifier = args.precision ? "+" : "?";
+  return `([01]\\d|2[0-3]):[0-5]\\d(:${secondsRegexSource})${secondsQuantifier}`;
+}
+function timeRegex(args) {
+  return new RegExp(`^${timeRegexSource(args)}$`);
+}
+function datetimeRegex(args) {
+  let regex = `${dateRegexSource}T${timeRegexSource(args)}`;
+  const opts = [];
+  opts.push(args.local ? `Z?` : `Z`);
+  if (args.offset)
+    opts.push(`([+-]\\d{2}:?\\d{2})`);
+  regex = `${regex}(${opts.join("|")})`;
+  return new RegExp(`^${regex}$`);
+}
+function isValidIP(ip, version2) {
+  if ((version2 === "v4" || !version2) && ipv4Regex.test(ip)) {
+    return true;
+  }
+  if ((version2 === "v6" || !version2) && ipv6Regex.test(ip)) {
+    return true;
+  }
+  return false;
+}
+function isValidJWT2(jwt, alg) {
+  if (!jwtRegex.test(jwt))
+    return false;
+  try {
+    const [header] = jwt.split(".");
+    if (!header)
+      return false;
+    const base642 = header.replace(/-/g, "+").replace(/_/g, "/").padEnd(header.length + (4 - header.length % 4) % 4, "=");
+    const decoded = JSON.parse(atob(base642));
+    if (typeof decoded !== "object" || decoded === null)
+      return false;
+    if ("typ" in decoded && decoded?.typ !== "JWT")
+      return false;
+    if (!decoded.alg)
+      return false;
+    if (alg && decoded.alg !== alg)
+      return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+function isValidCidr(ip, version2) {
+  if ((version2 === "v4" || !version2) && ipv4CidrRegex.test(ip)) {
+    return true;
+  }
+  if ((version2 === "v6" || !version2) && ipv6CidrRegex.test(ip)) {
+    return true;
+  }
+  return false;
+}
+var ZodString2 = class _ZodString2 extends ZodType2 {
+  _parse(input) {
+    if (this._def.coerce) {
+      input.data = String(input.data);
+    }
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.string) {
+      const ctx2 = this._getOrReturnCtx(input);
+      addIssueToContext(ctx2, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.string,
+        received: ctx2.parsedType
+      });
+      return INVALID;
+    }
+    const status = new ParseStatus();
+    let ctx = void 0;
+    for (const check2 of this._def.checks) {
+      if (check2.kind === "min") {
+        if (input.data.length < check2.value) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_small,
+            minimum: check2.value,
+            type: "string",
+            inclusive: true,
+            exact: false,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "max") {
+        if (input.data.length > check2.value) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_big,
+            maximum: check2.value,
+            type: "string",
+            inclusive: true,
+            exact: false,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "length") {
+        const tooBig = input.data.length > check2.value;
+        const tooSmall = input.data.length < check2.value;
+        if (tooBig || tooSmall) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          if (tooBig) {
+            addIssueToContext(ctx, {
+              code: ZodIssueCode.too_big,
+              maximum: check2.value,
+              type: "string",
+              inclusive: true,
+              exact: true,
+              message: check2.message
+            });
+          } else if (tooSmall) {
+            addIssueToContext(ctx, {
+              code: ZodIssueCode.too_small,
+              minimum: check2.value,
+              type: "string",
+              inclusive: true,
+              exact: true,
+              message: check2.message
+            });
+          }
+          status.dirty();
+        }
+      } else if (check2.kind === "email") {
+        if (!emailRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "email",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "emoji") {
+        if (!emojiRegex) {
+          emojiRegex = new RegExp(_emojiRegex, "u");
+        }
+        if (!emojiRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "emoji",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "uuid") {
+        if (!uuidRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "uuid",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "nanoid") {
+        if (!nanoidRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "nanoid",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "cuid") {
+        if (!cuidRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "cuid",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "cuid2") {
+        if (!cuid2Regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "cuid2",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "ulid") {
+        if (!ulidRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "ulid",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "url") {
+        try {
+          new URL(input.data);
+        } catch {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "url",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "regex") {
+        check2.regex.lastIndex = 0;
+        const testResult = check2.regex.test(input.data);
+        if (!testResult) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "regex",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "trim") {
+        input.data = input.data.trim();
+      } else if (check2.kind === "includes") {
+        if (!input.data.includes(check2.value, check2.position)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: { includes: check2.value, position: check2.position },
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "toLowerCase") {
+        input.data = input.data.toLowerCase();
+      } else if (check2.kind === "toUpperCase") {
+        input.data = input.data.toUpperCase();
+      } else if (check2.kind === "startsWith") {
+        if (!input.data.startsWith(check2.value)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: { startsWith: check2.value },
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "endsWith") {
+        if (!input.data.endsWith(check2.value)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: { endsWith: check2.value },
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "datetime") {
+        const regex = datetimeRegex(check2);
+        if (!regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: "datetime",
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "date") {
+        const regex = dateRegex;
+        if (!regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: "date",
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "time") {
+        const regex = timeRegex(check2);
+        if (!regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_string,
+            validation: "time",
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "duration") {
+        if (!durationRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "duration",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "ip") {
+        if (!isValidIP(input.data, check2.version)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "ip",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "jwt") {
+        if (!isValidJWT2(input.data, check2.alg)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "jwt",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "cidr") {
+        if (!isValidCidr(input.data, check2.version)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "cidr",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "base64") {
+        if (!base64Regex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "base64",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "base64url") {
+        if (!base64urlRegex.test(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            validation: "base64url",
+            code: ZodIssueCode.invalid_string,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else {
+        util.assertNever(check2);
+      }
+    }
+    return { status: status.value, value: input.data };
+  }
+  _regex(regex, validation, message) {
+    return this.refinement((data) => regex.test(data), {
+      validation,
+      code: ZodIssueCode.invalid_string,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  _addCheck(check2) {
+    return new _ZodString2({
+      ...this._def,
+      checks: [...this._def.checks, check2]
+    });
+  }
+  email(message) {
+    return this._addCheck({ kind: "email", ...errorUtil.errToObj(message) });
+  }
+  url(message) {
+    return this._addCheck({ kind: "url", ...errorUtil.errToObj(message) });
+  }
+  emoji(message) {
+    return this._addCheck({ kind: "emoji", ...errorUtil.errToObj(message) });
+  }
+  uuid(message) {
+    return this._addCheck({ kind: "uuid", ...errorUtil.errToObj(message) });
+  }
+  nanoid(message) {
+    return this._addCheck({ kind: "nanoid", ...errorUtil.errToObj(message) });
+  }
+  cuid(message) {
+    return this._addCheck({ kind: "cuid", ...errorUtil.errToObj(message) });
+  }
+  cuid2(message) {
+    return this._addCheck({ kind: "cuid2", ...errorUtil.errToObj(message) });
+  }
+  ulid(message) {
+    return this._addCheck({ kind: "ulid", ...errorUtil.errToObj(message) });
+  }
+  base64(message) {
+    return this._addCheck({ kind: "base64", ...errorUtil.errToObj(message) });
+  }
+  base64url(message) {
+    return this._addCheck({
+      kind: "base64url",
+      ...errorUtil.errToObj(message)
+    });
+  }
+  jwt(options) {
+    return this._addCheck({ kind: "jwt", ...errorUtil.errToObj(options) });
+  }
+  ip(options) {
+    return this._addCheck({ kind: "ip", ...errorUtil.errToObj(options) });
+  }
+  cidr(options) {
+    return this._addCheck({ kind: "cidr", ...errorUtil.errToObj(options) });
+  }
+  datetime(options) {
+    if (typeof options === "string") {
+      return this._addCheck({
+        kind: "datetime",
+        precision: null,
+        offset: false,
+        local: false,
+        message: options
+      });
+    }
+    return this._addCheck({
+      kind: "datetime",
+      precision: typeof options?.precision === "undefined" ? null : options?.precision,
+      offset: options?.offset ?? false,
+      local: options?.local ?? false,
+      ...errorUtil.errToObj(options?.message)
+    });
+  }
+  date(message) {
+    return this._addCheck({ kind: "date", message });
+  }
+  time(options) {
+    if (typeof options === "string") {
+      return this._addCheck({
+        kind: "time",
+        precision: null,
+        message: options
+      });
+    }
+    return this._addCheck({
+      kind: "time",
+      precision: typeof options?.precision === "undefined" ? null : options?.precision,
+      ...errorUtil.errToObj(options?.message)
+    });
+  }
+  duration(message) {
+    return this._addCheck({ kind: "duration", ...errorUtil.errToObj(message) });
+  }
+  regex(regex, message) {
+    return this._addCheck({
+      kind: "regex",
+      regex,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  includes(value, options) {
+    return this._addCheck({
+      kind: "includes",
+      value,
+      position: options?.position,
+      ...errorUtil.errToObj(options?.message)
+    });
+  }
+  startsWith(value, message) {
+    return this._addCheck({
+      kind: "startsWith",
+      value,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  endsWith(value, message) {
+    return this._addCheck({
+      kind: "endsWith",
+      value,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  min(minLength, message) {
+    return this._addCheck({
+      kind: "min",
+      value: minLength,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  max(maxLength, message) {
+    return this._addCheck({
+      kind: "max",
+      value: maxLength,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  length(len, message) {
+    return this._addCheck({
+      kind: "length",
+      value: len,
+      ...errorUtil.errToObj(message)
+    });
+  }
+  /**
+   * Equivalent to `.min(1)`
+   */
+  nonempty(message) {
+    return this.min(1, errorUtil.errToObj(message));
+  }
+  trim() {
+    return new _ZodString2({
+      ...this._def,
+      checks: [...this._def.checks, { kind: "trim" }]
+    });
+  }
+  toLowerCase() {
+    return new _ZodString2({
+      ...this._def,
+      checks: [...this._def.checks, { kind: "toLowerCase" }]
+    });
+  }
+  toUpperCase() {
+    return new _ZodString2({
+      ...this._def,
+      checks: [...this._def.checks, { kind: "toUpperCase" }]
+    });
+  }
+  get isDatetime() {
+    return !!this._def.checks.find((ch) => ch.kind === "datetime");
+  }
+  get isDate() {
+    return !!this._def.checks.find((ch) => ch.kind === "date");
+  }
+  get isTime() {
+    return !!this._def.checks.find((ch) => ch.kind === "time");
+  }
+  get isDuration() {
+    return !!this._def.checks.find((ch) => ch.kind === "duration");
+  }
+  get isEmail() {
+    return !!this._def.checks.find((ch) => ch.kind === "email");
+  }
+  get isURL() {
+    return !!this._def.checks.find((ch) => ch.kind === "url");
+  }
+  get isEmoji() {
+    return !!this._def.checks.find((ch) => ch.kind === "emoji");
+  }
+  get isUUID() {
+    return !!this._def.checks.find((ch) => ch.kind === "uuid");
+  }
+  get isNANOID() {
+    return !!this._def.checks.find((ch) => ch.kind === "nanoid");
+  }
+  get isCUID() {
+    return !!this._def.checks.find((ch) => ch.kind === "cuid");
+  }
+  get isCUID2() {
+    return !!this._def.checks.find((ch) => ch.kind === "cuid2");
+  }
+  get isULID() {
+    return !!this._def.checks.find((ch) => ch.kind === "ulid");
+  }
+  get isIP() {
+    return !!this._def.checks.find((ch) => ch.kind === "ip");
+  }
+  get isCIDR() {
+    return !!this._def.checks.find((ch) => ch.kind === "cidr");
+  }
+  get isBase64() {
+    return !!this._def.checks.find((ch) => ch.kind === "base64");
+  }
+  get isBase64url() {
+    return !!this._def.checks.find((ch) => ch.kind === "base64url");
+  }
+  get minLength() {
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      }
+    }
+    return min;
+  }
+  get maxLength() {
+    let max = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return max;
+  }
+};
+ZodString2.create = (params) => {
+  return new ZodString2({
+    checks: [],
+    typeName: ZodFirstPartyTypeKind.ZodString,
+    coerce: params?.coerce ?? false,
+    ...processCreateParams(params)
+  });
+};
+function floatSafeRemainder2(val, step) {
+  const valDecCount = (val.toString().split(".")[1] || "").length;
+  const stepDecCount = (step.toString().split(".")[1] || "").length;
+  const decCount = valDecCount > stepDecCount ? valDecCount : stepDecCount;
+  const valInt = Number.parseInt(val.toFixed(decCount).replace(".", ""));
+  const stepInt = Number.parseInt(step.toFixed(decCount).replace(".", ""));
+  return valInt % stepInt / 10 ** decCount;
+}
+var ZodNumber2 = class _ZodNumber extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this.min = this.gte;
+    this.max = this.lte;
+    this.step = this.multipleOf;
+  }
+  _parse(input) {
+    if (this._def.coerce) {
+      input.data = Number(input.data);
+    }
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.number) {
+      const ctx2 = this._getOrReturnCtx(input);
+      addIssueToContext(ctx2, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.number,
+        received: ctx2.parsedType
+      });
+      return INVALID;
+    }
+    let ctx = void 0;
+    const status = new ParseStatus();
+    for (const check2 of this._def.checks) {
+      if (check2.kind === "int") {
+        if (!util.isInteger(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.invalid_type,
+            expected: "integer",
+            received: "float",
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "min") {
+        const tooSmall = check2.inclusive ? input.data < check2.value : input.data <= check2.value;
+        if (tooSmall) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_small,
+            minimum: check2.value,
+            type: "number",
+            inclusive: check2.inclusive,
+            exact: false,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "max") {
+        const tooBig = check2.inclusive ? input.data > check2.value : input.data >= check2.value;
+        if (tooBig) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_big,
+            maximum: check2.value,
+            type: "number",
+            inclusive: check2.inclusive,
+            exact: false,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "multipleOf") {
+        if (floatSafeRemainder2(input.data, check2.value) !== 0) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.not_multiple_of,
+            multipleOf: check2.value,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "finite") {
+        if (!Number.isFinite(input.data)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.not_finite,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else {
+        util.assertNever(check2);
+      }
+    }
+    return { status: status.value, value: input.data };
+  }
+  gte(value, message) {
+    return this.setLimit("min", value, true, errorUtil.toString(message));
+  }
+  gt(value, message) {
+    return this.setLimit("min", value, false, errorUtil.toString(message));
+  }
+  lte(value, message) {
+    return this.setLimit("max", value, true, errorUtil.toString(message));
+  }
+  lt(value, message) {
+    return this.setLimit("max", value, false, errorUtil.toString(message));
+  }
+  setLimit(kind, value, inclusive, message) {
+    return new _ZodNumber({
+      ...this._def,
+      checks: [
+        ...this._def.checks,
+        {
+          kind,
+          value,
+          inclusive,
+          message: errorUtil.toString(message)
+        }
+      ]
+    });
+  }
+  _addCheck(check2) {
+    return new _ZodNumber({
+      ...this._def,
+      checks: [...this._def.checks, check2]
+    });
+  }
+  int(message) {
+    return this._addCheck({
+      kind: "int",
+      message: errorUtil.toString(message)
+    });
+  }
+  positive(message) {
+    return this._addCheck({
+      kind: "min",
+      value: 0,
+      inclusive: false,
+      message: errorUtil.toString(message)
+    });
+  }
+  negative(message) {
+    return this._addCheck({
+      kind: "max",
+      value: 0,
+      inclusive: false,
+      message: errorUtil.toString(message)
+    });
+  }
+  nonpositive(message) {
+    return this._addCheck({
+      kind: "max",
+      value: 0,
+      inclusive: true,
+      message: errorUtil.toString(message)
+    });
+  }
+  nonnegative(message) {
+    return this._addCheck({
+      kind: "min",
+      value: 0,
+      inclusive: true,
+      message: errorUtil.toString(message)
+    });
+  }
+  multipleOf(value, message) {
+    return this._addCheck({
+      kind: "multipleOf",
+      value,
+      message: errorUtil.toString(message)
+    });
+  }
+  finite(message) {
+    return this._addCheck({
+      kind: "finite",
+      message: errorUtil.toString(message)
+    });
+  }
+  safe(message) {
+    return this._addCheck({
+      kind: "min",
+      inclusive: true,
+      value: Number.MIN_SAFE_INTEGER,
+      message: errorUtil.toString(message)
+    })._addCheck({
+      kind: "max",
+      inclusive: true,
+      value: Number.MAX_SAFE_INTEGER,
+      message: errorUtil.toString(message)
+    });
+  }
+  get minValue() {
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      }
+    }
+    return min;
+  }
+  get maxValue() {
+    let max = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return max;
+  }
+  get isInt() {
+    return !!this._def.checks.find((ch) => ch.kind === "int" || ch.kind === "multipleOf" && util.isInteger(ch.value));
+  }
+  get isFinite() {
+    let max = null;
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "finite" || ch.kind === "int" || ch.kind === "multipleOf") {
+        return true;
+      } else if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      } else if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return Number.isFinite(min) && Number.isFinite(max);
+  }
+};
+ZodNumber2.create = (params) => {
+  return new ZodNumber2({
+    checks: [],
+    typeName: ZodFirstPartyTypeKind.ZodNumber,
+    coerce: params?.coerce || false,
+    ...processCreateParams(params)
+  });
+};
+var ZodBigInt = class _ZodBigInt extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this.min = this.gte;
+    this.max = this.lte;
+  }
+  _parse(input) {
+    if (this._def.coerce) {
+      try {
+        input.data = BigInt(input.data);
+      } catch {
+        return this._getInvalidInput(input);
+      }
+    }
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.bigint) {
+      return this._getInvalidInput(input);
+    }
+    let ctx = void 0;
+    const status = new ParseStatus();
+    for (const check2 of this._def.checks) {
+      if (check2.kind === "min") {
+        const tooSmall = check2.inclusive ? input.data < check2.value : input.data <= check2.value;
+        if (tooSmall) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_small,
+            type: "bigint",
+            minimum: check2.value,
+            inclusive: check2.inclusive,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "max") {
+        const tooBig = check2.inclusive ? input.data > check2.value : input.data >= check2.value;
+        if (tooBig) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_big,
+            type: "bigint",
+            maximum: check2.value,
+            inclusive: check2.inclusive,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "multipleOf") {
+        if (input.data % check2.value !== BigInt(0)) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.not_multiple_of,
+            multipleOf: check2.value,
+            message: check2.message
+          });
+          status.dirty();
+        }
+      } else {
+        util.assertNever(check2);
+      }
+    }
+    return { status: status.value, value: input.data };
+  }
+  _getInvalidInput(input) {
+    const ctx = this._getOrReturnCtx(input);
+    addIssueToContext(ctx, {
+      code: ZodIssueCode.invalid_type,
+      expected: ZodParsedType.bigint,
+      received: ctx.parsedType
+    });
+    return INVALID;
+  }
+  gte(value, message) {
+    return this.setLimit("min", value, true, errorUtil.toString(message));
+  }
+  gt(value, message) {
+    return this.setLimit("min", value, false, errorUtil.toString(message));
+  }
+  lte(value, message) {
+    return this.setLimit("max", value, true, errorUtil.toString(message));
+  }
+  lt(value, message) {
+    return this.setLimit("max", value, false, errorUtil.toString(message));
+  }
+  setLimit(kind, value, inclusive, message) {
+    return new _ZodBigInt({
+      ...this._def,
+      checks: [
+        ...this._def.checks,
+        {
+          kind,
+          value,
+          inclusive,
+          message: errorUtil.toString(message)
+        }
+      ]
+    });
+  }
+  _addCheck(check2) {
+    return new _ZodBigInt({
+      ...this._def,
+      checks: [...this._def.checks, check2]
+    });
+  }
+  positive(message) {
+    return this._addCheck({
+      kind: "min",
+      value: BigInt(0),
+      inclusive: false,
+      message: errorUtil.toString(message)
+    });
+  }
+  negative(message) {
+    return this._addCheck({
+      kind: "max",
+      value: BigInt(0),
+      inclusive: false,
+      message: errorUtil.toString(message)
+    });
+  }
+  nonpositive(message) {
+    return this._addCheck({
+      kind: "max",
+      value: BigInt(0),
+      inclusive: true,
+      message: errorUtil.toString(message)
+    });
+  }
+  nonnegative(message) {
+    return this._addCheck({
+      kind: "min",
+      value: BigInt(0),
+      inclusive: true,
+      message: errorUtil.toString(message)
+    });
+  }
+  multipleOf(value, message) {
+    return this._addCheck({
+      kind: "multipleOf",
+      value,
+      message: errorUtil.toString(message)
+    });
+  }
+  get minValue() {
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      }
+    }
+    return min;
+  }
+  get maxValue() {
+    let max = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return max;
+  }
+};
+ZodBigInt.create = (params) => {
+  return new ZodBigInt({
+    checks: [],
+    typeName: ZodFirstPartyTypeKind.ZodBigInt,
+    coerce: params?.coerce ?? false,
+    ...processCreateParams(params)
+  });
+};
+var ZodBoolean2 = class extends ZodType2 {
+  _parse(input) {
+    if (this._def.coerce) {
+      input.data = Boolean(input.data);
+    }
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.boolean) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.boolean,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    return OK(input.data);
+  }
+};
+ZodBoolean2.create = (params) => {
+  return new ZodBoolean2({
+    typeName: ZodFirstPartyTypeKind.ZodBoolean,
+    coerce: params?.coerce || false,
+    ...processCreateParams(params)
+  });
+};
+var ZodDate = class _ZodDate extends ZodType2 {
+  _parse(input) {
+    if (this._def.coerce) {
+      input.data = new Date(input.data);
+    }
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.date) {
+      const ctx2 = this._getOrReturnCtx(input);
+      addIssueToContext(ctx2, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.date,
+        received: ctx2.parsedType
+      });
+      return INVALID;
+    }
+    if (Number.isNaN(input.data.getTime())) {
+      const ctx2 = this._getOrReturnCtx(input);
+      addIssueToContext(ctx2, {
+        code: ZodIssueCode.invalid_date
+      });
+      return INVALID;
+    }
+    const status = new ParseStatus();
+    let ctx = void 0;
+    for (const check2 of this._def.checks) {
+      if (check2.kind === "min") {
+        if (input.data.getTime() < check2.value) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_small,
+            message: check2.message,
+            inclusive: true,
+            exact: false,
+            minimum: check2.value,
+            type: "date"
+          });
+          status.dirty();
+        }
+      } else if (check2.kind === "max") {
+        if (input.data.getTime() > check2.value) {
+          ctx = this._getOrReturnCtx(input, ctx);
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.too_big,
+            message: check2.message,
+            inclusive: true,
+            exact: false,
+            maximum: check2.value,
+            type: "date"
+          });
+          status.dirty();
+        }
+      } else {
+        util.assertNever(check2);
+      }
+    }
+    return {
+      status: status.value,
+      value: new Date(input.data.getTime())
+    };
+  }
+  _addCheck(check2) {
+    return new _ZodDate({
+      ...this._def,
+      checks: [...this._def.checks, check2]
+    });
+  }
+  min(minDate, message) {
+    return this._addCheck({
+      kind: "min",
+      value: minDate.getTime(),
+      message: errorUtil.toString(message)
+    });
+  }
+  max(maxDate, message) {
+    return this._addCheck({
+      kind: "max",
+      value: maxDate.getTime(),
+      message: errorUtil.toString(message)
+    });
+  }
+  get minDate() {
+    let min = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "min") {
+        if (min === null || ch.value > min)
+          min = ch.value;
+      }
+    }
+    return min != null ? new Date(min) : null;
+  }
+  get maxDate() {
+    let max = null;
+    for (const ch of this._def.checks) {
+      if (ch.kind === "max") {
+        if (max === null || ch.value < max)
+          max = ch.value;
+      }
+    }
+    return max != null ? new Date(max) : null;
+  }
+};
+ZodDate.create = (params) => {
+  return new ZodDate({
+    checks: [],
+    coerce: params?.coerce || false,
+    typeName: ZodFirstPartyTypeKind.ZodDate,
+    ...processCreateParams(params)
+  });
+};
+var ZodSymbol = class extends ZodType2 {
+  _parse(input) {
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.symbol) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.symbol,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    return OK(input.data);
+  }
+};
+ZodSymbol.create = (params) => {
+  return new ZodSymbol({
+    typeName: ZodFirstPartyTypeKind.ZodSymbol,
+    ...processCreateParams(params)
+  });
+};
+var ZodUndefined = class extends ZodType2 {
+  _parse(input) {
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.undefined) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.undefined,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    return OK(input.data);
+  }
+};
+ZodUndefined.create = (params) => {
+  return new ZodUndefined({
+    typeName: ZodFirstPartyTypeKind.ZodUndefined,
+    ...processCreateParams(params)
+  });
+};
+var ZodNull2 = class extends ZodType2 {
+  _parse(input) {
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.null) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.null,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    return OK(input.data);
+  }
+};
+ZodNull2.create = (params) => {
+  return new ZodNull2({
+    typeName: ZodFirstPartyTypeKind.ZodNull,
+    ...processCreateParams(params)
+  });
+};
+var ZodAny = class extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this._any = true;
+  }
+  _parse(input) {
+    return OK(input.data);
+  }
+};
+ZodAny.create = (params) => {
+  return new ZodAny({
+    typeName: ZodFirstPartyTypeKind.ZodAny,
+    ...processCreateParams(params)
+  });
+};
+var ZodUnknown2 = class extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this._unknown = true;
+  }
+  _parse(input) {
+    return OK(input.data);
+  }
+};
+ZodUnknown2.create = (params) => {
+  return new ZodUnknown2({
+    typeName: ZodFirstPartyTypeKind.ZodUnknown,
+    ...processCreateParams(params)
+  });
+};
+var ZodNever2 = class extends ZodType2 {
+  _parse(input) {
+    const ctx = this._getOrReturnCtx(input);
+    addIssueToContext(ctx, {
+      code: ZodIssueCode.invalid_type,
+      expected: ZodParsedType.never,
+      received: ctx.parsedType
+    });
+    return INVALID;
+  }
+};
+ZodNever2.create = (params) => {
+  return new ZodNever2({
+    typeName: ZodFirstPartyTypeKind.ZodNever,
+    ...processCreateParams(params)
+  });
+};
+var ZodVoid = class extends ZodType2 {
+  _parse(input) {
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.undefined) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.void,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    return OK(input.data);
+  }
+};
+ZodVoid.create = (params) => {
+  return new ZodVoid({
+    typeName: ZodFirstPartyTypeKind.ZodVoid,
+    ...processCreateParams(params)
+  });
+};
+var ZodArray2 = class _ZodArray extends ZodType2 {
+  _parse(input) {
+    const { ctx, status } = this._processInputParams(input);
+    const def = this._def;
+    if (ctx.parsedType !== ZodParsedType.array) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.array,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    if (def.exactLength !== null) {
+      const tooBig = ctx.data.length > def.exactLength.value;
+      const tooSmall = ctx.data.length < def.exactLength.value;
+      if (tooBig || tooSmall) {
+        addIssueToContext(ctx, {
+          code: tooBig ? ZodIssueCode.too_big : ZodIssueCode.too_small,
+          minimum: tooSmall ? def.exactLength.value : void 0,
+          maximum: tooBig ? def.exactLength.value : void 0,
+          type: "array",
+          inclusive: true,
+          exact: true,
+          message: def.exactLength.message
+        });
+        status.dirty();
+      }
+    }
+    if (def.minLength !== null) {
+      if (ctx.data.length < def.minLength.value) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.too_small,
+          minimum: def.minLength.value,
+          type: "array",
+          inclusive: true,
+          exact: false,
+          message: def.minLength.message
+        });
+        status.dirty();
+      }
+    }
+    if (def.maxLength !== null) {
+      if (ctx.data.length > def.maxLength.value) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.too_big,
+          maximum: def.maxLength.value,
+          type: "array",
+          inclusive: true,
+          exact: false,
+          message: def.maxLength.message
+        });
+        status.dirty();
+      }
+    }
+    if (ctx.common.async) {
+      return Promise.all([...ctx.data].map((item, i) => {
+        return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i));
+      })).then((result2) => {
+        return ParseStatus.mergeArray(status, result2);
+      });
+    }
+    const result = [...ctx.data].map((item, i) => {
+      return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i));
+    });
+    return ParseStatus.mergeArray(status, result);
+  }
+  get element() {
+    return this._def.type;
+  }
+  min(minLength, message) {
+    return new _ZodArray({
+      ...this._def,
+      minLength: { value: minLength, message: errorUtil.toString(message) }
+    });
+  }
+  max(maxLength, message) {
+    return new _ZodArray({
+      ...this._def,
+      maxLength: { value: maxLength, message: errorUtil.toString(message) }
+    });
+  }
+  length(len, message) {
+    return new _ZodArray({
+      ...this._def,
+      exactLength: { value: len, message: errorUtil.toString(message) }
+    });
+  }
+  nonempty(message) {
+    return this.min(1, message);
+  }
+};
+ZodArray2.create = (schema, params) => {
+  return new ZodArray2({
+    type: schema,
+    minLength: null,
+    maxLength: null,
+    exactLength: null,
+    typeName: ZodFirstPartyTypeKind.ZodArray,
+    ...processCreateParams(params)
+  });
+};
+function deepPartialify(schema) {
+  if (schema instanceof ZodObject2) {
+    const newShape = {};
+    for (const key in schema.shape) {
+      const fieldSchema = schema.shape[key];
+      newShape[key] = ZodOptional2.create(deepPartialify(fieldSchema));
+    }
+    return new ZodObject2({
+      ...schema._def,
+      shape: () => newShape
+    });
+  } else if (schema instanceof ZodArray2) {
+    return new ZodArray2({
+      ...schema._def,
+      type: deepPartialify(schema.element)
+    });
+  } else if (schema instanceof ZodOptional2) {
+    return ZodOptional2.create(deepPartialify(schema.unwrap()));
+  } else if (schema instanceof ZodNullable2) {
+    return ZodNullable2.create(deepPartialify(schema.unwrap()));
+  } else if (schema instanceof ZodTuple) {
+    return ZodTuple.create(schema.items.map((item) => deepPartialify(item)));
+  } else {
+    return schema;
+  }
+}
+var ZodObject2 = class _ZodObject extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this._cached = null;
+    this.nonstrict = this.passthrough;
+    this.augment = this.extend;
+  }
+  _getCached() {
+    if (this._cached !== null)
+      return this._cached;
+    const shape = this._def.shape();
+    const keys = util.objectKeys(shape);
+    this._cached = { shape, keys };
+    return this._cached;
+  }
+  _parse(input) {
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.object) {
+      const ctx2 = this._getOrReturnCtx(input);
+      addIssueToContext(ctx2, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.object,
+        received: ctx2.parsedType
+      });
+      return INVALID;
+    }
+    const { status, ctx } = this._processInputParams(input);
+    const { shape, keys: shapeKeys } = this._getCached();
+    const extraKeys = [];
+    if (!(this._def.catchall instanceof ZodNever2 && this._def.unknownKeys === "strip")) {
+      for (const key in ctx.data) {
+        if (!shapeKeys.includes(key)) {
+          extraKeys.push(key);
+        }
+      }
+    }
+    const pairs = [];
+    for (const key of shapeKeys) {
+      const keyValidator = shape[key];
+      const value = ctx.data[key];
+      pairs.push({
+        key: { status: "valid", value: key },
+        value: keyValidator._parse(new ParseInputLazyPath(ctx, value, ctx.path, key)),
+        alwaysSet: key in ctx.data
+      });
+    }
+    if (this._def.catchall instanceof ZodNever2) {
+      const unknownKeys = this._def.unknownKeys;
+      if (unknownKeys === "passthrough") {
+        for (const key of extraKeys) {
+          pairs.push({
+            key: { status: "valid", value: key },
+            value: { status: "valid", value: ctx.data[key] }
+          });
+        }
+      } else if (unknownKeys === "strict") {
+        if (extraKeys.length > 0) {
+          addIssueToContext(ctx, {
+            code: ZodIssueCode.unrecognized_keys,
+            keys: extraKeys
+          });
+          status.dirty();
+        }
+      } else if (unknownKeys === "strip") {
+      } else {
+        throw new Error(`Internal ZodObject error: invalid unknownKeys value.`);
+      }
+    } else {
+      const catchall = this._def.catchall;
+      for (const key of extraKeys) {
+        const value = ctx.data[key];
+        pairs.push({
+          key: { status: "valid", value: key },
+          value: catchall._parse(
+            new ParseInputLazyPath(ctx, value, ctx.path, key)
+            //, ctx.child(key), value, getParsedType(value)
+          ),
+          alwaysSet: key in ctx.data
+        });
+      }
+    }
+    if (ctx.common.async) {
+      return Promise.resolve().then(async () => {
+        const syncPairs = [];
+        for (const pair of pairs) {
+          const key = await pair.key;
+          const value = await pair.value;
+          syncPairs.push({
+            key,
+            value,
+            alwaysSet: pair.alwaysSet
+          });
+        }
+        return syncPairs;
+      }).then((syncPairs) => {
+        return ParseStatus.mergeObjectSync(status, syncPairs);
+      });
+    } else {
+      return ParseStatus.mergeObjectSync(status, pairs);
+    }
+  }
+  get shape() {
+    return this._def.shape();
+  }
+  strict(message) {
+    errorUtil.errToObj;
+    return new _ZodObject({
+      ...this._def,
+      unknownKeys: "strict",
+      ...message !== void 0 ? {
+        errorMap: (issue2, ctx) => {
+          const defaultError = this._def.errorMap?.(issue2, ctx).message ?? ctx.defaultError;
+          if (issue2.code === "unrecognized_keys")
+            return {
+              message: errorUtil.errToObj(message).message ?? defaultError
+            };
+          return {
+            message: defaultError
+          };
+        }
+      } : {}
+    });
+  }
+  strip() {
+    return new _ZodObject({
+      ...this._def,
+      unknownKeys: "strip"
+    });
+  }
+  passthrough() {
+    return new _ZodObject({
+      ...this._def,
+      unknownKeys: "passthrough"
+    });
+  }
+  // const AugmentFactory =
+  //   <Def extends ZodObjectDef>(def: Def) =>
+  //   <Augmentation extends ZodRawShape>(
+  //     augmentation: Augmentation
+  //   ): ZodObject<
+  //     extendShape<ReturnType<Def["shape"]>, Augmentation>,
+  //     Def["unknownKeys"],
+  //     Def["catchall"]
+  //   > => {
+  //     return new ZodObject({
+  //       ...def,
+  //       shape: () => ({
+  //         ...def.shape(),
+  //         ...augmentation,
+  //       }),
+  //     }) as any;
+  //   };
+  extend(augmentation) {
+    return new _ZodObject({
+      ...this._def,
+      shape: () => ({
+        ...this._def.shape(),
+        ...augmentation
+      })
+    });
+  }
+  /**
+   * Prior to zod@1.0.12 there was a bug in the
+   * inferred type of merged objects. Please
+   * upgrade if you are experiencing issues.
+   */
+  merge(merging) {
+    const merged = new _ZodObject({
+      unknownKeys: merging._def.unknownKeys,
+      catchall: merging._def.catchall,
+      shape: () => ({
+        ...this._def.shape(),
+        ...merging._def.shape()
+      }),
+      typeName: ZodFirstPartyTypeKind.ZodObject
+    });
+    return merged;
+  }
+  // merge<
+  //   Incoming extends AnyZodObject,
+  //   Augmentation extends Incoming["shape"],
+  //   NewOutput extends {
+  //     [k in keyof Augmentation | keyof Output]: k extends keyof Augmentation
+  //       ? Augmentation[k]["_output"]
+  //       : k extends keyof Output
+  //       ? Output[k]
+  //       : never;
+  //   },
+  //   NewInput extends {
+  //     [k in keyof Augmentation | keyof Input]: k extends keyof Augmentation
+  //       ? Augmentation[k]["_input"]
+  //       : k extends keyof Input
+  //       ? Input[k]
+  //       : never;
+  //   }
+  // >(
+  //   merging: Incoming
+  // ): ZodObject<
+  //   extendShape<T, ReturnType<Incoming["_def"]["shape"]>>,
+  //   Incoming["_def"]["unknownKeys"],
+  //   Incoming["_def"]["catchall"],
+  //   NewOutput,
+  //   NewInput
+  // > {
+  //   const merged: any = new ZodObject({
+  //     unknownKeys: merging._def.unknownKeys,
+  //     catchall: merging._def.catchall,
+  //     shape: () =>
+  //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
+  //     typeName: ZodFirstPartyTypeKind.ZodObject,
+  //   }) as any;
+  //   return merged;
+  // }
+  setKey(key, schema) {
+    return this.augment({ [key]: schema });
+  }
+  // merge<Incoming extends AnyZodObject>(
+  //   merging: Incoming
+  // ): //ZodObject<T & Incoming["_shape"], UnknownKeys, Catchall> = (merging) => {
+  // ZodObject<
+  //   extendShape<T, ReturnType<Incoming["_def"]["shape"]>>,
+  //   Incoming["_def"]["unknownKeys"],
+  //   Incoming["_def"]["catchall"]
+  // > {
+  //   // const mergedShape = objectUtil.mergeShapes(
+  //   //   this._def.shape(),
+  //   //   merging._def.shape()
+  //   // );
+  //   const merged: any = new ZodObject({
+  //     unknownKeys: merging._def.unknownKeys,
+  //     catchall: merging._def.catchall,
+  //     shape: () =>
+  //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
+  //     typeName: ZodFirstPartyTypeKind.ZodObject,
+  //   }) as any;
+  //   return merged;
+  // }
+  catchall(index) {
+    return new _ZodObject({
+      ...this._def,
+      catchall: index
+    });
+  }
+  pick(mask) {
+    const shape = {};
+    for (const key of util.objectKeys(mask)) {
+      if (mask[key] && this.shape[key]) {
+        shape[key] = this.shape[key];
+      }
+    }
+    return new _ZodObject({
+      ...this._def,
+      shape: () => shape
+    });
+  }
+  omit(mask) {
+    const shape = {};
+    for (const key of util.objectKeys(this.shape)) {
+      if (!mask[key]) {
+        shape[key] = this.shape[key];
+      }
+    }
+    return new _ZodObject({
+      ...this._def,
+      shape: () => shape
+    });
+  }
+  /**
+   * @deprecated
+   */
+  deepPartial() {
+    return deepPartialify(this);
+  }
+  partial(mask) {
+    const newShape = {};
+    for (const key of util.objectKeys(this.shape)) {
+      const fieldSchema = this.shape[key];
+      if (mask && !mask[key]) {
+        newShape[key] = fieldSchema;
+      } else {
+        newShape[key] = fieldSchema.optional();
+      }
+    }
+    return new _ZodObject({
+      ...this._def,
+      shape: () => newShape
+    });
+  }
+  required(mask) {
+    const newShape = {};
+    for (const key of util.objectKeys(this.shape)) {
+      if (mask && !mask[key]) {
+        newShape[key] = this.shape[key];
+      } else {
+        const fieldSchema = this.shape[key];
+        let newField = fieldSchema;
+        while (newField instanceof ZodOptional2) {
+          newField = newField._def.innerType;
+        }
+        newShape[key] = newField;
+      }
+    }
+    return new _ZodObject({
+      ...this._def,
+      shape: () => newShape
+    });
+  }
+  keyof() {
+    return createZodEnum(util.objectKeys(this.shape));
+  }
+};
+ZodObject2.create = (shape, params) => {
+  return new ZodObject2({
+    shape: () => shape,
+    unknownKeys: "strip",
+    catchall: ZodNever2.create(),
+    typeName: ZodFirstPartyTypeKind.ZodObject,
+    ...processCreateParams(params)
+  });
+};
+ZodObject2.strictCreate = (shape, params) => {
+  return new ZodObject2({
+    shape: () => shape,
+    unknownKeys: "strict",
+    catchall: ZodNever2.create(),
+    typeName: ZodFirstPartyTypeKind.ZodObject,
+    ...processCreateParams(params)
+  });
+};
+ZodObject2.lazycreate = (shape, params) => {
+  return new ZodObject2({
+    shape,
+    unknownKeys: "strip",
+    catchall: ZodNever2.create(),
+    typeName: ZodFirstPartyTypeKind.ZodObject,
+    ...processCreateParams(params)
+  });
+};
+var ZodUnion2 = class extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    const options = this._def.options;
+    function handleResults(results) {
+      for (const result of results) {
+        if (result.result.status === "valid") {
+          return result.result;
+        }
+      }
+      for (const result of results) {
+        if (result.result.status === "dirty") {
+          ctx.common.issues.push(...result.ctx.common.issues);
+          return result.result;
+        }
+      }
+      const unionErrors = results.map((result) => new ZodError2(result.ctx.common.issues));
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_union,
+        unionErrors
+      });
+      return INVALID;
+    }
+    if (ctx.common.async) {
+      return Promise.all(options.map(async (option) => {
+        const childCtx = {
+          ...ctx,
+          common: {
+            ...ctx.common,
+            issues: []
+          },
+          parent: null
+        };
+        return {
+          result: await option._parseAsync({
+            data: ctx.data,
+            path: ctx.path,
+            parent: childCtx
+          }),
+          ctx: childCtx
+        };
+      })).then(handleResults);
+    } else {
+      let dirty = void 0;
+      const issues = [];
+      for (const option of options) {
+        const childCtx = {
+          ...ctx,
+          common: {
+            ...ctx.common,
+            issues: []
+          },
+          parent: null
+        };
+        const result = option._parseSync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: childCtx
+        });
+        if (result.status === "valid") {
+          return result;
+        } else if (result.status === "dirty" && !dirty) {
+          dirty = { result, ctx: childCtx };
+        }
+        if (childCtx.common.issues.length) {
+          issues.push(childCtx.common.issues);
+        }
+      }
+      if (dirty) {
+        ctx.common.issues.push(...dirty.ctx.common.issues);
+        return dirty.result;
+      }
+      const unionErrors = issues.map((issues2) => new ZodError2(issues2));
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_union,
+        unionErrors
+      });
+      return INVALID;
+    }
+  }
+  get options() {
+    return this._def.options;
+  }
+};
+ZodUnion2.create = (types, params) => {
+  return new ZodUnion2({
+    options: types,
+    typeName: ZodFirstPartyTypeKind.ZodUnion,
+    ...processCreateParams(params)
+  });
+};
+var getDiscriminator = (type) => {
+  if (type instanceof ZodLazy) {
+    return getDiscriminator(type.schema);
+  } else if (type instanceof ZodEffects) {
+    return getDiscriminator(type.innerType());
+  } else if (type instanceof ZodLiteral2) {
+    return [type.value];
+  } else if (type instanceof ZodEnum2) {
+    return type.options;
+  } else if (type instanceof ZodNativeEnum) {
+    return util.objectValues(type.enum);
+  } else if (type instanceof ZodDefault2) {
+    return getDiscriminator(type._def.innerType);
+  } else if (type instanceof ZodUndefined) {
+    return [void 0];
+  } else if (type instanceof ZodNull2) {
+    return [null];
+  } else if (type instanceof ZodOptional2) {
+    return [void 0, ...getDiscriminator(type.unwrap())];
+  } else if (type instanceof ZodNullable2) {
+    return [null, ...getDiscriminator(type.unwrap())];
+  } else if (type instanceof ZodBranded) {
+    return getDiscriminator(type.unwrap());
+  } else if (type instanceof ZodReadonly2) {
+    return getDiscriminator(type.unwrap());
+  } else if (type instanceof ZodCatch2) {
+    return getDiscriminator(type._def.innerType);
+  } else {
+    return [];
+  }
+};
+var ZodDiscriminatedUnion2 = class _ZodDiscriminatedUnion extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.object) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.object,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    const discriminator = this.discriminator;
+    const discriminatorValue = ctx.data[discriminator];
+    const option = this.optionsMap.get(discriminatorValue);
+    if (!option) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_union_discriminator,
+        options: Array.from(this.optionsMap.keys()),
+        path: [discriminator]
+      });
+      return INVALID;
+    }
+    if (ctx.common.async) {
+      return option._parseAsync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      });
+    } else {
+      return option._parseSync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      });
+    }
+  }
+  get discriminator() {
+    return this._def.discriminator;
+  }
+  get options() {
+    return this._def.options;
+  }
+  get optionsMap() {
+    return this._def.optionsMap;
+  }
+  /**
+   * The constructor of the discriminated union schema. Its behaviour is very similar to that of the normal z.union() constructor.
+   * However, it only allows a union of objects, all of which need to share a discriminator property. This property must
+   * have a different value for each object in the union.
+   * @param discriminator the name of the discriminator property
+   * @param types an array of object schemas
+   * @param params
+   */
+  static create(discriminator, options, params) {
+    const optionsMap = /* @__PURE__ */ new Map();
+    for (const type of options) {
+      const discriminatorValues = getDiscriminator(type.shape[discriminator]);
+      if (!discriminatorValues.length) {
+        throw new Error(`A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`);
+      }
+      for (const value of discriminatorValues) {
+        if (optionsMap.has(value)) {
+          throw new Error(`Discriminator property ${String(discriminator)} has duplicate value ${String(value)}`);
+        }
+        optionsMap.set(value, type);
+      }
+    }
+    return new _ZodDiscriminatedUnion({
+      typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion,
+      discriminator,
+      options,
+      optionsMap,
+      ...processCreateParams(params)
+    });
+  }
+};
+function mergeValues2(a, b) {
+  const aType = getParsedType2(a);
+  const bType = getParsedType2(b);
+  if (a === b) {
+    return { valid: true, data: a };
+  } else if (aType === ZodParsedType.object && bType === ZodParsedType.object) {
+    const bKeys = util.objectKeys(b);
+    const sharedKeys = util.objectKeys(a).filter((key) => bKeys.indexOf(key) !== -1);
+    const newObj = { ...a, ...b };
+    for (const key of sharedKeys) {
+      const sharedValue = mergeValues2(a[key], b[key]);
+      if (!sharedValue.valid) {
+        return { valid: false };
+      }
+      newObj[key] = sharedValue.data;
+    }
+    return { valid: true, data: newObj };
+  } else if (aType === ZodParsedType.array && bType === ZodParsedType.array) {
+    if (a.length !== b.length) {
+      return { valid: false };
+    }
+    const newArray = [];
+    for (let index = 0; index < a.length; index++) {
+      const itemA = a[index];
+      const itemB = b[index];
+      const sharedValue = mergeValues2(itemA, itemB);
+      if (!sharedValue.valid) {
+        return { valid: false };
+      }
+      newArray.push(sharedValue.data);
+    }
+    return { valid: true, data: newArray };
+  } else if (aType === ZodParsedType.date && bType === ZodParsedType.date && +a === +b) {
+    return { valid: true, data: a };
+  } else {
+    return { valid: false };
+  }
+}
+var ZodIntersection2 = class extends ZodType2 {
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    const handleParsed = (parsedLeft, parsedRight) => {
+      if (isAborted(parsedLeft) || isAborted(parsedRight)) {
+        return INVALID;
+      }
+      const merged = mergeValues2(parsedLeft.value, parsedRight.value);
+      if (!merged.valid) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.invalid_intersection_types
+        });
+        return INVALID;
+      }
+      if (isDirty(parsedLeft) || isDirty(parsedRight)) {
+        status.dirty();
+      }
+      return { status: status.value, value: merged.data };
+    };
+    if (ctx.common.async) {
+      return Promise.all([
+        this._def.left._parseAsync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        }),
+        this._def.right._parseAsync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        })
+      ]).then(([left, right]) => handleParsed(left, right));
+    } else {
+      return handleParsed(this._def.left._parseSync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      }), this._def.right._parseSync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      }));
+    }
+  }
+};
+ZodIntersection2.create = (left, right, params) => {
+  return new ZodIntersection2({
+    left,
+    right,
+    typeName: ZodFirstPartyTypeKind.ZodIntersection,
+    ...processCreateParams(params)
+  });
+};
+var ZodTuple = class _ZodTuple extends ZodType2 {
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.array) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.array,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    if (ctx.data.length < this._def.items.length) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.too_small,
+        minimum: this._def.items.length,
+        inclusive: true,
+        exact: false,
+        type: "array"
+      });
+      return INVALID;
+    }
+    const rest = this._def.rest;
+    if (!rest && ctx.data.length > this._def.items.length) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.too_big,
+        maximum: this._def.items.length,
+        inclusive: true,
+        exact: false,
+        type: "array"
+      });
+      status.dirty();
+    }
+    const items = [...ctx.data].map((item, itemIndex) => {
+      const schema = this._def.items[itemIndex] || this._def.rest;
+      if (!schema)
+        return null;
+      return schema._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex));
+    }).filter((x) => !!x);
+    if (ctx.common.async) {
+      return Promise.all(items).then((results) => {
+        return ParseStatus.mergeArray(status, results);
+      });
+    } else {
+      return ParseStatus.mergeArray(status, items);
+    }
+  }
+  get items() {
+    return this._def.items;
+  }
+  rest(rest) {
+    return new _ZodTuple({
+      ...this._def,
+      rest
+    });
+  }
+};
+ZodTuple.create = (schemas, params) => {
+  if (!Array.isArray(schemas)) {
+    throw new Error("You must pass an array of schemas to z.tuple([ ... ])");
+  }
+  return new ZodTuple({
+    items: schemas,
+    typeName: ZodFirstPartyTypeKind.ZodTuple,
+    rest: null,
+    ...processCreateParams(params)
+  });
+};
+var ZodRecord2 = class _ZodRecord extends ZodType2 {
+  get keySchema() {
+    return this._def.keyType;
+  }
+  get valueSchema() {
+    return this._def.valueType;
+  }
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.object) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.object,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    const pairs = [];
+    const keyType = this._def.keyType;
+    const valueType = this._def.valueType;
+    for (const key in ctx.data) {
+      pairs.push({
+        key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, key)),
+        value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key)),
+        alwaysSet: key in ctx.data
+      });
+    }
+    if (ctx.common.async) {
+      return ParseStatus.mergeObjectAsync(status, pairs);
+    } else {
+      return ParseStatus.mergeObjectSync(status, pairs);
+    }
+  }
+  get element() {
+    return this._def.valueType;
+  }
+  static create(first, second, third) {
+    if (second instanceof ZodType2) {
+      return new _ZodRecord({
+        keyType: first,
+        valueType: second,
+        typeName: ZodFirstPartyTypeKind.ZodRecord,
+        ...processCreateParams(third)
+      });
+    }
+    return new _ZodRecord({
+      keyType: ZodString2.create(),
+      valueType: first,
+      typeName: ZodFirstPartyTypeKind.ZodRecord,
+      ...processCreateParams(second)
+    });
+  }
+};
+var ZodMap = class extends ZodType2 {
+  get keySchema() {
+    return this._def.keyType;
+  }
+  get valueSchema() {
+    return this._def.valueType;
+  }
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.map) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.map,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    const keyType = this._def.keyType;
+    const valueType = this._def.valueType;
+    const pairs = [...ctx.data.entries()].map(([key, value], index) => {
+      return {
+        key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, [index, "key"])),
+        value: valueType._parse(new ParseInputLazyPath(ctx, value, ctx.path, [index, "value"]))
+      };
+    });
+    if (ctx.common.async) {
+      const finalMap = /* @__PURE__ */ new Map();
+      return Promise.resolve().then(async () => {
+        for (const pair of pairs) {
+          const key = await pair.key;
+          const value = await pair.value;
+          if (key.status === "aborted" || value.status === "aborted") {
+            return INVALID;
+          }
+          if (key.status === "dirty" || value.status === "dirty") {
+            status.dirty();
+          }
+          finalMap.set(key.value, value.value);
+        }
+        return { status: status.value, value: finalMap };
+      });
+    } else {
+      const finalMap = /* @__PURE__ */ new Map();
+      for (const pair of pairs) {
+        const key = pair.key;
+        const value = pair.value;
+        if (key.status === "aborted" || value.status === "aborted") {
+          return INVALID;
+        }
+        if (key.status === "dirty" || value.status === "dirty") {
+          status.dirty();
+        }
+        finalMap.set(key.value, value.value);
+      }
+      return { status: status.value, value: finalMap };
+    }
+  }
+};
+ZodMap.create = (keyType, valueType, params) => {
+  return new ZodMap({
+    valueType,
+    keyType,
+    typeName: ZodFirstPartyTypeKind.ZodMap,
+    ...processCreateParams(params)
+  });
+};
+var ZodSet = class _ZodSet extends ZodType2 {
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.set) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.set,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    const def = this._def;
+    if (def.minSize !== null) {
+      if (ctx.data.size < def.minSize.value) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.too_small,
+          minimum: def.minSize.value,
+          type: "set",
+          inclusive: true,
+          exact: false,
+          message: def.minSize.message
+        });
+        status.dirty();
+      }
+    }
+    if (def.maxSize !== null) {
+      if (ctx.data.size > def.maxSize.value) {
+        addIssueToContext(ctx, {
+          code: ZodIssueCode.too_big,
+          maximum: def.maxSize.value,
+          type: "set",
+          inclusive: true,
+          exact: false,
+          message: def.maxSize.message
+        });
+        status.dirty();
+      }
+    }
+    const valueType = this._def.valueType;
+    function finalizeSet(elements2) {
+      const parsedSet = /* @__PURE__ */ new Set();
+      for (const element of elements2) {
+        if (element.status === "aborted")
+          return INVALID;
+        if (element.status === "dirty")
+          status.dirty();
+        parsedSet.add(element.value);
+      }
+      return { status: status.value, value: parsedSet };
+    }
+    const elements = [...ctx.data.values()].map((item, i) => valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i)));
+    if (ctx.common.async) {
+      return Promise.all(elements).then((elements2) => finalizeSet(elements2));
+    } else {
+      return finalizeSet(elements);
+    }
+  }
+  min(minSize, message) {
+    return new _ZodSet({
+      ...this._def,
+      minSize: { value: minSize, message: errorUtil.toString(message) }
+    });
+  }
+  max(maxSize, message) {
+    return new _ZodSet({
+      ...this._def,
+      maxSize: { value: maxSize, message: errorUtil.toString(message) }
+    });
+  }
+  size(size, message) {
+    return this.min(size, message).max(size, message);
+  }
+  nonempty(message) {
+    return this.min(1, message);
+  }
+};
+ZodSet.create = (valueType, params) => {
+  return new ZodSet({
+    valueType,
+    minSize: null,
+    maxSize: null,
+    typeName: ZodFirstPartyTypeKind.ZodSet,
+    ...processCreateParams(params)
+  });
+};
+var ZodFunction = class _ZodFunction extends ZodType2 {
+  constructor() {
+    super(...arguments);
+    this.validate = this.implement;
+  }
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.function) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.function,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    function makeArgsIssue(args, error2) {
+      return makeIssue({
+        data: args,
+        path: ctx.path,
+        errorMaps: [ctx.common.contextualErrorMap, ctx.schemaErrorMap, getErrorMap(), en_default2].filter((x) => !!x),
+        issueData: {
+          code: ZodIssueCode.invalid_arguments,
+          argumentsError: error2
+        }
+      });
+    }
+    function makeReturnsIssue(returns, error2) {
+      return makeIssue({
+        data: returns,
+        path: ctx.path,
+        errorMaps: [ctx.common.contextualErrorMap, ctx.schemaErrorMap, getErrorMap(), en_default2].filter((x) => !!x),
+        issueData: {
+          code: ZodIssueCode.invalid_return_type,
+          returnTypeError: error2
+        }
+      });
+    }
+    const params = { errorMap: ctx.common.contextualErrorMap };
+    const fn = ctx.data;
+    if (this._def.returns instanceof ZodPromise) {
+      const me = this;
+      return OK(async function(...args) {
+        const error2 = new ZodError2([]);
+        const parsedArgs = await me._def.args.parseAsync(args, params).catch((e) => {
+          error2.addIssue(makeArgsIssue(args, e));
+          throw error2;
+        });
+        const result = await Reflect.apply(fn, this, parsedArgs);
+        const parsedReturns = await me._def.returns._def.type.parseAsync(result, params).catch((e) => {
+          error2.addIssue(makeReturnsIssue(result, e));
+          throw error2;
+        });
+        return parsedReturns;
+      });
+    } else {
+      const me = this;
+      return OK(function(...args) {
+        const parsedArgs = me._def.args.safeParse(args, params);
+        if (!parsedArgs.success) {
+          throw new ZodError2([makeArgsIssue(args, parsedArgs.error)]);
+        }
+        const result = Reflect.apply(fn, this, parsedArgs.data);
+        const parsedReturns = me._def.returns.safeParse(result, params);
+        if (!parsedReturns.success) {
+          throw new ZodError2([makeReturnsIssue(result, parsedReturns.error)]);
+        }
+        return parsedReturns.data;
+      });
+    }
+  }
+  parameters() {
+    return this._def.args;
+  }
+  returnType() {
+    return this._def.returns;
+  }
+  args(...items) {
+    return new _ZodFunction({
+      ...this._def,
+      args: ZodTuple.create(items).rest(ZodUnknown2.create())
+    });
+  }
+  returns(returnType) {
+    return new _ZodFunction({
+      ...this._def,
+      returns: returnType
+    });
+  }
+  implement(func) {
+    const validatedFunc = this.parse(func);
+    return validatedFunc;
+  }
+  strictImplement(func) {
+    const validatedFunc = this.parse(func);
+    return validatedFunc;
+  }
+  static create(args, returns, params) {
+    return new _ZodFunction({
+      args: args ? args : ZodTuple.create([]).rest(ZodUnknown2.create()),
+      returns: returns || ZodUnknown2.create(),
+      typeName: ZodFirstPartyTypeKind.ZodFunction,
+      ...processCreateParams(params)
+    });
+  }
+};
+var ZodLazy = class extends ZodType2 {
+  get schema() {
+    return this._def.getter();
+  }
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    const lazySchema = this._def.getter();
+    return lazySchema._parse({ data: ctx.data, path: ctx.path, parent: ctx });
+  }
+};
+ZodLazy.create = (getter, params) => {
+  return new ZodLazy({
+    getter,
+    typeName: ZodFirstPartyTypeKind.ZodLazy,
+    ...processCreateParams(params)
+  });
+};
+var ZodLiteral2 = class extends ZodType2 {
+  _parse(input) {
+    if (input.data !== this._def.value) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        received: ctx.data,
+        code: ZodIssueCode.invalid_literal,
+        expected: this._def.value
+      });
+      return INVALID;
+    }
+    return { status: "valid", value: input.data };
+  }
+  get value() {
+    return this._def.value;
+  }
+};
+ZodLiteral2.create = (value, params) => {
+  return new ZodLiteral2({
+    value,
+    typeName: ZodFirstPartyTypeKind.ZodLiteral,
+    ...processCreateParams(params)
+  });
+};
+function createZodEnum(values, params) {
+  return new ZodEnum2({
+    values,
+    typeName: ZodFirstPartyTypeKind.ZodEnum,
+    ...processCreateParams(params)
+  });
+}
+var ZodEnum2 = class _ZodEnum extends ZodType2 {
+  _parse(input) {
+    if (typeof input.data !== "string") {
+      const ctx = this._getOrReturnCtx(input);
+      const expectedValues = this._def.values;
+      addIssueToContext(ctx, {
+        expected: util.joinValues(expectedValues),
+        received: ctx.parsedType,
+        code: ZodIssueCode.invalid_type
+      });
+      return INVALID;
+    }
+    if (!this._cache) {
+      this._cache = new Set(this._def.values);
+    }
+    if (!this._cache.has(input.data)) {
+      const ctx = this._getOrReturnCtx(input);
+      const expectedValues = this._def.values;
+      addIssueToContext(ctx, {
+        received: ctx.data,
+        code: ZodIssueCode.invalid_enum_value,
+        options: expectedValues
+      });
+      return INVALID;
+    }
+    return OK(input.data);
+  }
+  get options() {
+    return this._def.values;
+  }
+  get enum() {
+    const enumValues = {};
+    for (const val of this._def.values) {
+      enumValues[val] = val;
+    }
+    return enumValues;
+  }
+  get Values() {
+    const enumValues = {};
+    for (const val of this._def.values) {
+      enumValues[val] = val;
+    }
+    return enumValues;
+  }
+  get Enum() {
+    const enumValues = {};
+    for (const val of this._def.values) {
+      enumValues[val] = val;
+    }
+    return enumValues;
+  }
+  extract(values, newDef = this._def) {
+    return _ZodEnum.create(values, {
+      ...this._def,
+      ...newDef
+    });
+  }
+  exclude(values, newDef = this._def) {
+    return _ZodEnum.create(this.options.filter((opt) => !values.includes(opt)), {
+      ...this._def,
+      ...newDef
+    });
+  }
+};
+ZodEnum2.create = createZodEnum;
+var ZodNativeEnum = class extends ZodType2 {
+  _parse(input) {
+    const nativeEnumValues = util.getValidEnumValues(this._def.values);
+    const ctx = this._getOrReturnCtx(input);
+    if (ctx.parsedType !== ZodParsedType.string && ctx.parsedType !== ZodParsedType.number) {
+      const expectedValues = util.objectValues(nativeEnumValues);
+      addIssueToContext(ctx, {
+        expected: util.joinValues(expectedValues),
+        received: ctx.parsedType,
+        code: ZodIssueCode.invalid_type
+      });
+      return INVALID;
+    }
+    if (!this._cache) {
+      this._cache = new Set(util.getValidEnumValues(this._def.values));
+    }
+    if (!this._cache.has(input.data)) {
+      const expectedValues = util.objectValues(nativeEnumValues);
+      addIssueToContext(ctx, {
+        received: ctx.data,
+        code: ZodIssueCode.invalid_enum_value,
+        options: expectedValues
+      });
+      return INVALID;
+    }
+    return OK(input.data);
+  }
+  get enum() {
+    return this._def.values;
+  }
+};
+ZodNativeEnum.create = (values, params) => {
+  return new ZodNativeEnum({
+    values,
+    typeName: ZodFirstPartyTypeKind.ZodNativeEnum,
+    ...processCreateParams(params)
+  });
+};
+var ZodPromise = class extends ZodType2 {
+  unwrap() {
+    return this._def.type;
+  }
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    if (ctx.parsedType !== ZodParsedType.promise && ctx.common.async === false) {
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.promise,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    const promisified = ctx.parsedType === ZodParsedType.promise ? ctx.data : Promise.resolve(ctx.data);
+    return OK(promisified.then((data) => {
+      return this._def.type.parseAsync(data, {
+        path: ctx.path,
+        errorMap: ctx.common.contextualErrorMap
+      });
+    }));
+  }
+};
+ZodPromise.create = (schema, params) => {
+  return new ZodPromise({
+    type: schema,
+    typeName: ZodFirstPartyTypeKind.ZodPromise,
+    ...processCreateParams(params)
+  });
+};
+var ZodEffects = class extends ZodType2 {
+  innerType() {
+    return this._def.schema;
+  }
+  sourceType() {
+    return this._def.schema._def.typeName === ZodFirstPartyTypeKind.ZodEffects ? this._def.schema.sourceType() : this._def.schema;
+  }
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    const effect = this._def.effect || null;
+    const checkCtx = {
+      addIssue: (arg) => {
+        addIssueToContext(ctx, arg);
+        if (arg.fatal) {
+          status.abort();
+        } else {
+          status.dirty();
+        }
+      },
+      get path() {
+        return ctx.path;
+      }
+    };
+    checkCtx.addIssue = checkCtx.addIssue.bind(checkCtx);
+    if (effect.type === "preprocess") {
+      const processed = effect.transform(ctx.data, checkCtx);
+      if (ctx.common.async) {
+        return Promise.resolve(processed).then(async (processed2) => {
+          if (status.value === "aborted")
+            return INVALID;
+          const result = await this._def.schema._parseAsync({
+            data: processed2,
+            path: ctx.path,
+            parent: ctx
+          });
+          if (result.status === "aborted")
+            return INVALID;
+          if (result.status === "dirty")
+            return DIRTY(result.value);
+          if (status.value === "dirty")
+            return DIRTY(result.value);
+          return result;
+        });
+      } else {
+        if (status.value === "aborted")
+          return INVALID;
+        const result = this._def.schema._parseSync({
+          data: processed,
+          path: ctx.path,
+          parent: ctx
+        });
+        if (result.status === "aborted")
+          return INVALID;
+        if (result.status === "dirty")
+          return DIRTY(result.value);
+        if (status.value === "dirty")
+          return DIRTY(result.value);
+        return result;
+      }
+    }
+    if (effect.type === "refinement") {
+      const executeRefinement = (acc) => {
+        const result = effect.refinement(acc, checkCtx);
+        if (ctx.common.async) {
+          return Promise.resolve(result);
+        }
+        if (result instanceof Promise) {
+          throw new Error("Async refinement encountered during synchronous parse operation. Use .parseAsync instead.");
+        }
+        return acc;
+      };
+      if (ctx.common.async === false) {
+        const inner = this._def.schema._parseSync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        });
+        if (inner.status === "aborted")
+          return INVALID;
+        if (inner.status === "dirty")
+          status.dirty();
+        executeRefinement(inner.value);
+        return { status: status.value, value: inner.value };
+      } else {
+        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((inner) => {
+          if (inner.status === "aborted")
+            return INVALID;
+          if (inner.status === "dirty")
+            status.dirty();
+          return executeRefinement(inner.value).then(() => {
+            return { status: status.value, value: inner.value };
+          });
+        });
+      }
+    }
+    if (effect.type === "transform") {
+      if (ctx.common.async === false) {
+        const base = this._def.schema._parseSync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        });
+        if (!isValid(base))
+          return INVALID;
+        const result = effect.transform(base.value, checkCtx);
+        if (result instanceof Promise) {
+          throw new Error(`Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.`);
+        }
+        return { status: status.value, value: result };
+      } else {
+        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
+          if (!isValid(base))
+            return INVALID;
+          return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
+            status: status.value,
+            value: result
+          }));
+        });
+      }
+    }
+    util.assertNever(effect);
+  }
+};
+ZodEffects.create = (schema, effect, params) => {
+  return new ZodEffects({
+    schema,
+    typeName: ZodFirstPartyTypeKind.ZodEffects,
+    effect,
+    ...processCreateParams(params)
+  });
+};
+ZodEffects.createWithPreprocess = (preprocess2, schema, params) => {
+  return new ZodEffects({
+    schema,
+    effect: { type: "preprocess", transform: preprocess2 },
+    typeName: ZodFirstPartyTypeKind.ZodEffects,
+    ...processCreateParams(params)
+  });
+};
+var ZodOptional2 = class extends ZodType2 {
+  _parse(input) {
+    const parsedType2 = this._getType(input);
+    if (parsedType2 === ZodParsedType.undefined) {
+      return OK(void 0);
+    }
+    return this._def.innerType._parse(input);
+  }
+  unwrap() {
+    return this._def.innerType;
+  }
+};
+ZodOptional2.create = (type, params) => {
+  return new ZodOptional2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind.ZodOptional,
+    ...processCreateParams(params)
+  });
+};
+var ZodNullable2 = class extends ZodType2 {
+  _parse(input) {
+    const parsedType2 = this._getType(input);
+    if (parsedType2 === ZodParsedType.null) {
+      return OK(null);
+    }
+    return this._def.innerType._parse(input);
+  }
+  unwrap() {
+    return this._def.innerType;
+  }
+};
+ZodNullable2.create = (type, params) => {
+  return new ZodNullable2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind.ZodNullable,
+    ...processCreateParams(params)
+  });
+};
+var ZodDefault2 = class extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    let data = ctx.data;
+    if (ctx.parsedType === ZodParsedType.undefined) {
+      data = this._def.defaultValue();
+    }
+    return this._def.innerType._parse({
+      data,
+      path: ctx.path,
+      parent: ctx
+    });
+  }
+  removeDefault() {
+    return this._def.innerType;
+  }
+};
+ZodDefault2.create = (type, params) => {
+  return new ZodDefault2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind.ZodDefault,
+    defaultValue: typeof params.default === "function" ? params.default : () => params.default,
+    ...processCreateParams(params)
+  });
+};
+var ZodCatch2 = class extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    const newCtx = {
+      ...ctx,
+      common: {
+        ...ctx.common,
+        issues: []
+      }
+    };
+    const result = this._def.innerType._parse({
+      data: newCtx.data,
+      path: newCtx.path,
+      parent: {
+        ...newCtx
+      }
+    });
+    if (isAsync(result)) {
+      return result.then((result2) => {
+        return {
+          status: "valid",
+          value: result2.status === "valid" ? result2.value : this._def.catchValue({
+            get error() {
+              return new ZodError2(newCtx.common.issues);
+            },
+            input: newCtx.data
+          })
+        };
+      });
+    } else {
+      return {
+        status: "valid",
+        value: result.status === "valid" ? result.value : this._def.catchValue({
+          get error() {
+            return new ZodError2(newCtx.common.issues);
+          },
+          input: newCtx.data
+        })
+      };
+    }
+  }
+  removeCatch() {
+    return this._def.innerType;
+  }
+};
+ZodCatch2.create = (type, params) => {
+  return new ZodCatch2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind.ZodCatch,
+    catchValue: typeof params.catch === "function" ? params.catch : () => params.catch,
+    ...processCreateParams(params)
+  });
+};
+var ZodNaN = class extends ZodType2 {
+  _parse(input) {
+    const parsedType2 = this._getType(input);
+    if (parsedType2 !== ZodParsedType.nan) {
+      const ctx = this._getOrReturnCtx(input);
+      addIssueToContext(ctx, {
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.nan,
+        received: ctx.parsedType
+      });
+      return INVALID;
+    }
+    return { status: "valid", value: input.data };
+  }
+};
+ZodNaN.create = (params) => {
+  return new ZodNaN({
+    typeName: ZodFirstPartyTypeKind.ZodNaN,
+    ...processCreateParams(params)
+  });
+};
+var BRAND = /* @__PURE__ */ Symbol("zod_brand");
+var ZodBranded = class extends ZodType2 {
+  _parse(input) {
+    const { ctx } = this._processInputParams(input);
+    const data = ctx.data;
+    return this._def.type._parse({
+      data,
+      path: ctx.path,
+      parent: ctx
+    });
+  }
+  unwrap() {
+    return this._def.type;
+  }
+};
+var ZodPipeline = class _ZodPipeline extends ZodType2 {
+  _parse(input) {
+    const { status, ctx } = this._processInputParams(input);
+    if (ctx.common.async) {
+      const handleAsync = async () => {
+        const inResult = await this._def.in._parseAsync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx
+        });
+        if (inResult.status === "aborted")
+          return INVALID;
+        if (inResult.status === "dirty") {
+          status.dirty();
+          return DIRTY(inResult.value);
+        } else {
+          return this._def.out._parseAsync({
+            data: inResult.value,
+            path: ctx.path,
+            parent: ctx
+          });
+        }
+      };
+      return handleAsync();
+    } else {
+      const inResult = this._def.in._parseSync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx
+      });
+      if (inResult.status === "aborted")
+        return INVALID;
+      if (inResult.status === "dirty") {
+        status.dirty();
+        return {
+          status: "dirty",
+          value: inResult.value
+        };
+      } else {
+        return this._def.out._parseSync({
+          data: inResult.value,
+          path: ctx.path,
+          parent: ctx
+        });
+      }
+    }
+  }
+  static create(a, b) {
+    return new _ZodPipeline({
+      in: a,
+      out: b,
+      typeName: ZodFirstPartyTypeKind.ZodPipeline
+    });
+  }
+};
+var ZodReadonly2 = class extends ZodType2 {
+  _parse(input) {
+    const result = this._def.innerType._parse(input);
+    const freeze = (data) => {
+      if (isValid(data)) {
+        data.value = Object.freeze(data.value);
+      }
+      return data;
+    };
+    return isAsync(result) ? result.then((data) => freeze(data)) : freeze(result);
+  }
+  unwrap() {
+    return this._def.innerType;
+  }
+};
+ZodReadonly2.create = (type, params) => {
+  return new ZodReadonly2({
+    innerType: type,
+    typeName: ZodFirstPartyTypeKind.ZodReadonly,
+    ...processCreateParams(params)
+  });
+};
+function cleanParams(params, data) {
+  const p = typeof params === "function" ? params(data) : typeof params === "string" ? { message: params } : params;
+  const p2 = typeof p === "string" ? { message: p } : p;
+  return p2;
+}
+function custom2(check2, _params = {}, fatal) {
+  if (check2)
+    return ZodAny.create().superRefine((data, ctx) => {
+      const r = check2(data);
+      if (r instanceof Promise) {
+        return r.then((r2) => {
+          if (!r2) {
+            const params = cleanParams(_params, data);
+            const _fatal = params.fatal ?? fatal ?? true;
+            ctx.addIssue({ code: "custom", ...params, fatal: _fatal });
+          }
+        });
+      }
+      if (!r) {
+        const params = cleanParams(_params, data);
+        const _fatal = params.fatal ?? fatal ?? true;
+        ctx.addIssue({ code: "custom", ...params, fatal: _fatal });
+      }
+      return;
+    });
+  return ZodAny.create();
+}
+var late = {
+  object: ZodObject2.lazycreate
+};
+var ZodFirstPartyTypeKind;
+(function(ZodFirstPartyTypeKind2) {
+  ZodFirstPartyTypeKind2["ZodString"] = "ZodString";
+  ZodFirstPartyTypeKind2["ZodNumber"] = "ZodNumber";
+  ZodFirstPartyTypeKind2["ZodNaN"] = "ZodNaN";
+  ZodFirstPartyTypeKind2["ZodBigInt"] = "ZodBigInt";
+  ZodFirstPartyTypeKind2["ZodBoolean"] = "ZodBoolean";
+  ZodFirstPartyTypeKind2["ZodDate"] = "ZodDate";
+  ZodFirstPartyTypeKind2["ZodSymbol"] = "ZodSymbol";
+  ZodFirstPartyTypeKind2["ZodUndefined"] = "ZodUndefined";
+  ZodFirstPartyTypeKind2["ZodNull"] = "ZodNull";
+  ZodFirstPartyTypeKind2["ZodAny"] = "ZodAny";
+  ZodFirstPartyTypeKind2["ZodUnknown"] = "ZodUnknown";
+  ZodFirstPartyTypeKind2["ZodNever"] = "ZodNever";
+  ZodFirstPartyTypeKind2["ZodVoid"] = "ZodVoid";
+  ZodFirstPartyTypeKind2["ZodArray"] = "ZodArray";
+  ZodFirstPartyTypeKind2["ZodObject"] = "ZodObject";
+  ZodFirstPartyTypeKind2["ZodUnion"] = "ZodUnion";
+  ZodFirstPartyTypeKind2["ZodDiscriminatedUnion"] = "ZodDiscriminatedUnion";
+  ZodFirstPartyTypeKind2["ZodIntersection"] = "ZodIntersection";
+  ZodFirstPartyTypeKind2["ZodTuple"] = "ZodTuple";
+  ZodFirstPartyTypeKind2["ZodRecord"] = "ZodRecord";
+  ZodFirstPartyTypeKind2["ZodMap"] = "ZodMap";
+  ZodFirstPartyTypeKind2["ZodSet"] = "ZodSet";
+  ZodFirstPartyTypeKind2["ZodFunction"] = "ZodFunction";
+  ZodFirstPartyTypeKind2["ZodLazy"] = "ZodLazy";
+  ZodFirstPartyTypeKind2["ZodLiteral"] = "ZodLiteral";
+  ZodFirstPartyTypeKind2["ZodEnum"] = "ZodEnum";
+  ZodFirstPartyTypeKind2["ZodEffects"] = "ZodEffects";
+  ZodFirstPartyTypeKind2["ZodNativeEnum"] = "ZodNativeEnum";
+  ZodFirstPartyTypeKind2["ZodOptional"] = "ZodOptional";
+  ZodFirstPartyTypeKind2["ZodNullable"] = "ZodNullable";
+  ZodFirstPartyTypeKind2["ZodDefault"] = "ZodDefault";
+  ZodFirstPartyTypeKind2["ZodCatch"] = "ZodCatch";
+  ZodFirstPartyTypeKind2["ZodPromise"] = "ZodPromise";
+  ZodFirstPartyTypeKind2["ZodBranded"] = "ZodBranded";
+  ZodFirstPartyTypeKind2["ZodPipeline"] = "ZodPipeline";
+  ZodFirstPartyTypeKind2["ZodReadonly"] = "ZodReadonly";
+})(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
+var instanceOfType = (cls, params = {
+  message: `Input not instance of ${cls.name}`
+}) => custom2((data) => data instanceof cls, params);
+var stringType = ZodString2.create;
+var numberType = ZodNumber2.create;
+var nanType = ZodNaN.create;
+var bigIntType = ZodBigInt.create;
+var booleanType = ZodBoolean2.create;
+var dateType = ZodDate.create;
+var symbolType = ZodSymbol.create;
+var undefinedType = ZodUndefined.create;
+var nullType = ZodNull2.create;
+var anyType = ZodAny.create;
+var unknownType = ZodUnknown2.create;
+var neverType = ZodNever2.create;
+var voidType = ZodVoid.create;
+var arrayType = ZodArray2.create;
+var objectType = ZodObject2.create;
+var strictObjectType = ZodObject2.strictCreate;
+var unionType = ZodUnion2.create;
+var discriminatedUnionType = ZodDiscriminatedUnion2.create;
+var intersectionType = ZodIntersection2.create;
+var tupleType = ZodTuple.create;
+var recordType = ZodRecord2.create;
+var mapType = ZodMap.create;
+var setType = ZodSet.create;
+var functionType = ZodFunction.create;
+var lazyType = ZodLazy.create;
+var literalType = ZodLiteral2.create;
+var enumType = ZodEnum2.create;
+var nativeEnumType = ZodNativeEnum.create;
+var promiseType = ZodPromise.create;
+var effectsType = ZodEffects.create;
+var optionalType = ZodOptional2.create;
+var nullableType = ZodNullable2.create;
+var preprocessType = ZodEffects.createWithPreprocess;
+var pipelineType = ZodPipeline.create;
+var ostring = () => stringType().optional();
+var onumber = () => numberType().optional();
+var oboolean = () => booleanType().optional();
+var coerce = {
+  string: ((arg) => ZodString2.create({ ...arg, coerce: true })),
+  number: ((arg) => ZodNumber2.create({ ...arg, coerce: true })),
+  boolean: ((arg) => ZodBoolean2.create({
+    ...arg,
+    coerce: true
+  })),
+  bigint: ((arg) => ZodBigInt.create({ ...arg, coerce: true })),
+  date: ((arg) => ZodDate.create({ ...arg, coerce: true }))
+};
+var NEVER2 = INVALID;
+
 // node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@3.25.76/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
   const schema = s;
@@ -21324,7 +26805,392 @@ var Server = class extends Protocol {
 };
 
 // packages/mcp-server/src/create-server.ts
-var import_core7 = __toESM(require_dist2(), 1);
+var import_evidence_core2 = __toESM(require_dist2(), 1);
+
+// packages/mcp-server/src/ore-tools.ts
+var import_evidence_core = __toESM(require_dist2(), 1);
+var ORE_TOOLS = [
+  {
+    name: "ore_grade_source",
+    description: "Build the ORE grading scaffold for a data source at the ingestion boundary: the four dimensions with what a conformant grading must record on each, the named gaps the supplied account leaves open, the opacity obligations, and the monitoring obligation. Returns structure and gaps rather than a grade, because ORE does not specify how any dimension is computed. Use before admitting any source into a system that will make decisions from it.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        label: { type: "string", description: "Short name for the source." },
+        description: {
+          type: "string",
+          description: "What the source is and what it supplies."
+        },
+        originEvidence: {
+          type: "string",
+          description: "How origin is evidenced: signature, publisher, chain of custody. Omit if nothing evidences it, which is itself recorded."
+        },
+        confirmation: {
+          type: "string",
+          description: "What confirmed the source output at the time it was produced. Omit if nothing did, which is the unconfirmed state."
+        },
+        opaque: {
+          type: "boolean",
+          description: "Whether the source declines to disclose its internal architecture."
+        },
+        stake: {
+          type: "string",
+          description: "Whether the source has an interest in how the attested events are recorded."
+        },
+        history: {
+          type: "string",
+          description: "Interaction history, if any, for the track-record dimension."
+        }
+      },
+      required: ["label", "description"]
+    }
+  },
+  {
+    name: "ore_check_independence",
+    description: "Walk an evidence set for shared origin and report whether apparent agreement is independent confirmation or an artifact of restatement. Returns the chain structure each item needs, flags for uncited items, restatements and declared relationships, and the count of origins claimed against origins established. Use whenever several sources agree and that agreement is about to carry weight.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        claim: {
+          type: "string",
+          description: "The claim the sources supposedly support."
+        },
+        items: {
+          type: "array",
+          description: "The sources in the evidence set.",
+          items: {
+            type: "object",
+            properties: {
+              label: { type: "string", description: "Short name for this source." },
+              statedBasis: {
+                type: "string",
+                description: "What the source states as its own basis: a citation, an attribution. Omit where it states none."
+              },
+              relationships: {
+                type: "string",
+                description: "Any known relationship to another source or to an interested party."
+              }
+            },
+            required: ["label"]
+          }
+        }
+      },
+      required: ["claim", "items"]
+    }
+  },
+  {
+    name: "ore_audit_finding",
+    description: "Audit a finding against the five obligations of the finding contract: graded evidence, refutation conditions, contested regions rather than averages, derivation chains to origin with labeled rungs, and the sufficiency judgment left with the consumer. Returns per-obligation status, observed evidence, gaps and fixes, plus systemic patterns. Statuses are heuristic and deliberately distinguish 'this finding is wrong' from 'this finding cannot be checked'.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        finding: {
+          type: "string",
+          description: "The full text of the finding to audit."
+        }
+      },
+      required: ["finding"]
+    }
+  },
+  {
+    name: "ore_declare_posture",
+    description: "Return the three ORE intake postures (Screened, Graded, Open) with what each means, what it fits, the downstream condition it obliges, and its cautions, plus the declaration requirements any conformant system must satisfy. Optionally scoped to one posture, and optionally with a system description to produce a recommendation prompt. Use once per system before ingestion, and again when intake changes.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        posture: {
+          type: "string",
+          enum: ["screened", "graded", "open"],
+          description: "Optional. Return only this posture rather than all three."
+        },
+        systemDescription: {
+          type: "string",
+          description: "Optional. What the system ingests, from where, at what volume, and what decisions it feeds. Produces a recommendation prompt."
+        }
+      },
+      required: []
+    }
+  },
+  {
+    name: "ore_run_benchmark",
+    description: 'The Meridian Basin benchmark: a fabricated twelve-source dossier with known ground truth, seeded with four evidence-integrity failures and one genuine contested region that must be represented rather than resolved. Mode "case" returns the dossier to run. Mode "key" returns the ground truth and scoring. Mode "score" takes an answer and returns the key with a scoring prompt. Run the case before requesting the key.',
+    inputSchema: {
+      type: "object",
+      properties: {
+        mode: {
+          type: "string",
+          enum: ["case", "key", "score"],
+          description: "case returns the dossier, key returns ground truth and scoring, score grades a supplied answer."
+        },
+        answer: {
+          type: "string",
+          description: 'Required for mode "score": the finding produced from the case.'
+        }
+      },
+      required: ["mode"]
+    }
+  }
+];
+function ok(payload) {
+  return {
+    content: [{ type: "text", text: JSON.stringify(payload, null, 2) }]
+  };
+}
+function fail(message) {
+  return {
+    content: [{ type: "text", text: JSON.stringify({ error: message }, null, 2) }],
+    isError: true
+  };
+}
+function str(args, key) {
+  const v = args[key];
+  return v == null ? void 0 : String(v);
+}
+function handleGradeSource(args) {
+  const label = str(args, "label");
+  const description = str(args, "description");
+  if (!label || !description) {
+    return fail("Both label and description are required.");
+  }
+  const originEvidence = str(args, "originEvidence");
+  const confirmation = str(args, "confirmation");
+  const stake = str(args, "stake");
+  const history = str(args, "history");
+  return ok(
+    (0, import_evidence_core.gradeSourceScaffold)({
+      label,
+      description,
+      opaque: args["opaque"] === true,
+      ...originEvidence ? { originEvidence } : {},
+      ...confirmation ? { confirmation } : {},
+      ...stake ? { stake } : {},
+      ...history ? { history } : {}
+    })
+  );
+}
+function handleCheckIndependence(args) {
+  const claim = str(args, "claim");
+  const rawItems = args["items"];
+  if (!claim) return fail("A claim is required.");
+  if (!Array.isArray(rawItems) || rawItems.length === 0) {
+    return fail("items must be a non-empty array of sources.");
+  }
+  const items = [];
+  for (const raw of rawItems) {
+    if (typeof raw !== "object" || raw === null) {
+      return fail("Each item must be an object with at least a label.");
+    }
+    const rec = raw;
+    const label = rec["label"] != null ? String(rec["label"]) : "";
+    if (!label) return fail("Each item requires a label.");
+    const statedBasis = rec["statedBasis"] != null ? String(rec["statedBasis"]) : "";
+    const relationships = rec["relationships"] != null ? String(rec["relationships"]) : "";
+    items.push({
+      label,
+      ...statedBasis ? { statedBasis } : {},
+      ...relationships ? { relationships } : {}
+    });
+  }
+  return ok((0, import_evidence_core.checkIndependence)(claim, items));
+}
+function handleAuditFinding(args) {
+  const finding = str(args, "finding");
+  if (!finding) return fail("The finding text is required.");
+  return ok((0, import_evidence_core.auditFinding)(finding));
+}
+function handleDeclarePosture(args) {
+  const posture = str(args, "posture");
+  const systemDescription = str(args, "systemDescription");
+  const postures = posture && ["screened", "graded", "open"].includes(posture) ? [(0, import_evidence_core.getPosture)(posture)] : (0, import_evidence_core.getPostures)();
+  return ok({
+    postures,
+    declarationRequirements: import_evidence_core.POSTURE_DECLARATION_REQUIREMENTS,
+    note: "Most systems are in the Open posture without having declared it, which is how ungraded material comes to support decisions. Movement between postures is legitimate; what conformance requires is that the posture in force when a record was admitted is recorded with it.",
+    ...systemDescription ? { promptTemplate: (0, import_evidence_core.declarePosturePrompt)(systemDescription) } : {}
+  });
+}
+function handleRunBenchmark(args) {
+  const mode = str(args, "mode");
+  if (mode === "case") {
+    return ok({
+      notice: import_evidence_core.BENCHMARK_NOTICE,
+      headlineClaim: import_evidence_core.BENCHMARK_CLAIM,
+      sources: import_evidence_core.BENCHMARK_SOURCES,
+      whatToProduce: import_evidence_core.BENCHMARK_TASK,
+      instruction: "Produce a finding on the headline claim before requesting the key. The key is published separately so the case can be run first.",
+      limits: import_evidence_core.BENCHMARK_LIMITS
+    });
+  }
+  if (mode === "key") {
+    return ok({
+      notice: import_evidence_core.BENCHMARK_NOTICE,
+      seeded: import_evidence_core.BENCHMARK_KEY,
+      cleanSources: import_evidence_core.BENCHMARK_CLEAN_SOURCES,
+      cleanSourcesNote: "These six carry no seeded defects. S4 and S6 disagree, which is not a defect in either. Flagging any of the six as compromised is a false positive and should be scored as such.",
+      scoring: import_evidence_core.BENCHMARK_SCORING,
+      limits: import_evidence_core.BENCHMARK_LIMITS
+    });
+  }
+  if (mode === "score") {
+    const answer = str(args, "answer");
+    if (!answer) return fail('mode "score" requires an answer.');
+    return ok({
+      notice: import_evidence_core.BENCHMARK_NOTICE,
+      seeded: import_evidence_core.BENCHMARK_KEY,
+      cleanSources: import_evidence_core.BENCHMARK_CLEAN_SOURCES,
+      scoring: import_evidence_core.BENCHMARK_SCORING,
+      promptTemplate: (0, import_evidence_core.scoreBenchmarkPrompt)(answer),
+      limits: import_evidence_core.BENCHMARK_LIMITS
+    });
+  }
+  return fail("mode must be one of: case, key, score.");
+}
+function handleOreTool(name, args) {
+  switch (name) {
+    case "ore_grade_source":
+      return handleGradeSource(args);
+    case "ore_check_independence":
+      return handleCheckIndependence(args);
+    case "ore_audit_finding":
+      return handleAuditFinding(args);
+    case "ore_declare_posture":
+      return handleDeclarePosture(args);
+    case "ore_run_benchmark":
+      return handleRunBenchmark(args);
+    default:
+      return null;
+  }
+}
+
+// packages/mcp-server/src/tool-validation.ts
+var fieldType = external_exports.enum([
+  "text",
+  "textarea",
+  "url",
+  "number",
+  "boolean",
+  "select",
+  "multiselect",
+  "file"
+]);
+var gateType = external_exports.enum([
+  "entry-specification",
+  "application",
+  "completion",
+  "continuation"
+]);
+var obligationMode = external_exports.enum(["build", "change", "retroactive"]);
+var TOOL_INPUT_SCHEMAS = {
+  walkri_audit_field: external_exports.object({
+    label: external_exports.string().min(1, "a field label is required"),
+    description: external_exports.string().optional(),
+    fieldType,
+    options: external_exports.array(external_exports.string()).optional(),
+    caption: external_exports.string().optional(),
+    placeholder: external_exports.string().optional(),
+    required: external_exports.boolean()
+  }),
+  walkri_generate_field: external_exports.object({
+    whatToMeasure: external_exports.string().min(1, "describe what the field should measure"),
+    programType: external_exports.string().optional(),
+    fieldTypeHint: fieldType.optional()
+  }),
+  cross_check_gate: external_exports.object({
+    gateType,
+    obligationMode,
+    content: external_exports.string().optional()
+  }),
+  cross_configure_round: external_exports.object({
+    programDescription: external_exports.string().min(1, "describe the program to configure"),
+    programType: external_exports.string().optional()
+  }),
+  cross_classify_framework: external_exports.object({
+    frameworkDescription: external_exports.string().min(1, "describe the framework to classify"),
+    frameworkName: external_exports.string().optional()
+  }),
+  cross_lookup_lens: external_exports.object({
+    lens_id: external_exports.enum([
+      "calibration-tier",
+      "authority-source",
+      "cultural-methodological-lineage",
+      "funder-typology",
+      "framework-scope-type"
+    ]).optional(),
+    value_id: external_exports.string().optional()
+  }),
+  cross_falsifiability_audit: external_exports.object({
+    scope: external_exports.enum(["elements", "types", "failure-modes", "all"]).optional(),
+    type_id: external_exports.string().optional(),
+    failure_mode_id: external_exports.string().optional()
+  }),
+  cross_audit_round: external_exports.object({
+    roundDescription: external_exports.string().min(1, "describe the round to audit").optional(),
+    description: external_exports.string().optional(),
+    obligationMode: obligationMode.optional()
+  }),
+  ore_grade_source: external_exports.object({
+    label: external_exports.string().min(1, "a short name for the source is required"),
+    description: external_exports.string().min(1, "describe what the source is and supplies"),
+    originEvidence: external_exports.string().optional(),
+    confirmation: external_exports.string().optional(),
+    opaque: external_exports.boolean().optional(),
+    stake: external_exports.string().optional(),
+    history: external_exports.string().optional()
+  }),
+  ore_check_independence: external_exports.object({
+    claim: external_exports.string().min(1, "state the claim the sources supposedly support"),
+    items: external_exports.array(
+      external_exports.object({
+        label: external_exports.string().min(1, "each source needs a label"),
+        statedBasis: external_exports.string().optional(),
+        relationships: external_exports.string().optional()
+      })
+    ).min(1, "supply at least one source")
+  }),
+  ore_audit_finding: external_exports.object({
+    finding: external_exports.string().min(1, "the finding text is required")
+  }),
+  ore_declare_posture: external_exports.object({
+    posture: external_exports.enum(["screened", "graded", "open"]).optional(),
+    systemDescription: external_exports.string().optional()
+  }),
+  ore_run_benchmark: external_exports.object({
+    mode: external_exports.enum(["case", "key", "score"]),
+    answer: external_exports.string().optional()
+  }).refine((v) => v.mode !== "score" || v.answer && v.answer.length > 0, {
+    message: 'mode "score" requires an answer to grade',
+    path: ["answer"]
+  })
+};
+function validateToolArgs(name, args) {
+  const schema = TOOL_INPUT_SCHEMAS[name];
+  if (!schema) return args;
+  return schema.parse(args);
+}
+function describeIssue(issue2) {
+  const path = issue2.path.length > 0 ? issue2.path.join(".") : "(root)";
+  return `${path}: ${issue2.message}`;
+}
+function toolError(err, toolName) {
+  if (err instanceof ZodError2) {
+    const text = [
+      `Invalid arguments for ${toolName}.`,
+      ...err.issues.map((i) => `  ${describeIssue(i)}`),
+      "",
+      "Correct the arguments and call the tool again."
+    ].join("\n");
+    return { content: [{ type: "text", text }], isError: true };
+  }
+  const message = err instanceof Error ? err.message : String(err);
+  return {
+    content: [{ type: "text", text: `${toolName} failed: ${message}` }],
+    isError: true
+  };
+}
+
+// packages/mcp-server/src/create-server.ts
+var SERVER_NAME = "evidence-integrity-suite";
+var SERVER_VERSION = "0.4.0";
 var TOOLS = [
   {
     name: "walkri_audit_field",
@@ -21446,7 +27312,8 @@ var TOOLS = [
       },
       required: ["roundDescription"]
     }
-  }
+  },
+  ...ORE_TOOLS
 ];
 function handleWalkriAuditField(args) {
   const field = {
@@ -21458,7 +27325,7 @@ function handleWalkriAuditField(args) {
     placeholder: args["placeholder"] != null ? String(args["placeholder"]) : void 0,
     required: Boolean(args["required"])
   };
-  const result = (0, import_core7.auditField)(field);
+  const result = (0, import_evidence_core2.auditField)(field);
   const failingCriteria = result.criteria.filter((c) => !c.passes);
   let text = `WALKRI Audit Result
 
@@ -21489,7 +27356,7 @@ Criteria Assessment:
     for (const pattern of result.systemicPatterns) text += `- ${pattern}
 `;
   }
-  text += "\n\nPrompt Template for Revision:\n\n" + (0, import_core7.auditFieldPrompt)(field);
+  text += "\n\nPrompt Template for Revision:\n\n" + (0, import_evidence_core2.auditFieldPrompt)(field);
   return { content: [{ type: "text", text }] };
 }
 function handleWalkriGenerateField(args) {
@@ -21523,13 +27390,13 @@ A WALKRI-conformant field must satisfy all five criterion specification elements
 2. Operational definition
 3. Response form
 4. Evidence form
-5. Compliance threshold
+5. Conformance threshold
 
 Return a complete field specification as JSON.
 ---
 
 `;
-  const auditResult = (0, import_core7.auditField)(draftField);
+  const auditResult = (0, import_evidence_core2.auditField)(draftField);
   text += `Structural audit of the draft:
 Verdict: ${auditResult.verdict.toUpperCase()}
 Criteria that need specification:
@@ -21541,14 +27408,14 @@ Criteria that need specification:
   return { content: [{ type: "text", text }] };
 }
 function handleCrossCheckGate(args) {
-  const gateType = String(args["gateType"] ?? "");
-  const obligationMode = String(args["obligationMode"] ?? "");
+  const gateType2 = String(args["gateType"] ?? "");
+  const obligationMode2 = String(args["obligationMode"] ?? "");
   const content = args["content"] != null ? String(args["content"]) : null;
-  const requirements = (0, import_core7.getGateRequirements)(gateType, obligationMode);
+  const requirements = (0, import_evidence_core2.getGateRequirements)(gateType2, obligationMode2);
   let text = `CROSS Gate Requirements
 
-Gate: ${gateType}
-Obligation mode: ${obligationMode}
+Gate: ${gateType2}
+Obligation mode: ${obligationMode2}
 
 Required elements:
 
@@ -21599,7 +27466,7 @@ Required elements:
 function handleCrossConfigureRound(args) {
   const programDescription = String(args["programDescription"] ?? "");
   const programType = args["programType"] != null ? String(args["programType"]) : "general";
-  const inferredMode = (0, import_core7.classifyObligationMode)(programDescription);
+  const inferredMode = (0, import_evidence_core2.classifyObligationMode)(programDescription);
   const sampleRound = {
     obligationMode: inferredMode,
     gates: [
@@ -21609,7 +27476,7 @@ function handleCrossConfigureRound(args) {
     indicatorFields: ["primary-indicator"],
     publicBenefitMechanism: inferredMode === "change" ? "condition-change" : inferredMode === "retroactive" ? "ecosystem-shift" : "output-production"
   };
-  const validation = (0, import_core7.validateRoundConfig)(sampleRound);
+  const validation = (0, import_evidence_core2.validateRoundConfig)(sampleRound);
   let text = `CROSS Round Configuration
 
 Program: ${programDescription.slice(0, 120)}...
@@ -21626,7 +27493,7 @@ Inferred obligation mode: ${inferredMode.toUpperCase()}
   Evidence scope: ${gate.evidenceScope}
   Evidence strength: ${gate.evidenceStrength}
 `;
-    const reqs = (0, import_core7.getGateRequirements)(gate.type, inferredMode);
+    const reqs = (0, import_evidence_core2.getGateRequirements)(gate.type, inferredMode);
     text += `  Requirements (${reqs.length}):
 `;
     for (const req of reqs.slice(0, 5)) text += `    - ${req.split(":")[0]}
@@ -21641,13 +27508,13 @@ Configuration gaps:
     for (const gap of validation.gaps) text += `- ${gap}
 `;
   }
-  text += "\n\nPrompt Template for Full Configuration:\n\n---\n" + (0, import_core7.configureRoundPrompt)(programDescription, programType) + "\n---\n";
+  text += "\n\nPrompt Template for Full Configuration:\n\n---\n" + (0, import_evidence_core2.configureRoundPrompt)(programDescription, programType) + "\n---\n";
   return { content: [{ type: "text", text }] };
 }
 function handleCrossClassifyFramework(args) {
   const frameworkDescription = String(args["frameworkDescription"] ?? "");
   const frameworkName = args["frameworkName"] != null ? String(args["frameworkName"]) : "the framework";
-  const matchedPrimitives = (0, import_core7.searchPrimitives)(frameworkName);
+  const matchedPrimitives = (0, import_evidence_core2.searchPrimitives)(frameworkName);
   const layers = ["methodological", "identity", "obligation", "evidence", "specification", "causal-architecture", "portfolio"];
   const descLower = frameworkDescription.toLowerCase();
   const layerKeywords = {
@@ -21693,7 +27560,7 @@ Sample matching primitives:
 To produce a full compatibility statement:
 
 ---
-` + (0, import_core7.classifyFrameworkPrompt)(frameworkDescription) + "\n---\n";
+` + (0, import_evidence_core2.classifyFrameworkPrompt)(frameworkDescription) + "\n---\n";
   return { content: [{ type: "text", text }] };
 }
 function handleCrossAuditRound(args) {
@@ -21731,81 +27598,94 @@ Conformance Checks:
     text += "\n";
   }
   const fullDescription = [roundDescription, eligibilityCriteria ? `Eligibility: ${eligibilityCriteria}` : "", formFields ? `Fields: ${formFields.join(", ")}` : "", completionRequirements ? `Completion: ${completionRequirements}` : ""].filter(Boolean).join("\n\n");
-  text += "\nFor comprehensive evaluation:\n\n---\n" + (0, import_core7.evaluateRoundPrompt)(fullDescription) + "\n---\n";
+  text += "\nFor comprehensive evaluation:\n\n---\n" + (0, import_evidence_core2.evaluateRoundPrompt)(fullDescription) + "\n---\n";
   return { content: [{ type: "text", text }] };
 }
 function handleCrossLookupLens(args) {
   const lensId = args["lens_id"] != null ? String(args["lens_id"]) : null;
   const valueId = args["value_id"] != null ? String(args["value_id"]) : null;
   if (lensId && valueId) {
-    const value = (0, import_core7.getLensValue)(lensId, valueId);
+    const value = (0, import_evidence_core2.getLensValue)(lensId, valueId);
     if (!value) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Value "${valueId}" not found in lens "${lensId}".`, available_lenses: (0, import_core7.getAllLensIds)() }, null, 2) }], isError: true };
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Value "${valueId}" not found in lens "${lensId}".`, available_lenses: (0, import_evidence_core2.getAllLensIds)() }, null, 2) }], isError: true };
     }
-    const lens = (0, import_core7.getLens)(lensId);
+    const lens = (0, import_evidence_core2.getLens)(lensId);
     return { content: [{ type: "text", text: JSON.stringify({ lens: lens?.name, value, detection_criteria: lens?.detection_criteria }, null, 2) }] };
   }
   if (lensId) {
-    const lens = (0, import_core7.getLens)(lensId);
+    const lens = (0, import_evidence_core2.getLens)(lensId);
     if (!lens) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Lens "${lensId}" not found.`, available_lenses: (0, import_core7.getAllLensIds)() }, null, 2) }], isError: true };
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Lens "${lensId}" not found.`, available_lenses: (0, import_evidence_core2.getAllLensIds)() }, null, 2) }], isError: true };
     }
     return { content: [{ type: "text", text: JSON.stringify(lens, null, 2) }] };
   }
-  return { content: [{ type: "text", text: JSON.stringify({ total: import_core7.LENSES.length, lenses: import_core7.LENSES }, null, 2) }] };
+  return { content: [{ type: "text", text: JSON.stringify({ total: import_evidence_core2.LENSES.length, lenses: import_evidence_core2.LENSES }, null, 2) }] };
 }
 function handleCrossFalsifiabilityAudit(args) {
   const scope = args["scope"] != null ? String(args["scope"]) : "all";
   const typeId = args["type_id"] != null ? String(args["type_id"]) : null;
   const failureModeId = args["failure_mode_id"] != null ? String(args["failure_mode_id"]) : null;
   if (typeId) {
-    const type = (0, import_core7.getFalsifiabilityType)(typeId);
+    const type = (0, import_evidence_core2.getFalsifiabilityType)(typeId);
     if (!type) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Falsifiability type "${typeId}" not found.`, available: import_core7.FALSIFIABILITY_TYPES.map((t) => t.id) }, null, 2) }], isError: true };
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Falsifiability type "${typeId}" not found.`, available: import_evidence_core2.FALSIFIABILITY_TYPES.map((t) => t.id) }, null, 2) }], isError: true };
     }
     return { content: [{ type: "text", text: JSON.stringify({ type }, null, 2) }] };
   }
   if (failureModeId) {
-    const mode = (0, import_core7.getFalsifiabilityFailureMode)(failureModeId);
+    const mode = (0, import_evidence_core2.getFalsifiabilityFailureMode)(failureModeId);
     if (!mode) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Failure mode "${failureModeId}" not found.`, available: import_core7.FALSIFIABILITY_FAILURE_MODES.map((m) => m.id) }, null, 2) }], isError: true };
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Failure mode "${failureModeId}" not found.`, available: import_evidence_core2.FALSIFIABILITY_FAILURE_MODES.map((m) => m.id) }, null, 2) }], isError: true };
     }
     return { content: [{ type: "text", text: JSON.stringify({ failure_mode: mode }, null, 2) }] };
   }
   const payload = {};
-  if (scope === "elements" || scope === "all") payload["four_elements"] = import_core7.FALSIFIABILITY_ELEMENTS;
-  if (scope === "types" || scope === "all") payload["gate_types"] = import_core7.FALSIFIABILITY_TYPES;
-  if (scope === "failure-modes" || scope === "all") payload["failure_modes"] = import_core7.FALSIFIABILITY_FAILURE_MODES;
+  if (scope === "elements" || scope === "all") payload["four_elements"] = import_evidence_core2.FALSIFIABILITY_ELEMENTS;
+  if (scope === "types" || scope === "all") payload["gate_types"] = import_evidence_core2.FALSIFIABILITY_TYPES;
+  if (scope === "failure-modes" || scope === "all") payload["failure_modes"] = import_evidence_core2.FALSIFIABILITY_FAILURE_MODES;
   return { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] };
 }
 function createMcpServer() {
   const server = new Server(
-    { name: "cross-walkri", version: "0.3.0" },
+    { name: SERVER_NAME, version: SERVER_VERSION },
     { capabilities: { tools: {} } }
   );
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
-    const safeArgs = args ?? {};
-    switch (name) {
-      case "walkri_audit_field":
-        return handleWalkriAuditField(safeArgs);
-      case "walkri_generate_field":
-        return handleWalkriGenerateField(safeArgs);
-      case "cross_check_gate":
-        return handleCrossCheckGate(safeArgs);
-      case "cross_configure_round":
-        return handleCrossConfigureRound(safeArgs);
-      case "cross_classify_framework":
-        return handleCrossClassifyFramework(safeArgs);
-      case "cross_lookup_lens":
-        return handleCrossLookupLens(safeArgs);
-      case "cross_falsifiability_audit":
-        return handleCrossFalsifiabilityAudit(safeArgs);
-      case "cross_audit_round":
-        return handleCrossAuditRound(safeArgs);
-      default:
-        return { content: [{ type: "text", text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(", ")}` }], isError: true };
+    const raw = args ?? {};
+    let safeArgs;
+    try {
+      safeArgs = validateToolArgs(name, raw);
+    } catch (err) {
+      return toolError(err, name);
+    }
+    try {
+      switch (name) {
+        case "walkri_audit_field":
+          return handleWalkriAuditField(safeArgs);
+        case "walkri_generate_field":
+          return handleWalkriGenerateField(safeArgs);
+        case "cross_check_gate":
+          return handleCrossCheckGate(safeArgs);
+        case "cross_configure_round":
+          return handleCrossConfigureRound(safeArgs);
+        case "cross_classify_framework":
+          return handleCrossClassifyFramework(safeArgs);
+        case "cross_lookup_lens":
+          return handleCrossLookupLens(safeArgs);
+        case "cross_falsifiability_audit":
+          return handleCrossFalsifiabilityAudit(safeArgs);
+        case "cross_audit_round":
+          return handleCrossAuditRound(safeArgs);
+        default: {
+          const oreResult = handleOreTool(name, safeArgs);
+          if (oreResult) return oreResult;
+          return { content: [{ type: "text", text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(", ")}` }], isError: true };
+        }
+      }
+    } catch (err) {
+      return toolError(err, name);
     }
   });
   return server;
@@ -21816,7 +27696,7 @@ var PORT = Number(process.env["PORT"] ?? 3e3);
 var httpServer = createHttpServer(async (req, res) => {
   if (req.url === "/health" || req.url === "/") {
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ status: "ok", server: "cross-walkri", version: "0.1.0" }));
+    res.end(JSON.stringify({ status: "ok", server: SERVER_NAME, version: SERVER_VERSION }));
     return;
   }
   if (req.url === "/mcp") {
@@ -21850,6 +27730,6 @@ var httpServer = createHttpServer(async (req, res) => {
   res.end(JSON.stringify({ error: "Not found. MCP endpoint is POST /mcp" }));
 });
 httpServer.listen(PORT, () => {
-  console.error(`cross-walkri MCP server listening on port ${PORT}`);
+  console.error(`${SERVER_NAME} MCP server v${SERVER_VERSION} listening on port ${PORT}`);
   console.error(`MCP endpoint: http://localhost:${PORT}/mcp`);
 });

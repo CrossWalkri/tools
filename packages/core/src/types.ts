@@ -13,7 +13,7 @@ export type WalkriCriterionName =
   | 'operational-definition'
   | 'response-form'
   | 'evidence-form'
-  | 'compliance-threshold'
+  | 'conformance-threshold'
 
 /** A single WALKRI criterion assessment result. */
 export interface WalkriCriterion {
@@ -168,8 +168,14 @@ export interface CrossPrimitive {
   layer: PrimitiveLayer
   /** Precise definition of the primitive. */
   description: string
-  /** Names of other primitives this one directly relates to or generates. */
-  relationships: string[]
-  /** Provisions or contexts where this primitive is applied. */
-  applications: string[]
+  /**
+   * How this primitive relates to others, as the foundation states it.
+   *
+   * Prose rather than a list, because the canonical source is prose and
+   * splitting it into array items was a lossy invention of the hand-maintained
+   * copy this array replaced.
+   */
+  relationships: string
+  /** Provisions or contexts where this primitive is applied, as stated. */
+  applications: string
 }

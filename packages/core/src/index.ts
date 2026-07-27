@@ -1,10 +1,11 @@
 /**
- * @cross-walkri/core
+ * @proof-of-coord/evidence-core
  *
  * TypeScript types, Zod schemas, audit logic, primitives, and prompt templates
- * for the CROSS+WALKRI grant standards.
+ * for the evidence integrity standards: CROSS and WALKRI at the grant boundary,
+ * ORE at the source boundary, and the finding contract at the output boundary.
  *
- * Version 0.1.0 | CC0
+ * Version 0.4.0 | CC0
  */
 
 // Types
@@ -85,3 +86,43 @@ export {
   classifyFrameworkPrompt,
   evaluateRoundPrompt,
 } from './prompts.js'
+
+// ORE and the finding contract
+export type {
+  OreDimensionName,
+  OreConfirmationMode,
+  OrePosture,
+  OreDimensionScaffold,
+  OreSourceInput,
+  OreGradingScaffold,
+  OreEvidenceItem,
+  OreIndependenceResult,
+  OreObligationName,
+  OreObligationStatus,
+  OreObligationCheck,
+  OreFindingAudit,
+  OrePostureSpec,
+  OreBenchmarkSource,
+  OreBenchmarkSeededItem,
+} from './ore.js'
+export {
+  gradeSourceScaffold,
+  checkIndependence,
+  auditFinding,
+  getPostures,
+  getPosture,
+  POSTURE_DECLARATION_REQUIREMENTS,
+  BENCHMARK_NOTICE,
+  BENCHMARK_CLAIM,
+  BENCHMARK_SOURCES,
+  BENCHMARK_TASK,
+  BENCHMARK_KEY,
+  BENCHMARK_CLEAN_SOURCES,
+  BENCHMARK_SCORING,
+  BENCHMARK_LIMITS,
+  gradeSourcePrompt,
+  independencePrompt,
+  auditFindingPrompt,
+  declarePosturePrompt,
+  scoreBenchmarkPrompt,
+} from './ore.js'

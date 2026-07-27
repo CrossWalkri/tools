@@ -36,7 +36,7 @@ export const walkriCriterionNameSchema = z.enum([
   'operational-definition',
   'response-form',
   'evidence-form',
-  'compliance-threshold',
+  'conformance-threshold',
 ])
 
 /** Validates a single WALKRI criterion assessment result. */
