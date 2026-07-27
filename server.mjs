@@ -11397,6 +11397,7 @@ var require_cross = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getGateRequirements = getGateRequirements3;
     exports.validateRoundConfig = validateRoundConfig3;
+    exports.classifyObligationModeWithBasis = classifyObligationModeWithBasis;
     exports.classifyObligationMode = classifyObligationMode3;
     function getGateRequirements3(gateType2, obligationMode2) {
       const shared = [
@@ -11448,9 +11449,13 @@ var require_cross = __commonJS({
       for (const r of modeRequirements) {
         requirements.push(`${r.label}: ${r.description}`);
       }
-      const gateRequirements = byGate[gateType2] ?? [];
-      for (const r of gateRequirements) {
-        requirements.push(`${r.label}: ${r.description}`);
+      const gateRequirements = byGate[gateType2];
+      if (gateRequirements === void 0) {
+        requirements.push(`No requirements specific to the ${gateType2} gate are defined. The requirements above are the shared and obligation-mode requirements that apply at every gate. If this gate carries obligations of its own in your program, they are yours to declare.`);
+      } else {
+        for (const r of gateRequirements) {
+          requirements.push(`${r.label}: ${r.description}`);
+        }
       }
       return requirements;
     }
@@ -11513,7 +11518,7 @@ var require_cross = __commonJS({
       }
       return { valid: gaps.length === 0, gaps };
     }
-    function classifyObligationMode3(description) {
+    function classifyObligationModeWithBasis(description) {
       const lower = description.toLowerCase();
       const retroactiveSignals = [
         "already built",
@@ -11531,8 +11536,14 @@ var require_cross = __commonJS({
         "historical impact",
         "previously deployed"
       ];
-      if (retroactiveSignals.some((s) => lower.includes(s))) {
-        return "retroactive";
+      const retroactiveMatched = retroactiveSignals.some((s) => lower.includes(s));
+      if (retroactiveMatched) {
+        return {
+          mode: "retroactive",
+          basis: { changeSignals: 0, buildSignals: 0, retroactiveMatched: true },
+          ambiguous: false,
+          note: "Retroactive language is decisive here: the description names work already done."
+        };
       }
       const changeSignals = [
         "measurable change",
@@ -11577,10 +11588,36 @@ var require_cross = __commonJS({
         "integration"
       ];
       const buildScore = buildSignals.filter((s) => lower.includes(s)).length;
+      const basis = {
+        changeSignals: changeScore,
+        buildSignals: buildScore,
+        retroactiveMatched: false
+      };
       if (changeScore > buildScore) {
-        return "change";
+        return {
+          mode: "change",
+          basis,
+          ambiguous: false,
+          note: "Change signals outweigh build signals."
+        };
       }
-      return "build";
+      if (changeScore === buildScore) {
+        return {
+          mode: "build",
+          basis,
+          ambiguous: true,
+          note: changeScore === 0 ? "Neither change nor build language was found. Build is returned as a starting point only; the description does not support a mode, and an operator must choose one." : "Change and build signals are evenly matched, so this description does not distinguish the modes. Build is returned as a starting point only; an operator must choose."
+        };
+      }
+      return {
+        mode: "build",
+        basis,
+        ambiguous: false,
+        note: "Build signals outweigh change signals."
+      };
+    }
+    function classifyObligationMode3(description) {
+      return classifyObligationModeWithBasis(description).mode;
     }
   }
 });
@@ -13858,8 +13895,8 @@ var require_dist2 = __commonJS({
   "packages/core/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.gradeSourcePrompt = exports.BENCHMARK_LIMITS = exports.BENCHMARK_SCORING = exports.BENCHMARK_CLEAN_SOURCES = exports.BENCHMARK_KEY = exports.BENCHMARK_TASK = exports.BENCHMARK_SOURCES = exports.BENCHMARK_CLAIM = exports.BENCHMARK_NOTICE = exports.POSTURE_DECLARATION_REQUIREMENTS = exports.getPosture = exports.getPostures = exports.auditFinding = exports.checkIndependence = exports.gradeSourceScaffold = exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.getFalsifiabilityFailureMode = exports.getFalsifiabilityType = exports.getFalsifiabilityElements = exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = exports.getAllLensIds = exports.getLensValue = exports.getLens = exports.LENSES = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES_FOUNDATION_DATE = exports.PRIMITIVES_FOUNDATION_VERSION = exports.PRIMITIVES = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
-    exports.scoreBenchmarkPrompt = exports.declarePosturePrompt = exports.auditFindingPrompt = exports.independencePrompt = void 0;
+    exports.BENCHMARK_LIMITS = exports.BENCHMARK_SCORING = exports.BENCHMARK_CLEAN_SOURCES = exports.BENCHMARK_KEY = exports.BENCHMARK_TASK = exports.BENCHMARK_SOURCES = exports.BENCHMARK_CLAIM = exports.BENCHMARK_NOTICE = exports.POSTURE_DECLARATION_REQUIREMENTS = exports.getPosture = exports.getPostures = exports.auditFinding = exports.checkIndependence = exports.gradeSourceScaffold = exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.getFalsifiabilityFailureMode = exports.getFalsifiabilityType = exports.getFalsifiabilityElements = exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = exports.getAllLensIds = exports.getLensValue = exports.getLens = exports.LENSES = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES_FOUNDATION_DATE = exports.PRIMITIVES_FOUNDATION_VERSION = exports.PRIMITIVES = exports.classifyObligationModeWithBasis = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
+    exports.scoreBenchmarkPrompt = exports.declarePosturePrompt = exports.auditFindingPrompt = exports.independencePrompt = exports.gradeSourcePrompt = void 0;
     var schemas_js_1 = require_schemas();
     Object.defineProperty(exports, "walkriFieldTypeSchema", { enumerable: true, get: function() {
       return schemas_js_1.walkriFieldTypeSchema;
@@ -13907,6 +13944,9 @@ var require_dist2 = __commonJS({
     } });
     Object.defineProperty(exports, "classifyObligationMode", { enumerable: true, get: function() {
       return cross_js_1.classifyObligationMode;
+    } });
+    Object.defineProperty(exports, "classifyObligationModeWithBasis", { enumerable: true, get: function() {
+      return cross_js_1.classifyObligationModeWithBasis;
     } });
     var primitives_js_1 = require_primitives();
     Object.defineProperty(exports, "PRIMITIVES", { enumerable: true, get: function() {

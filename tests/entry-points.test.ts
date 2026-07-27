@@ -20,7 +20,11 @@ import {
   FALSIFIABILITY_FAILURE_MODES,
 } from '../packages/core/src/falsifiability.js'
 import { auditField } from '../packages/core/src/walkri.js'
-import { classifyObligationMode } from '../packages/core/src/cross.js'
+import {
+  classifyObligationMode,
+  classifyObligationModeWithBasis,
+  getGateRequirements,
+} from '../packages/core/src/cross.js'
 
 const ENTRIES = [
   { label: 'bundle', path: 'server.mjs' },
@@ -123,10 +127,41 @@ describe('obligation mode classification', () => {
     expect(classifyObligationMode('Ship a v1 tool and deploy the smart contract')).toBe('build')
   })
 
-  it('documents the known limit: a tie resolves silently to build', () => {
-    // A description with no signal either way returns 'build' rather than
-    // reporting that it could not tell. Recorded so the behaviour is a decision
-    // rather than a surprise. If ambiguity is surfaced later, this test flips.
-    expect(classifyObligationMode('A programme of general interest.')).toBe('build')
+  it('reports a tie as ambiguous rather than resolving it silently', () => {
+    // Previously a description with no signal either way returned 'build' with
+    // no indication, which is a judgment the text never supported.
+    const r = classifyObligationModeWithBasis('A programme of general interest.')
+    expect(r.mode).toBe('build')
+    expect(r.ambiguous).toBe(true)
+    expect(r.note).toMatch(/starting point only/)
+  })
+
+  it('does not call a clear reading ambiguous', () => {
+    const build = classifyObligationModeWithBasis('Ship a v1 tool and deploy the smart contract')
+    expect(build.ambiguous).toBe(false)
+    expect(build.basis.buildSignals).toBeGreaterThan(build.basis.changeSignals)
+  })
+
+  it('exposes the signal counts the call rested on', () => {
+    const r = classifyObligationModeWithBasis(
+      'Reduce the baseline rate in the target population against a theory of change',
+    )
+    expect(r.mode).toBe('change')
+    expect(r.basis.changeSignals).toBeGreaterThan(0)
+  })
+})
+
+describe('gate requirements', () => {
+  it('says so when a gate type has no requirements of its own', () => {
+    // 'application' is a valid gate type with no entry in the table. It used to
+    // return a shorter list that read as complete.
+    const reqs = getGateRequirements('application', 'build')
+    expect(reqs.join(' ')).toMatch(/No requirements specific to the application gate are defined/)
+  })
+
+  it('leaves a gate that does have its own untouched', () => {
+    const reqs = getGateRequirements('completion', 'build')
+    expect(reqs.join(' ')).not.toMatch(/No requirements specific/)
+    expect(reqs.length).toBeGreaterThan(getGateRequirements('application', 'build').length)
   })
 })

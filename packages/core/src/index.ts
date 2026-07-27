@@ -50,7 +50,9 @@ export {
   getGateRequirements,
   validateRoundConfig,
   classifyObligationMode,
+  classifyObligationModeWithBasis,
 } from './cross.js'
+export type { ObligationModeClassification } from './cross.js'
 
 // Primitives
 export {

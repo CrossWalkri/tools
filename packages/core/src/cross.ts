@@ -86,9 +86,17 @@ export function getGateRequirements(
     requirements.push(`${r.label}: ${r.description}`)
   }
 
-  const gateRequirements = byGate[gateType] ?? []
-  for (const r of gateRequirements) {
-    requirements.push(`${r.label}: ${r.description}`)
+  const gateRequirements = byGate[gateType]
+  if (gateRequirements === undefined) {
+    // A valid gate type with no requirements of its own. Saying so beats
+    // returning a shorter list that reads as complete.
+    requirements.push(
+      `No requirements specific to the ${gateType} gate are defined. The requirements above are the shared and obligation-mode requirements that apply at every gate. If this gate carries obligations of its own in your program, they are yours to declare.`,
+    )
+  } else {
+    for (const r of gateRequirements) {
+      requirements.push(`${r.label}: ${r.description}`)
+    }
   }
 
   return requirements
@@ -209,14 +217,30 @@ export function validateRoundConfig(round: CrossRound): RoundValidationResult {
 // Obligation mode classification (heuristic)
 // ---------------------------------------------------------------------------
 
+export interface ObligationModeClassification {
+  mode: CrossObligationMode
+  /** Signal counts the call rested on, so a caller can see the margin. */
+  basis: { changeSignals: number; buildSignals: number; retroactiveMatched: boolean }
+  /**
+   * True when the evidence did not distinguish the modes. Previously a tie
+   * returned 'build' with no indication, which is a judgment the description
+   * never supported. An unknown belongs in a named state, not in a default.
+   */
+  ambiguous: boolean
+  /** What a caller should do about it, in one line. */
+  note: string
+}
+
 /**
- * Heuristic classifier that infers an obligation mode from a natural-language
- * description of a grant program or round.
+ * Infer an obligation mode from a natural-language description, with the basis.
  *
- * This is a heuristic suitable for suggesting a starting configuration;
- * it should always be reviewed by a human operator before a round opens.
+ * Heuristic, suitable for suggesting a starting configuration and always to be
+ * reviewed by a human operator before a round opens. Where the signals do not
+ * separate, that is reported rather than resolved.
  */
-export function classifyObligationMode(description: string): CrossObligationMode {
+export function classifyObligationModeWithBasis(
+  description: string,
+): ObligationModeClassification {
   const lower = description.toLowerCase()
 
   // Retroactive signals: past tense, recognition of prior work
@@ -236,8 +260,14 @@ export function classifyObligationMode(description: string): CrossObligationMode
     'historical impact',
     'previously deployed',
   ]
-  if (retroactiveSignals.some((s) => lower.includes(s))) {
-    return 'retroactive'
+  const retroactiveMatched = retroactiveSignals.some((s) => lower.includes(s))
+  if (retroactiveMatched) {
+    return {
+      mode: 'retroactive',
+      basis: { changeSignals: 0, buildSignals: 0, retroactiveMatched: true },
+      ambiguous: false,
+      note: 'Retroactive language is decisive here: the description names work already done.',
+    }
   }
 
   // Change signals: measurable outcomes, baselines, populations, condition shifts
@@ -287,9 +317,47 @@ export function classifyObligationMode(description: string): CrossObligationMode
   ]
   const buildScore = buildSignals.filter((s) => lower.includes(s)).length
 
-  if (changeScore > buildScore) {
-    return 'change'
+  const basis = {
+    changeSignals: changeScore,
+    buildSignals: buildScore,
+    retroactiveMatched: false,
   }
 
-  return 'build'
+  if (changeScore > buildScore) {
+    return {
+      mode: 'change',
+      basis,
+      ambiguous: false,
+      note: 'Change signals outweigh build signals.',
+    }
+  }
+
+  if (changeScore === buildScore) {
+    return {
+      mode: 'build',
+      basis,
+      ambiguous: true,
+      note:
+        changeScore === 0
+          ? 'Neither change nor build language was found. Build is returned as a starting point only; the description does not support a mode, and an operator must choose one.'
+          : 'Change and build signals are evenly matched, so this description does not distinguish the modes. Build is returned as a starting point only; an operator must choose.',
+    }
+  }
+
+  return {
+    mode: 'build',
+    basis,
+    ambiguous: false,
+    note: 'Build signals outweigh change signals.',
+  }
+}
+
+/**
+ * The mode alone, for callers that only need the classification.
+ *
+ * Prefer classifyObligationModeWithBasis where the answer is shown to a person:
+ * this form cannot tell them the call was a coin toss.
+ */
+export function classifyObligationMode(description: string): CrossObligationMode {
+  return classifyObligationModeWithBasis(description).mode
 }
