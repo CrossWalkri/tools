@@ -13858,8 +13858,8 @@ var require_dist2 = __commonJS({
   "packages/core/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.auditFindingPrompt = exports.independencePrompt = exports.gradeSourcePrompt = exports.BENCHMARK_LIMITS = exports.BENCHMARK_SCORING = exports.BENCHMARK_CLEAN_SOURCES = exports.BENCHMARK_KEY = exports.BENCHMARK_TASK = exports.BENCHMARK_SOURCES = exports.BENCHMARK_CLAIM = exports.BENCHMARK_NOTICE = exports.POSTURE_DECLARATION_REQUIREMENTS = exports.getPosture = exports.getPostures = exports.auditFinding = exports.checkIndependence = exports.gradeSourceScaffold = exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.getFalsifiabilityFailureMode = exports.getFalsifiabilityType = exports.getFalsifiabilityElements = exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = exports.getAllLensIds = exports.getLensValue = exports.getLens = exports.LENSES = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
-    exports.scoreBenchmarkPrompt = exports.declarePosturePrompt = void 0;
+    exports.gradeSourcePrompt = exports.BENCHMARK_LIMITS = exports.BENCHMARK_SCORING = exports.BENCHMARK_CLEAN_SOURCES = exports.BENCHMARK_KEY = exports.BENCHMARK_TASK = exports.BENCHMARK_SOURCES = exports.BENCHMARK_CLAIM = exports.BENCHMARK_NOTICE = exports.POSTURE_DECLARATION_REQUIREMENTS = exports.getPosture = exports.getPostures = exports.auditFinding = exports.checkIndependence = exports.gradeSourceScaffold = exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.getFalsifiabilityFailureMode = exports.getFalsifiabilityType = exports.getFalsifiabilityElements = exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = exports.getAllLensIds = exports.getLensValue = exports.getLens = exports.LENSES = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES_FOUNDATION_DATE = exports.PRIMITIVES_FOUNDATION_VERSION = exports.PRIMITIVES = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
+    exports.scoreBenchmarkPrompt = exports.declarePosturePrompt = exports.auditFindingPrompt = exports.independencePrompt = void 0;
     var schemas_js_1 = require_schemas();
     Object.defineProperty(exports, "walkriFieldTypeSchema", { enumerable: true, get: function() {
       return schemas_js_1.walkriFieldTypeSchema;
@@ -13911,6 +13911,12 @@ var require_dist2 = __commonJS({
     var primitives_js_1 = require_primitives();
     Object.defineProperty(exports, "PRIMITIVES", { enumerable: true, get: function() {
       return primitives_js_1.PRIMITIVES;
+    } });
+    Object.defineProperty(exports, "PRIMITIVES_FOUNDATION_VERSION", { enumerable: true, get: function() {
+      return primitives_js_1.PRIMITIVES_FOUNDATION_VERSION;
+    } });
+    Object.defineProperty(exports, "PRIMITIVES_FOUNDATION_DATE", { enumerable: true, get: function() {
+      return primitives_js_1.PRIMITIVES_FOUNDATION_DATE;
     } });
     Object.defineProperty(exports, "getPrimitiveByName", { enumerable: true, get: function() {
       return primitives_js_1.getPrimitiveByName;
@@ -25151,7 +25157,7 @@ var StdioServerTransport = class {
 };
 
 // packages/mcp-server/src/index.ts
-var import_evidence_core3 = __toESM(require_dist2(), 1);
+var import_evidence_core4 = __toESM(require_dist2(), 1);
 
 // packages/mcp-server/src/ore-tools.ts
 var import_evidence_core = __toESM(require_dist2(), 1);
@@ -25534,6 +25540,9 @@ function toolError(err, toolName) {
   };
 }
 
+// packages/mcp-server/src/tool-output.ts
+var import_evidence_core3 = __toESM(require_dist2(), 1);
+
 // packages/mcp-server/src/create-server.ts
 var import_evidence_core2 = __toESM(require_dist2(), 1);
 var SERVER_NAME = "evidence-integrity-suite";
@@ -25662,6 +25671,120 @@ var TOOLS = [
   },
   ...ORE_TOOLS
 ];
+
+// packages/mcp-server/src/tool-output.ts
+var PROVENANCE = {
+  server: SERVER_NAME,
+  serverVersion: SERVER_VERSION,
+  encodes: {
+    "cross-walkri-primitives-foundation": import_evidence_core3.PRIMITIVES_FOUNDATION_VERSION,
+    ore: "0.1.2",
+    "finding-contract": "0.1.0"
+  }
+};
+var JSON_TOOL_KEYS = {
+  cross_lookup_lens: [
+    "id",
+    "name",
+    "what_it_organizes",
+    "values",
+    "detection_criteria",
+    "output_shape_note"
+  ],
+  cross_falsifiability_audit: ["four_elements", "gate_types", "failure_modes", "note"],
+  ore_grade_source: [
+    "source",
+    "dimensions",
+    "confirmationCandidates",
+    "opacity",
+    "monitoring",
+    "standingRules",
+    "promptTemplate"
+  ],
+  ore_check_independence: [
+    "claim",
+    "items",
+    "distinctOriginsClaimed",
+    "distinctOriginsEstablished",
+    "flags",
+    "constraints",
+    "promptTemplate"
+  ],
+  ore_audit_finding: ["obligations", "systemicPatterns", "verdictNote", "promptTemplate"],
+  ore_declare_posture: ["postures", "declarationRequirements", "note"],
+  ore_run_benchmark: []
+};
+var PROSE_TOOLS = [
+  "walkri_audit_field",
+  "walkri_generate_field",
+  "cross_check_gate",
+  "cross_configure_round",
+  "cross_classify_framework",
+  "cross_audit_round"
+];
+var provenanceSchema = {
+  type: "object",
+  description: "What this response was produced against: the server, its version, and the standard and reference versions encoded.",
+  properties: {
+    server: { type: "string" },
+    serverVersion: { type: "string" },
+    encodes: { type: "object", additionalProperties: { type: "string" } }
+  },
+  required: ["server", "serverVersion", "encodes"]
+};
+function schemaFor(name) {
+  if (PROSE_TOOLS.includes(name)) {
+    return {
+      type: "object",
+      properties: {
+        rendered: {
+          type: "string",
+          description: "The readable report, identical to the text content."
+        },
+        _provenance: provenanceSchema
+      },
+      required: ["rendered", "_provenance"],
+      additionalProperties: true
+    };
+  }
+  const keys = JSON_TOOL_KEYS[name] ?? [];
+  const properties = {};
+  for (const k of keys) properties[k] = {};
+  properties["_provenance"] = provenanceSchema;
+  return {
+    type: "object",
+    properties,
+    // `additionalProperties` stays open: these responses carry explanatory
+    // fields that move with the standards, and a closed schema would turn an
+    // added note into a validation failure for every client.
+    required: [...keys, "_provenance"],
+    additionalProperties: true
+  };
+}
+function withOutputSchemas2(tools) {
+  return tools.map((t) => ({ ...t, outputSchema: schemaFor(t.name) }));
+}
+function finish(result, toolName) {
+  const r = result;
+  if (r?.isError === true) return result;
+  const first = r?.content?.[0];
+  if (!first || first.type !== "text" || typeof first.text !== "string") return result;
+  let parsed = null;
+  try {
+    parsed = JSON.parse(first.text);
+  } catch {
+    parsed = null;
+  }
+  if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
+    const stamped = { ...parsed, _provenance: PROVENANCE };
+    first.text = JSON.stringify(stamped, null, 2);
+    r.structuredContent = stamped;
+    return result;
+  }
+  r.structuredContent = { rendered: first.text, _provenance: PROVENANCE };
+  void toolName;
+  return result;
+}
 
 // packages/mcp-server/src/index.ts
 var TOOLS2 = [
@@ -25873,7 +25996,7 @@ function handleWalkriAuditField(args) {
     placeholder: args["placeholder"] != null ? String(args["placeholder"]) : void 0,
     required: Boolean(args["required"])
   };
-  const result = (0, import_evidence_core3.auditField)(field);
+  const result = (0, import_evidence_core4.auditField)(field);
   const failingCriteria = result.criteria.filter((c) => !c.passes);
   let text = `WALKRI Audit Result
 
@@ -25911,7 +26034,7 @@ Verdict: ${result.verdict.toUpperCase()}
     }
   }
   text += "\n\nPrompt Template for Revision:\n\n";
-  text += (0, import_evidence_core3.auditFieldPrompt)(field);
+  text += (0, import_evidence_core4.auditFieldPrompt)(field);
   return { content: [{ type: "text", text }] };
 }
 function handleWalkriGenerateField(args) {
@@ -25978,7 +26101,7 @@ A WALKRI-conformant field must satisfy all five criterion specification elements
   }
 }`;
   text += "\n---\n\n";
-  const auditResult = (0, import_evidence_core3.auditField)(draftField);
+  const auditResult = (0, import_evidence_core4.auditField)(draftField);
   text += `Structural audit of the draft (based on the information provided):
 `;
   text += `Verdict: ${auditResult.verdict.toUpperCase()}
@@ -25995,7 +26118,7 @@ function handleCrossCheckGate(args) {
   const gateType2 = String(args["gateType"] ?? "");
   const obligationMode2 = String(args["obligationMode"] ?? "");
   const content = args["content"] != null ? String(args["content"]) : null;
-  const requirements = (0, import_evidence_core3.getGateRequirements)(gateType2, obligationMode2);
+  const requirements = (0, import_evidence_core4.getGateRequirements)(gateType2, obligationMode2);
   let text = `CROSS Gate Requirements
 
 Gate: ${gateType2}
@@ -26061,7 +26184,7 @@ Required elements:
 function handleCrossConfigureRound(args) {
   const programDescription = String(args["programDescription"] ?? "");
   const programType = args["programType"] != null ? String(args["programType"]) : "general";
-  const inferredMode = (0, import_evidence_core3.classifyObligationMode)(programDescription);
+  const inferredMode = (0, import_evidence_core4.classifyObligationMode)(programDescription);
   const sampleRound = {
     obligationMode: inferredMode,
     gates: [
@@ -26083,7 +26206,7 @@ function handleCrossConfigureRound(args) {
     indicatorFields: ["primary-indicator"],
     publicBenefitMechanism: inferredMode === "change" ? "condition-change" : inferredMode === "retroactive" ? "ecosystem-shift" : "output-production"
   };
-  const validation = (0, import_evidence_core3.validateRoundConfig)(sampleRound);
+  const validation = (0, import_evidence_core4.validateRoundConfig)(sampleRound);
   let text = `CROSS Round Configuration
 
 Program: ${programDescription.slice(0, 120)}...
@@ -26144,7 +26267,7 @@ Recommended gate structure:
 `;
     text += `  Evidence strength: ${gate.evidenceStrength}
 `;
-    const reqs = (0, import_evidence_core3.getGateRequirements)(gate.type, inferredMode);
+    const reqs = (0, import_evidence_core4.getGateRequirements)(gate.type, inferredMode);
     text += `  Requirements (${reqs.length}):
 `;
     for (const req of reqs.slice(0, 5)) {
@@ -26167,14 +26290,14 @@ Configuration gaps to address:
   }
   text += "\n\nPrompt Template for Full Configuration:\n\n";
   text += "---\n";
-  text += (0, import_evidence_core3.configureRoundPrompt)(programDescription, programType);
+  text += (0, import_evidence_core4.configureRoundPrompt)(programDescription, programType);
   text += "\n---\n";
   return { content: [{ type: "text", text }] };
 }
 function handleCrossClassifyFramework(args) {
   const frameworkDescription = String(args["frameworkDescription"] ?? "");
   const frameworkName = args["frameworkName"] != null ? String(args["frameworkName"]) : "the framework";
-  const matchedPrimitives = (0, import_evidence_core3.searchPrimitives)(frameworkName);
+  const matchedPrimitives = (0, import_evidence_core4.searchPrimitives)(frameworkName);
   const layers = ["methodological", "identity", "obligation", "evidence", "specification", "causal-architecture", "portfolio"];
   let text = `CROSS+WALKRI Framework Classification
 
@@ -26231,7 +26354,7 @@ To produce a full compatibility statement, send this prompt to a language model:
 
 `;
   text += "---\n";
-  text += (0, import_evidence_core3.classifyFrameworkPrompt)(frameworkDescription);
+  text += (0, import_evidence_core4.classifyFrameworkPrompt)(frameworkDescription);
   text += "\n---\n";
   return { content: [{ type: "text", text }] };
 }
@@ -26308,7 +26431,7 @@ Verdict: ${verdict.toUpperCase()} (${passCount}/${checks.length} checks passed)
     formFields ? `Form fields: ${formFields.join(", ")}` : "",
     completionRequirements ? `Completion requirements: ${completionRequirements}` : ""
   ].filter(Boolean).join("\n\n");
-  text += (0, import_evidence_core3.evaluateRoundPrompt)(fullDescription);
+  text += (0, import_evidence_core4.evaluateRoundPrompt)(fullDescription);
   text += "\n---\n";
   return { content: [{ type: "text", text }] };
 }
@@ -26316,7 +26439,7 @@ function handleCrossLookupLens(args) {
   const lensId = args["lens_id"] != null ? String(args["lens_id"]) : null;
   const valueId = args["value_id"] != null ? String(args["value_id"]) : null;
   if (lensId && valueId) {
-    const value = (0, import_evidence_core3.getLensValue)(lensId, valueId);
+    const value = (0, import_evidence_core4.getLensValue)(lensId, valueId);
     if (!value) {
       return {
         content: [
@@ -26325,7 +26448,7 @@ function handleCrossLookupLens(args) {
             text: JSON.stringify(
               {
                 error: `Value "${valueId}" not found in lens "${lensId}".`,
-                available_lenses: (0, import_evidence_core3.getAllLensIds)()
+                available_lenses: (0, import_evidence_core4.getAllLensIds)()
               },
               null,
               2
@@ -26335,7 +26458,7 @@ function handleCrossLookupLens(args) {
         isError: true
       };
     }
-    const lens = (0, import_evidence_core3.getLens)(lensId);
+    const lens = (0, import_evidence_core4.getLens)(lensId);
     return {
       content: [
         {
@@ -26350,7 +26473,7 @@ function handleCrossLookupLens(args) {
     };
   }
   if (lensId) {
-    const lens = (0, import_evidence_core3.getLens)(lensId);
+    const lens = (0, import_evidence_core4.getLens)(lensId);
     if (!lens) {
       return {
         content: [
@@ -26359,7 +26482,7 @@ function handleCrossLookupLens(args) {
             text: JSON.stringify(
               {
                 error: `Lens "${lensId}" not found.`,
-                available_lenses: (0, import_evidence_core3.getAllLensIds)()
+                available_lenses: (0, import_evidence_core4.getAllLensIds)()
               },
               null,
               2
@@ -26379,8 +26502,8 @@ function handleCrossLookupLens(args) {
         type: "text",
         text: JSON.stringify(
           {
-            total: import_evidence_core3.LENSES.length,
-            lenses: import_evidence_core3.LENSES,
+            total: import_evidence_core4.LENSES.length,
+            lenses: import_evidence_core4.LENSES,
             note: "Five lenses organize cross-cutting metadata above the primitives. Each Part XII compatibility statement, gap map entry, and partial coverage map entry carries one value per lens."
           },
           null,
@@ -26395,7 +26518,7 @@ function handleCrossFalsifiabilityAudit(args) {
   const typeId = args["type_id"] != null ? String(args["type_id"]) : null;
   const failureModeId = args["failure_mode_id"] != null ? String(args["failure_mode_id"]) : null;
   if (typeId) {
-    const type = (0, import_evidence_core3.getFalsifiabilityType)(typeId);
+    const type = (0, import_evidence_core4.getFalsifiabilityType)(typeId);
     if (!type) {
       return {
         content: [
@@ -26404,7 +26527,7 @@ function handleCrossFalsifiabilityAudit(args) {
             text: JSON.stringify(
               {
                 error: `Falsifiability type "${typeId}" not found.`,
-                available: import_evidence_core3.FALSIFIABILITY_TYPES.map((t) => t.id)
+                available: import_evidence_core4.FALSIFIABILITY_TYPES.map((t) => t.id)
               },
               null,
               2
@@ -26419,7 +26542,7 @@ function handleCrossFalsifiabilityAudit(args) {
     };
   }
   if (failureModeId) {
-    const mode = (0, import_evidence_core3.getFalsifiabilityFailureMode)(failureModeId);
+    const mode = (0, import_evidence_core4.getFalsifiabilityFailureMode)(failureModeId);
     if (!mode) {
       return {
         content: [
@@ -26428,7 +26551,7 @@ function handleCrossFalsifiabilityAudit(args) {
             text: JSON.stringify(
               {
                 error: `Failure mode "${failureModeId}" not found.`,
-                available: import_evidence_core3.FALSIFIABILITY_FAILURE_MODES.map((m) => m.id)
+                available: import_evidence_core4.FALSIFIABILITY_FAILURE_MODES.map((m) => m.id)
               },
               null,
               2
@@ -26444,13 +26567,13 @@ function handleCrossFalsifiabilityAudit(args) {
   }
   const payload = {};
   if (scope === "elements" || scope === "all") {
-    payload["four_elements"] = import_evidence_core3.FALSIFIABILITY_ELEMENTS;
+    payload["four_elements"] = import_evidence_core4.FALSIFIABILITY_ELEMENTS;
   }
   if (scope === "types" || scope === "all") {
-    payload["gate_types"] = import_evidence_core3.FALSIFIABILITY_TYPES;
+    payload["gate_types"] = import_evidence_core4.FALSIFIABILITY_TYPES;
   }
   if (scope === "failure-modes" || scope === "all") {
-    payload["failure_modes"] = import_evidence_core3.FALSIFIABILITY_FAILURE_MODES;
+    payload["failure_modes"] = import_evidence_core4.FALSIFIABILITY_FAILURE_MODES;
   }
   payload["note"] = "A falsifiable claim requires all four elements (pre-committed claim, verifying source, drift detection mechanism, disclosure obligation). Gate type determines what is falsifiable at each stage. Failure modes name the eight ways a falsifiability claim fails to function in practice.";
   return {
@@ -26462,7 +26585,7 @@ var server = new Server(
   { capabilities: { tools: {} } }
 );
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: TOOLS2
+  tools: withOutputSchemas2(TOOLS2)
 }));
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
@@ -26474,37 +26597,40 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     return toolError(err, name);
   }
   try {
-    switch (name) {
-      case "walkri_audit_field":
-        return handleWalkriAuditField(safeArgs);
-      case "walkri_generate_field":
-        return handleWalkriGenerateField(safeArgs);
-      case "cross_check_gate":
-        return handleCrossCheckGate(safeArgs);
-      case "cross_configure_round":
-        return handleCrossConfigureRound(safeArgs);
-      case "cross_classify_framework":
-        return handleCrossClassifyFramework(safeArgs);
-      case "cross_lookup_lens":
-        return handleCrossLookupLens(safeArgs);
-      case "cross_falsifiability_audit":
-        return handleCrossFalsifiabilityAudit(safeArgs);
-      case "cross_audit_round":
-        return handleCrossAuditRound(safeArgs);
-      default: {
-        const oreResult = handleOreTool(name, safeArgs);
-        if (oreResult) return oreResult;
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Unknown tool: ${name}. Available tools: ${TOOLS2.map((t) => t.name).join(", ")}`
-            }
-          ],
-          isError: true
-        };
+    const __r = await (async () => {
+      switch (name) {
+        case "walkri_audit_field":
+          return handleWalkriAuditField(safeArgs);
+        case "walkri_generate_field":
+          return handleWalkriGenerateField(safeArgs);
+        case "cross_check_gate":
+          return handleCrossCheckGate(safeArgs);
+        case "cross_configure_round":
+          return handleCrossConfigureRound(safeArgs);
+        case "cross_classify_framework":
+          return handleCrossClassifyFramework(safeArgs);
+        case "cross_lookup_lens":
+          return handleCrossLookupLens(safeArgs);
+        case "cross_falsifiability_audit":
+          return handleCrossFalsifiabilityAudit(safeArgs);
+        case "cross_audit_round":
+          return handleCrossAuditRound(safeArgs);
+        default: {
+          const oreResult = handleOreTool(name, safeArgs);
+          if (oreResult) return oreResult;
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Unknown tool: ${name}. Available tools: ${TOOLS2.map((t) => t.name).join(", ")}`
+              }
+            ],
+            isError: true
+          };
+        }
       }
-    }
+    })();
+    return finish(__r, name);
   } catch (err) {
     return toolError(err, name);
   }

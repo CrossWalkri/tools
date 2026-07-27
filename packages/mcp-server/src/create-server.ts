@@ -36,6 +36,7 @@ import {
 import type { WalkriField, CrossGateType, CrossObligationMode } from '@proof-of-coord/evidence-core'
 import { ORE_TOOLS, handleOreTool } from './ore-tools.js'
 import { validateToolArgs, toolError } from './tool-validation.js'
+import { withOutputSchemas, finish } from './tool-output.js'
 
 // ---------------------------------------------------------------------------
 // Tool definitions (identical to index.ts)
@@ -441,7 +442,8 @@ export function createMcpServer(): Server {
       return toolError(err, name)
     }
     try {
-    switch (name) {
+      const __r = await (async () => {
+      switch (name) {
       case 'walkri_audit_field': return handleWalkriAuditField(safeArgs)
       case 'walkri_generate_field': return handleWalkriGenerateField(safeArgs)
       case 'cross_check_gate': return handleCrossCheckGate(safeArgs)
@@ -456,6 +458,8 @@ export function createMcpServer(): Server {
         return { content: [{ type: 'text', text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(', ')}` }], isError: true }
       }
     }
+      })()
+      return finish(__r, name)
     } catch (err) {
       return toolError(err, name)
     }

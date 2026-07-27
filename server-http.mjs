@@ -13858,8 +13858,8 @@ var require_dist2 = __commonJS({
   "packages/core/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.auditFindingPrompt = exports.independencePrompt = exports.gradeSourcePrompt = exports.BENCHMARK_LIMITS = exports.BENCHMARK_SCORING = exports.BENCHMARK_CLEAN_SOURCES = exports.BENCHMARK_KEY = exports.BENCHMARK_TASK = exports.BENCHMARK_SOURCES = exports.BENCHMARK_CLAIM = exports.BENCHMARK_NOTICE = exports.POSTURE_DECLARATION_REQUIREMENTS = exports.getPosture = exports.getPostures = exports.auditFinding = exports.checkIndependence = exports.gradeSourceScaffold = exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.getFalsifiabilityFailureMode = exports.getFalsifiabilityType = exports.getFalsifiabilityElements = exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = exports.getAllLensIds = exports.getLensValue = exports.getLens = exports.LENSES = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
-    exports.scoreBenchmarkPrompt = exports.declarePosturePrompt = void 0;
+    exports.gradeSourcePrompt = exports.BENCHMARK_LIMITS = exports.BENCHMARK_SCORING = exports.BENCHMARK_CLEAN_SOURCES = exports.BENCHMARK_KEY = exports.BENCHMARK_TASK = exports.BENCHMARK_SOURCES = exports.BENCHMARK_CLAIM = exports.BENCHMARK_NOTICE = exports.POSTURE_DECLARATION_REQUIREMENTS = exports.getPosture = exports.getPostures = exports.auditFinding = exports.checkIndependence = exports.gradeSourceScaffold = exports.evaluateRoundPrompt = exports.classifyFrameworkPrompt = exports.configureRoundPrompt = exports.auditFieldPrompt = exports.getFalsifiabilityFailureMode = exports.getFalsifiabilityType = exports.getFalsifiabilityElements = exports.FALSIFIABILITY_FAILURE_MODES = exports.FALSIFIABILITY_TYPES = exports.FALSIFIABILITY_ELEMENTS = exports.getAllLensIds = exports.getLensValue = exports.getLens = exports.LENSES = exports.searchPrimitives = exports.getPrimitivesByLayer = exports.getPrimitiveByName = exports.PRIMITIVES_FOUNDATION_DATE = exports.PRIMITIVES_FOUNDATION_VERSION = exports.PRIMITIVES = exports.classifyObligationMode = exports.validateRoundConfig = exports.getGateRequirements = exports.auditField = exports.crossRoundSchema = exports.crossGateSchema = exports.crossEvidenceStrengthSchema = exports.crossEvidenceScopeSchema = exports.crossGateTypeSchema = exports.crossObligationModeSchema = exports.walkriAuditResultSchema = exports.walkriCriterionSchema = exports.walkriCriterionNameSchema = exports.walkriFieldSchema = exports.walkriFieldTypeSchema = void 0;
+    exports.scoreBenchmarkPrompt = exports.declarePosturePrompt = exports.auditFindingPrompt = exports.independencePrompt = void 0;
     var schemas_js_1 = require_schemas();
     Object.defineProperty(exports, "walkriFieldTypeSchema", { enumerable: true, get: function() {
       return schemas_js_1.walkriFieldTypeSchema;
@@ -13911,6 +13911,12 @@ var require_dist2 = __commonJS({
     var primitives_js_1 = require_primitives();
     Object.defineProperty(exports, "PRIMITIVES", { enumerable: true, get: function() {
       return primitives_js_1.PRIMITIVES;
+    } });
+    Object.defineProperty(exports, "PRIMITIVES_FOUNDATION_VERSION", { enumerable: true, get: function() {
+      return primitives_js_1.PRIMITIVES_FOUNDATION_VERSION;
+    } });
+    Object.defineProperty(exports, "PRIMITIVES_FOUNDATION_DATE", { enumerable: true, get: function() {
+      return primitives_js_1.PRIMITIVES_FOUNDATION_DATE;
     } });
     Object.defineProperty(exports, "getPrimitiveByName", { enumerable: true, get: function() {
       return primitives_js_1.getPrimitiveByName;
@@ -14316,7 +14322,7 @@ var readBodyDirect = (request) => {
   const promise = new Promise((resolve, reject) => {
     const chunks = [];
     let settled = false;
-    const finish = (callback) => {
+    const finish2 = (callback) => {
       if (settled) return;
       settled = true;
       cleanup();
@@ -14325,7 +14331,7 @@ var readBodyDirect = (request) => {
     const recoverCompleteBodyAfterDisconnect = (error2) => {
       const streamError = incoming.errored ?? error2;
       if (!isRecoverableDisconnectedIncoming(incoming) || streamError && streamError.code !== "ECONNRESET") return false;
-      finish(() => {
+      finish2(() => {
         const recovered = readBodyBufferedBeforeDisconnect(incoming, chunks);
         if (recovered instanceof Error) reject(recovered);
         else if (recovered === void 0) reject(error2 ?? normalizeAbortError(request, incoming));
@@ -14340,7 +14346,7 @@ var readBodyDirect = (request) => {
       chunks.push(toBufferChunk(chunk, incoming.readableEncoding));
     };
     const onEnd = () => {
-      finish(() => {
+      finish2(() => {
         const buffer = chunks.length === 1 ? chunks[0] : Buffer.concat(chunks);
         request[bodyBufferKey] = buffer;
         resolve(buffer);
@@ -14348,7 +14354,7 @@ var readBodyDirect = (request) => {
     };
     const onError = (error2) => {
       if (recoverCompleteBodyAfterDisconnect(error2)) return;
-      finish(() => {
+      finish2(() => {
         reject(error2);
       });
     };
@@ -14358,7 +14364,7 @@ var readBodyDirect = (request) => {
         return;
       }
       if (recoverCompleteBodyAfterDisconnect()) return;
-      finish(() => {
+      finish2(() => {
         reject(normalizeAbortError(request, incoming));
       });
     };
@@ -26805,7 +26811,7 @@ var Server = class extends Protocol {
 };
 
 // packages/mcp-server/src/create-server.ts
-var import_evidence_core2 = __toESM(require_dist2(), 1);
+var import_evidence_core3 = __toESM(require_dist2(), 1);
 
 // packages/mcp-server/src/ore-tools.ts
 var import_evidence_core = __toESM(require_dist2(), 1);
@@ -27188,6 +27194,39 @@ function toolError(err, toolName) {
   };
 }
 
+// packages/mcp-server/src/tool-output.ts
+var import_evidence_core2 = __toESM(require_dist2(), 1);
+var PROVENANCE = {
+  server: SERVER_NAME,
+  serverVersion: SERVER_VERSION,
+  encodes: {
+    "cross-walkri-primitives-foundation": import_evidence_core2.PRIMITIVES_FOUNDATION_VERSION,
+    ore: "0.1.2",
+    "finding-contract": "0.1.0"
+  }
+};
+function finish(result, toolName) {
+  const r = result;
+  if (r?.isError === true) return result;
+  const first = r?.content?.[0];
+  if (!first || first.type !== "text" || typeof first.text !== "string") return result;
+  let parsed = null;
+  try {
+    parsed = JSON.parse(first.text);
+  } catch {
+    parsed = null;
+  }
+  if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
+    const stamped = { ...parsed, _provenance: PROVENANCE };
+    first.text = JSON.stringify(stamped, null, 2);
+    r.structuredContent = stamped;
+    return result;
+  }
+  r.structuredContent = { rendered: first.text, _provenance: PROVENANCE };
+  void toolName;
+  return result;
+}
+
 // packages/mcp-server/src/create-server.ts
 var SERVER_NAME = "evidence-integrity-suite";
 var SERVER_VERSION = "0.4.0";
@@ -27325,7 +27364,7 @@ function handleWalkriAuditField(args) {
     placeholder: args["placeholder"] != null ? String(args["placeholder"]) : void 0,
     required: Boolean(args["required"])
   };
-  const result = (0, import_evidence_core2.auditField)(field);
+  const result = (0, import_evidence_core3.auditField)(field);
   const failingCriteria = result.criteria.filter((c) => !c.passes);
   let text = `WALKRI Audit Result
 
@@ -27356,7 +27395,7 @@ Criteria Assessment:
     for (const pattern of result.systemicPatterns) text += `- ${pattern}
 `;
   }
-  text += "\n\nPrompt Template for Revision:\n\n" + (0, import_evidence_core2.auditFieldPrompt)(field);
+  text += "\n\nPrompt Template for Revision:\n\n" + (0, import_evidence_core3.auditFieldPrompt)(field);
   return { content: [{ type: "text", text }] };
 }
 function handleWalkriGenerateField(args) {
@@ -27396,7 +27435,7 @@ Return a complete field specification as JSON.
 ---
 
 `;
-  const auditResult = (0, import_evidence_core2.auditField)(draftField);
+  const auditResult = (0, import_evidence_core3.auditField)(draftField);
   text += `Structural audit of the draft:
 Verdict: ${auditResult.verdict.toUpperCase()}
 Criteria that need specification:
@@ -27411,7 +27450,7 @@ function handleCrossCheckGate(args) {
   const gateType2 = String(args["gateType"] ?? "");
   const obligationMode2 = String(args["obligationMode"] ?? "");
   const content = args["content"] != null ? String(args["content"]) : null;
-  const requirements = (0, import_evidence_core2.getGateRequirements)(gateType2, obligationMode2);
+  const requirements = (0, import_evidence_core3.getGateRequirements)(gateType2, obligationMode2);
   let text = `CROSS Gate Requirements
 
 Gate: ${gateType2}
@@ -27466,7 +27505,7 @@ Required elements:
 function handleCrossConfigureRound(args) {
   const programDescription = String(args["programDescription"] ?? "");
   const programType = args["programType"] != null ? String(args["programType"]) : "general";
-  const inferredMode = (0, import_evidence_core2.classifyObligationMode)(programDescription);
+  const inferredMode = (0, import_evidence_core3.classifyObligationMode)(programDescription);
   const sampleRound = {
     obligationMode: inferredMode,
     gates: [
@@ -27476,7 +27515,7 @@ function handleCrossConfigureRound(args) {
     indicatorFields: ["primary-indicator"],
     publicBenefitMechanism: inferredMode === "change" ? "condition-change" : inferredMode === "retroactive" ? "ecosystem-shift" : "output-production"
   };
-  const validation = (0, import_evidence_core2.validateRoundConfig)(sampleRound);
+  const validation = (0, import_evidence_core3.validateRoundConfig)(sampleRound);
   let text = `CROSS Round Configuration
 
 Program: ${programDescription.slice(0, 120)}...
@@ -27493,7 +27532,7 @@ Inferred obligation mode: ${inferredMode.toUpperCase()}
   Evidence scope: ${gate.evidenceScope}
   Evidence strength: ${gate.evidenceStrength}
 `;
-    const reqs = (0, import_evidence_core2.getGateRequirements)(gate.type, inferredMode);
+    const reqs = (0, import_evidence_core3.getGateRequirements)(gate.type, inferredMode);
     text += `  Requirements (${reqs.length}):
 `;
     for (const req of reqs.slice(0, 5)) text += `    - ${req.split(":")[0]}
@@ -27508,13 +27547,13 @@ Configuration gaps:
     for (const gap of validation.gaps) text += `- ${gap}
 `;
   }
-  text += "\n\nPrompt Template for Full Configuration:\n\n---\n" + (0, import_evidence_core2.configureRoundPrompt)(programDescription, programType) + "\n---\n";
+  text += "\n\nPrompt Template for Full Configuration:\n\n---\n" + (0, import_evidence_core3.configureRoundPrompt)(programDescription, programType) + "\n---\n";
   return { content: [{ type: "text", text }] };
 }
 function handleCrossClassifyFramework(args) {
   const frameworkDescription = String(args["frameworkDescription"] ?? "");
   const frameworkName = args["frameworkName"] != null ? String(args["frameworkName"]) : "the framework";
-  const matchedPrimitives = (0, import_evidence_core2.searchPrimitives)(frameworkName);
+  const matchedPrimitives = (0, import_evidence_core3.searchPrimitives)(frameworkName);
   const layers = ["methodological", "identity", "obligation", "evidence", "specification", "causal-architecture", "portfolio"];
   const descLower = frameworkDescription.toLowerCase();
   const layerKeywords = {
@@ -27560,7 +27599,7 @@ Sample matching primitives:
 To produce a full compatibility statement:
 
 ---
-` + (0, import_evidence_core2.classifyFrameworkPrompt)(frameworkDescription) + "\n---\n";
+` + (0, import_evidence_core3.classifyFrameworkPrompt)(frameworkDescription) + "\n---\n";
   return { content: [{ type: "text", text }] };
 }
 function handleCrossAuditRound(args) {
@@ -27598,51 +27637,51 @@ Conformance Checks:
     text += "\n";
   }
   const fullDescription = [roundDescription, eligibilityCriteria ? `Eligibility: ${eligibilityCriteria}` : "", formFields ? `Fields: ${formFields.join(", ")}` : "", completionRequirements ? `Completion: ${completionRequirements}` : ""].filter(Boolean).join("\n\n");
-  text += "\nFor comprehensive evaluation:\n\n---\n" + (0, import_evidence_core2.evaluateRoundPrompt)(fullDescription) + "\n---\n";
+  text += "\nFor comprehensive evaluation:\n\n---\n" + (0, import_evidence_core3.evaluateRoundPrompt)(fullDescription) + "\n---\n";
   return { content: [{ type: "text", text }] };
 }
 function handleCrossLookupLens(args) {
   const lensId = args["lens_id"] != null ? String(args["lens_id"]) : null;
   const valueId = args["value_id"] != null ? String(args["value_id"]) : null;
   if (lensId && valueId) {
-    const value = (0, import_evidence_core2.getLensValue)(lensId, valueId);
+    const value = (0, import_evidence_core3.getLensValue)(lensId, valueId);
     if (!value) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Value "${valueId}" not found in lens "${lensId}".`, available_lenses: (0, import_evidence_core2.getAllLensIds)() }, null, 2) }], isError: true };
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Value "${valueId}" not found in lens "${lensId}".`, available_lenses: (0, import_evidence_core3.getAllLensIds)() }, null, 2) }], isError: true };
     }
-    const lens = (0, import_evidence_core2.getLens)(lensId);
+    const lens = (0, import_evidence_core3.getLens)(lensId);
     return { content: [{ type: "text", text: JSON.stringify({ lens: lens?.name, value, detection_criteria: lens?.detection_criteria }, null, 2) }] };
   }
   if (lensId) {
-    const lens = (0, import_evidence_core2.getLens)(lensId);
+    const lens = (0, import_evidence_core3.getLens)(lensId);
     if (!lens) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Lens "${lensId}" not found.`, available_lenses: (0, import_evidence_core2.getAllLensIds)() }, null, 2) }], isError: true };
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Lens "${lensId}" not found.`, available_lenses: (0, import_evidence_core3.getAllLensIds)() }, null, 2) }], isError: true };
     }
     return { content: [{ type: "text", text: JSON.stringify(lens, null, 2) }] };
   }
-  return { content: [{ type: "text", text: JSON.stringify({ total: import_evidence_core2.LENSES.length, lenses: import_evidence_core2.LENSES }, null, 2) }] };
+  return { content: [{ type: "text", text: JSON.stringify({ total: import_evidence_core3.LENSES.length, lenses: import_evidence_core3.LENSES }, null, 2) }] };
 }
 function handleCrossFalsifiabilityAudit(args) {
   const scope = args["scope"] != null ? String(args["scope"]) : "all";
   const typeId = args["type_id"] != null ? String(args["type_id"]) : null;
   const failureModeId = args["failure_mode_id"] != null ? String(args["failure_mode_id"]) : null;
   if (typeId) {
-    const type = (0, import_evidence_core2.getFalsifiabilityType)(typeId);
+    const type = (0, import_evidence_core3.getFalsifiabilityType)(typeId);
     if (!type) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Falsifiability type "${typeId}" not found.`, available: import_evidence_core2.FALSIFIABILITY_TYPES.map((t) => t.id) }, null, 2) }], isError: true };
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Falsifiability type "${typeId}" not found.`, available: import_evidence_core3.FALSIFIABILITY_TYPES.map((t) => t.id) }, null, 2) }], isError: true };
     }
     return { content: [{ type: "text", text: JSON.stringify({ type }, null, 2) }] };
   }
   if (failureModeId) {
-    const mode = (0, import_evidence_core2.getFalsifiabilityFailureMode)(failureModeId);
+    const mode = (0, import_evidence_core3.getFalsifiabilityFailureMode)(failureModeId);
     if (!mode) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Failure mode "${failureModeId}" not found.`, available: import_evidence_core2.FALSIFIABILITY_FAILURE_MODES.map((m) => m.id) }, null, 2) }], isError: true };
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Failure mode "${failureModeId}" not found.`, available: import_evidence_core3.FALSIFIABILITY_FAILURE_MODES.map((m) => m.id) }, null, 2) }], isError: true };
     }
     return { content: [{ type: "text", text: JSON.stringify({ failure_mode: mode }, null, 2) }] };
   }
   const payload = {};
-  if (scope === "elements" || scope === "all") payload["four_elements"] = import_evidence_core2.FALSIFIABILITY_ELEMENTS;
-  if (scope === "types" || scope === "all") payload["gate_types"] = import_evidence_core2.FALSIFIABILITY_TYPES;
-  if (scope === "failure-modes" || scope === "all") payload["failure_modes"] = import_evidence_core2.FALSIFIABILITY_FAILURE_MODES;
+  if (scope === "elements" || scope === "all") payload["four_elements"] = import_evidence_core3.FALSIFIABILITY_ELEMENTS;
+  if (scope === "types" || scope === "all") payload["gate_types"] = import_evidence_core3.FALSIFIABILITY_TYPES;
+  if (scope === "failure-modes" || scope === "all") payload["failure_modes"] = import_evidence_core3.FALSIFIABILITY_FAILURE_MODES;
   return { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] };
 }
 function createMcpServer() {
@@ -27661,29 +27700,32 @@ function createMcpServer() {
       return toolError(err, name);
     }
     try {
-      switch (name) {
-        case "walkri_audit_field":
-          return handleWalkriAuditField(safeArgs);
-        case "walkri_generate_field":
-          return handleWalkriGenerateField(safeArgs);
-        case "cross_check_gate":
-          return handleCrossCheckGate(safeArgs);
-        case "cross_configure_round":
-          return handleCrossConfigureRound(safeArgs);
-        case "cross_classify_framework":
-          return handleCrossClassifyFramework(safeArgs);
-        case "cross_lookup_lens":
-          return handleCrossLookupLens(safeArgs);
-        case "cross_falsifiability_audit":
-          return handleCrossFalsifiabilityAudit(safeArgs);
-        case "cross_audit_round":
-          return handleCrossAuditRound(safeArgs);
-        default: {
-          const oreResult = handleOreTool(name, safeArgs);
-          if (oreResult) return oreResult;
-          return { content: [{ type: "text", text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(", ")}` }], isError: true };
+      const __r = await (async () => {
+        switch (name) {
+          case "walkri_audit_field":
+            return handleWalkriAuditField(safeArgs);
+          case "walkri_generate_field":
+            return handleWalkriGenerateField(safeArgs);
+          case "cross_check_gate":
+            return handleCrossCheckGate(safeArgs);
+          case "cross_configure_round":
+            return handleCrossConfigureRound(safeArgs);
+          case "cross_classify_framework":
+            return handleCrossClassifyFramework(safeArgs);
+          case "cross_lookup_lens":
+            return handleCrossLookupLens(safeArgs);
+          case "cross_falsifiability_audit":
+            return handleCrossFalsifiabilityAudit(safeArgs);
+          case "cross_audit_round":
+            return handleCrossAuditRound(safeArgs);
+          default: {
+            const oreResult = handleOreTool(name, safeArgs);
+            if (oreResult) return oreResult;
+            return { content: [{ type: "text", text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(", ")}` }], isError: true };
+          }
         }
-      }
+      })();
+      return finish(__r, name);
     } catch (err) {
       return toolError(err, name);
     }

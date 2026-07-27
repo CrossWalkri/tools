@@ -45,6 +45,7 @@ import {
 import type { WalkriField, CrossGateType, CrossObligationMode } from '@proof-of-coord/evidence-core'
 import { ORE_TOOLS, handleOreTool } from './ore-tools.js'
 import { validateToolArgs, toolError } from './tool-validation.js'
+import { withOutputSchemas, finish } from './tool-output.js'
 import { SERVER_NAME, SERVER_VERSION } from './create-server.js'
 
 // ---------------------------------------------------------------------------
@@ -917,7 +918,7 @@ const server = new Server(
 )
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: TOOLS,
+  tools: withOutputSchemas(TOOLS),
 }))
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -932,7 +933,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 
   try {
-  switch (name) {
+    const __r = await (async () => {
+    switch (name) {
     case 'walkri_audit_field':
       return handleWalkriAuditField(safeArgs)
     case 'walkri_generate_field':
@@ -963,6 +965,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
     }
   }
+    })()
+    return finish(__r, name)
   } catch (err) {
     return toolError(err, name)
   }

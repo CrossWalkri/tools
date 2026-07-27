@@ -152,9 +152,11 @@ Both packages are dedicated to the public domain under Creative Commons Zero v1.
 Every push runs typecheck, build and the test suite across Node 20, 22 and 24, and rebuilds the bundles to confirm they match source. Publishing is gated on the same checks plus a dry run: a tag alone does not publish.
 
 ```bash
-pnpm test          # 35 tests
+pnpm test          # 43 tests
 pnpm typecheck
 pnpm bundle        # regenerate the zero-install entry points
 ```
 
-The suite covers argument validation, which every tool now enforces with a schema at the boundary; the ORE tool behaviour, including that no tool returns a combined score and that the benchmark case does not leak its key; both entry points, the bundle and the compiled package entry; and the data the tools rest on, so the counts this README claims fail the build if they stop being true.
+Every response carries a `_provenance` block naming the server, its version, and the standard and reference versions the response was produced against, so a result stays attributable after a standard moves. Every tool declares an `outputSchema` and returns `structuredContent`: the six tools whose readable output is prose expose it as `rendered`, and the seven that already spoke JSON expose the object, so the server can be parsed uniformly without flattening the reports a model reads better as prose.
+
+The suite covers provenance and the output contract, argument validation, which every tool now enforces with a schema at the boundary; the ORE tool behaviour, including that no tool returns a combined score and that the benchmark case does not leak its key; both entry points, the bundle and the compiled package entry; and the data the tools rest on, so the counts this README claims fail the build if they stop being true.

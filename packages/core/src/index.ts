@@ -55,6 +55,8 @@ export {
 // Primitives
 export {
   PRIMITIVES,
+  PRIMITIVES_FOUNDATION_VERSION,
+  PRIMITIVES_FOUNDATION_DATE,
   getPrimitiveByName,
   getPrimitivesByLayer,
   searchPrimitives,
