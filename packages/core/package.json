@@ -1,7 +1,7 @@
 {
   "name": "@proof-of-coord/evidence-core",
   "version": "0.4.0",
-  "description": "Types, schemas, and audit logic for the evidence integrity standards: CROSS, WALKRI, ORE, and the finding contract",
+  "description": "Types, schemas, and audit logic for the evidence integrity standards: CROSS, WALKRI, ORE, and STRUCK",
   "license": "CC0-1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

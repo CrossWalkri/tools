@@ -1,5 +1,5 @@
 /**
- * ORE (Origin, Reliability, Exposure) and the finding contract.
+ * ORE (Origin, Reliability, Exposure) and STRUCK.
  *
  * Source grading at the ingestion boundary and obligation auditing at the
  * output boundary. ORE explicitly declines to specify how any dimension is
@@ -424,7 +424,7 @@ function referencesAnotherItem(
 }
 
 // ---------------------------------------------------------------------------
-// Finding audit against the finding contract
+// Finding audit against STRUCK
 // ---------------------------------------------------------------------------
 
 const COMBINED_SCORE = /\b(\d{1,3}\s*%|\d(\.\d+)?\s*\/\s*(5|10|100)|confidence(?: score| level)?[:=]\s*\S+|high|medium|low)\s*confidence\b|confidence[:=]\s*\d/i
@@ -438,7 +438,7 @@ const ADEQUACY = /\b(sufficient (evidence|support)|conclusive\w*|adequate to|est
 const CONSUMER_HINTS = /\b(whether this suffices|the reader|the consumer|depends on what|for your decision|you will need to judge|raise confidence)\b/i
 
 /**
- * Audit a finding against the five obligations of the finding contract.
+ * Audit a finding against the five obligations of STRUCK.
  *
  * Detection is heuristic and returns 'indicated', 'absent' or 'undetermined'
  * rather than pass or fail, because whether an obligation is genuinely met is a
@@ -808,7 +808,7 @@ ${list}`
 }
 
 export function auditFindingPrompt(finding: string): string {
-  return `Audit the finding below against the finding contract. Report pass, fail, or not applicable
+  return `Audit the finding below against STRUCK. Report pass, fail, or not applicable
 with a stated reason for each of the five obligations, name the specific passage for every
 failure, and say what would fix it.
 

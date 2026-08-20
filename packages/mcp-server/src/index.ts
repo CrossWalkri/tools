@@ -2,6 +2,8 @@
 /**
  * @proof-of-coord/evidence-integrity
  *
+ * @module
+ *
  * MCP server exposing the evidence integrity standards as AI tools over stdio.
  * Thirteen tools: WALKRI field auditing and generation, CROSS gate checking,
  * round configuration, framework classification, lens lookup, falsifiability

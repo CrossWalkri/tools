@@ -1,9 +1,11 @@
 /**
  * @proof-of-coord/evidence-core
  *
+ * @module
+ *
  * TypeScript types, Zod schemas, audit logic, primitives, and prompt templates
  * for the evidence integrity standards: CROSS and WALKRI at the grant boundary,
- * ORE at the source boundary, and the finding contract at the output boundary.
+ * ORE at the source boundary, and STRUCK at the output boundary.
  *
  * Version 0.4.0 | CC0
  */
@@ -91,7 +93,7 @@ export {
   evaluateRoundPrompt,
 } from './prompts.js'
 
-// ORE and the finding contract
+// ORE and STRUCK
 export type {
   OreDimensionName,
   OreConfirmationMode,

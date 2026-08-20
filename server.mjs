@@ -13812,7 +13812,7 @@ SOURCES:
 ${list}`;
     }
     function auditFindingPrompt(finding) {
-      return `Audit the finding below against the finding contract. Report pass, fail, or not applicable
+      return `Audit the finding below against STRUCK. Report pass, fail, or not applicable
 with a stated reason for each of the five obligations, name the specific passage for every
 failure, and say what would fix it.
 
@@ -25204,7 +25204,7 @@ var import_evidence_core = __toESM(require_dist2(), 1);
 var ORE_TOOLS = [
   {
     name: "ore_grade_source",
-    description: "Build the ORE grading scaffold for a data source at the ingestion boundary: the four dimensions with what a conformant grading must record on each, the named gaps the supplied account leaves open, the opacity obligations, and the monitoring obligation. Returns structure and gaps rather than a grade, because ORE does not specify how any dimension is computed. Use before admitting any source into a system that will make decisions from it.",
+    description: "Build the ORE grading scaffold for a data source at the ingestion boundary: five dimensions, three core and two declared extensions, with what a conformant grading must record on each, the named gaps the supplied account leaves open, the opacity obligations, and the monitoring obligation. Returns structure and gaps rather than a grade, because ORE does not specify how any dimension is computed. Use before admitting any source into a system that will make decisions from it.",
     inputSchema: {
       type: "object",
       properties: {
@@ -25272,7 +25272,7 @@ var ORE_TOOLS = [
   },
   {
     name: "ore_audit_finding",
-    description: "Audit a finding against the five obligations of the finding contract: graded evidence, refutation conditions, contested regions rather than averages, derivation chains to origin with labeled rungs, and the sufficiency judgment left with the consumer. Returns per-obligation status, observed evidence, gaps and fixes, plus systemic patterns. Statuses are heuristic and deliberately distinguish 'this finding is wrong' from 'this finding cannot be checked'.",
+    description: "Audit a finding against the five obligations of STRUCK: graded evidence, refutation conditions, contested regions rather than averages, derivation chains to origin with labeled rungs, and the sufficiency judgment left with the consumer. Returns per-obligation status, observed evidence, gaps and fixes, plus systemic patterns. Statuses are heuristic and deliberately distinguish 'this finding is wrong' from 'this finding cannot be checked'.",
     inputSchema: {
       type: "object",
       properties: {
