@@ -105,7 +105,7 @@ describe('every tool returns provenance', () => {
       const p = (raw.structuredContent as { _provenance: Provenance })._provenance
       // Generated from the vendored source, so this is the version the array
       // was built against rather than a number someone typed twice.
-      expect(p.encodes['cross-walkri-primitives-foundation']).toBe('0.2.3')
+      expect(p.encodes['cross-walkri-primitives-foundation']).toBe('0.3.3')
     })
   })
 

@@ -56,21 +56,22 @@ describe('entry points', () => {
 })
 
 describe('data integrity', () => {
-  it('holds the full foundation across seven layers with no duplicate names', () => {
-    // 146 as of foundation 0.2.3. The array is generated from the vendored
-    // source, and the generator refuses to write when its parse disagrees with
-    // the count the document declares, so this asserts the generation ran
-    // rather than restating a number a human typed.
-    expect(PRIMITIVES.length).toBe(146)
+  it('holds the full GRAIN notation across six layers with no duplicate names', () => {
+    // 138 as of GRAIN 0.3.3, across Layers 2 through 7 (Layer 1 holds no grant
+    // primitives). The array is generated from the vendored source, and the
+    // generator refuses to write when its parse disagrees with the count the
+    // document declares, so this asserts the generation ran rather than
+    // restating a number a human typed.
+    expect(PRIMITIVES.length).toBe(138)
     const layers = new Set(PRIMITIVES.map((p) => p.layer))
-    expect(layers.size).toBe(7)
+    expect(layers.size).toBe(6)
     const names = PRIMITIVES.map((p) => p.name)
     expect(new Set(names).size).toBe(names.length)
   })
 
   it('records the foundation version it was generated from', () => {
     expect(PRIMITIVES_FOUNDATION_VERSION).toMatch(/^\d+\.\d+\.\d+$/)
-    expect(PRIMITIVES_FOUNDATION_VERSION).toBe('0.2.3')
+    expect(PRIMITIVES_FOUNDATION_VERSION).toBe('0.3.3')
   })
 
   it('gives every primitive a description, so no entry is a bare name', () => {
