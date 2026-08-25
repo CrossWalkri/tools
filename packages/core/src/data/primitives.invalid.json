@@ -8,6 +8,7 @@
   "layerCounts": { "identity": 1, "obligation": 1 },
   "primitives": [
     {
+      "name": "Entity Boundary",
       "id": "Entity_Boundary",
       "layer": "identity",
       "status": "full",
@@ -17,6 +18,7 @@
       "citations": []
     },
     {
+      "name": "",
       "id": "gate-type",
       "layer": "not-a-real-layer",
       "status": "provisional",

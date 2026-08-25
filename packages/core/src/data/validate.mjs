@@ -68,6 +68,7 @@ manifest.primitives.forEach((p, i) => {
     return
   }
   // Required fields and types.
+  if (!isString(p.name) || p.name.length === 0) fail(`primitive ${where}: name missing or empty`)
   if (!isString(p.id) || !KEBAB.test(p.id)) fail(`primitive ${where}: id missing or not kebab-case`)
   if (!isString(p.layer) || !LAYERS.has(p.layer)) fail(`primitive ${where}: layer missing or not one of the six`)
   if (!isString(p.status) || !STATUSES.has(p.status)) fail(`primitive ${where}: status missing or not in {full, held-weak}`)
@@ -78,7 +79,7 @@ manifest.primitives.forEach((p, i) => {
     fail(`primitive ${where}: citations missing or not an array of strings`)
   }
   // No unexpected fields.
-  const allowed = new Set(['id', 'layer', 'status', 'definition', 'relationships', 'applications', 'citations'])
+  const allowed = new Set(['name', 'id', 'layer', 'status', 'definition', 'relationships', 'applications', 'citations'])
   for (const k of Object.keys(p)) {
     if (!allowed.has(k)) fail(`primitive ${where}: unexpected field "${k}"`)
   }

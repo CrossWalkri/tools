@@ -289,7 +289,9 @@ export function searchPrimitives(keyword: string): CrossPrimitive[] {
   writeFileSync(TARGET, header + entries + footer, 'utf8')
 
   // The machine-readable manifest: the same data as primitives.ts, plus the
-  // id, status, and citation fields the JSON layer carries. The manifest field
+  // id, status, and citation fields the JSON layer carries. It leads with the
+  // human-readable name (the exact GRAIN heading) so the manifest is fully
+  // self-describing without the id having to be de-slugged. The manifest field
   // is "definition" where the TypeScript type keeps "description"; both hold the
   // same text. Emitted from the one source so the two artifacts cannot drift.
   const manifest = {
@@ -301,6 +303,7 @@ export function searchPrimitives(keyword: string): CrossPrimitive[] {
     total: primitives.length,
     layerCounts: byLayer,
     primitives: primitives.map((p) => ({
+      name: p.name,
       id: p.id,
       layer: p.layer,
       status: p.status,

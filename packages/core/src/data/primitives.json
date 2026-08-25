@@ -15,6 +15,7 @@
   },
   "primitives": [
     {
+      "name": "Entity Boundary",
       "id": "entity-boundary",
       "layer": "identity",
       "status": "full",
@@ -24,6 +25,7 @@
       "citations": []
     },
     {
+      "name": "Scope",
       "id": "scope",
       "layer": "identity",
       "status": "full",
@@ -33,6 +35,7 @@
       "citations": []
     },
     {
+      "name": "Sufficiency",
       "id": "sufficiency",
       "layer": "identity",
       "status": "full",
@@ -42,6 +45,7 @@
       "citations": []
     },
     {
+      "name": "Revenue Architecture",
       "id": "revenue-architecture",
       "layer": "identity",
       "status": "full",
@@ -51,6 +55,7 @@
       "citations": []
     },
     {
+      "name": "Disbursement Authority",
       "id": "disbursement-authority",
       "layer": "identity",
       "status": "full",
@@ -60,6 +65,7 @@
       "citations": []
     },
     {
+      "name": "Continuity Capacity",
       "id": "continuity-capacity",
       "layer": "identity",
       "status": "full",
@@ -69,6 +75,7 @@
       "citations": []
     },
     {
+      "name": "Allocator Enfranchisement Credential",
       "id": "allocator-enfranchisement-credential",
       "layer": "identity",
       "status": "held-weak",
@@ -78,6 +85,7 @@
       "citations": []
     },
     {
+      "name": "Constituency-Constituted Applicant Body",
       "id": "constituency-constituted-applicant-body",
       "layer": "identity",
       "status": "full",
@@ -87,6 +95,7 @@
       "citations": []
     },
     {
+      "name": "Classified Track Eligibility Condition",
       "id": "classified-track-eligibility-condition",
       "layer": "identity",
       "status": "full",
@@ -96,6 +105,7 @@
       "citations": []
     },
     {
+      "name": "Catalytic Anchor Capital Role Declaration",
       "id": "catalytic-anchor-capital-role-declaration",
       "layer": "identity",
       "status": "full",
@@ -105,6 +115,7 @@
       "citations": []
     },
     {
+      "name": "Funding Classification Identity Gate",
       "id": "funding-classification-identity-gate",
       "layer": "identity",
       "status": "full",
@@ -114,6 +125,7 @@
       "citations": []
     },
     {
+      "name": "Fund-Holder Separation",
       "id": "fund-holder-separation",
       "layer": "identity",
       "status": "full",
@@ -123,6 +135,7 @@
       "citations": []
     },
     {
+      "name": "Dual-Trigger Phase Entry with Smoothed Exit",
       "id": "dual-trigger-phase-entry-with-smoothed-exit",
       "layer": "identity",
       "status": "held-weak",
@@ -132,6 +145,7 @@
       "citations": []
     },
     {
+      "name": "Dividend-Constrained Philanthropic Budget",
       "id": "dividend-constrained-philanthropic-budget",
       "layer": "identity",
       "status": "held-weak",
@@ -141,6 +155,7 @@
       "citations": []
     },
     {
+      "name": "Exploratory Mechanism Prohibition on Preliminary Data",
       "id": "exploratory-mechanism-prohibition-on-preliminary-data",
       "layer": "identity",
       "status": "held-weak",
@@ -150,6 +165,7 @@
       "citations": []
     },
     {
+      "name": "Apex Coordination Body with Distributed Disbursement Authority",
       "id": "apex-coordination-body-with-distributed-disbursement-authority",
       "layer": "identity",
       "status": "held-weak",
@@ -159,6 +175,7 @@
       "citations": []
     },
     {
+      "name": "Catalytic Scope Ceiling",
       "id": "catalytic-scope-ceiling",
       "layer": "identity",
       "status": "held-weak",
@@ -168,6 +185,7 @@
       "citations": []
     },
     {
+      "name": "Capital-Layer and Allocation-Authority Separation",
       "id": "capital-layer-and-allocation-authority-separation",
       "layer": "identity",
       "status": "full",
@@ -177,6 +195,7 @@
       "citations": []
     },
     {
+      "name": "On-chain Identity Anchor",
       "id": "on-chain-identity-anchor",
       "layer": "identity",
       "status": "full",
@@ -186,6 +205,7 @@
       "citations": []
     },
     {
+      "name": "Obligation Mode",
       "id": "obligation-mode",
       "layer": "obligation",
       "status": "full",
@@ -195,6 +215,7 @@
       "citations": []
     },
     {
+      "name": "Development Stage",
       "id": "development-stage",
       "layer": "obligation",
       "status": "full",
@@ -204,6 +225,7 @@
       "citations": []
     },
     {
+      "name": "Gate Type",
       "id": "gate-type",
       "layer": "obligation",
       "status": "full",
@@ -213,6 +235,7 @@
       "citations": []
     },
     {
+      "name": "Gate Character",
       "id": "gate-character",
       "layer": "obligation",
       "status": "full",
@@ -222,6 +245,7 @@
       "citations": []
     },
     {
+      "name": "Obligation Fulfillment Record",
       "id": "obligation-fulfillment-record",
       "layer": "obligation",
       "status": "full",
@@ -231,6 +255,7 @@
       "citations": []
     },
     {
+      "name": "Conflict of Interest",
       "id": "conflict-of-interest",
       "layer": "obligation",
       "status": "full",
@@ -240,6 +265,7 @@
       "citations": []
     },
     {
+      "name": "Public Benefit Mechanism",
       "id": "public-benefit-mechanism",
       "layer": "obligation",
       "status": "full",
@@ -249,6 +275,7 @@
       "citations": []
     },
     {
+      "name": "Access Condition",
       "id": "access-condition",
       "layer": "obligation",
       "status": "full",
@@ -258,6 +285,7 @@
       "citations": []
     },
     {
+      "name": "Pre-Award Indicator Confirmation Stage",
       "id": "pre-award-indicator-confirmation-stage",
       "layer": "obligation",
       "status": "full",
@@ -267,6 +295,7 @@
       "citations": []
     },
     {
+      "name": "Downstream-Use Restriction",
       "id": "downstream-use-restriction",
       "layer": "obligation",
       "status": "full",
@@ -276,6 +305,7 @@
       "citations": []
     },
     {
+      "name": "Beneficiary Validation Mechanism",
       "id": "beneficiary-validation-mechanism",
       "layer": "obligation",
       "status": "full",
@@ -285,6 +315,7 @@
       "citations": []
     },
     {
+      "name": "Layered Configuration Authority",
       "id": "layered-configuration-authority",
       "layer": "obligation",
       "status": "full",
@@ -294,6 +325,7 @@
       "citations": []
     },
     {
+      "name": "Retained Obligation After Task Delegation",
       "id": "retained-obligation-after-task-delegation",
       "layer": "obligation",
       "status": "full",
@@ -303,6 +335,7 @@
       "citations": []
     },
     {
+      "name": "Delegation Scope Agreement",
       "id": "delegation-scope-agreement",
       "layer": "obligation",
       "status": "full",
@@ -312,6 +345,7 @@
       "citations": []
     },
     {
+      "name": "Payment Suspension Trigger",
       "id": "payment-suspension-trigger",
       "layer": "obligation",
       "status": "full",
@@ -321,6 +355,7 @@
       "citations": []
     },
     {
+      "name": "Financial Correction by External Funder",
       "id": "financial-correction-by-external-funder",
       "layer": "obligation",
       "status": "full",
@@ -330,6 +365,7 @@
       "citations": []
     },
     {
+      "name": "External-List Exclusion Gate",
       "id": "external-list-exclusion-gate",
       "layer": "obligation",
       "status": "held-weak",
@@ -339,6 +375,7 @@
       "citations": []
     },
     {
+      "name": "Non-Delegable Obligation Retention",
       "id": "non-delegable-obligation-retention",
       "layer": "obligation",
       "status": "full",
@@ -348,6 +385,7 @@
       "citations": []
     },
     {
+      "name": "Safe Feedback Receipt Mechanism",
       "id": "safe-feedback-receipt-mechanism",
       "layer": "obligation",
       "status": "full",
@@ -357,6 +395,7 @@
       "citations": []
     },
     {
+      "name": "Feedback-Driven Program Adaptation",
       "id": "feedback-driven-program-adaptation",
       "layer": "obligation",
       "status": "full",
@@ -366,6 +405,7 @@
       "citations": []
     },
     {
+      "name": "Staff and Volunteer Competency Declaration",
       "id": "staff-and-volunteer-competency-declaration",
       "layer": "obligation",
       "status": "full",
@@ -375,6 +415,7 @@
       "citations": []
     },
     {
+      "name": "Activation Threshold Gate",
       "id": "activation-threshold-gate",
       "layer": "obligation",
       "status": "full",
@@ -384,6 +425,7 @@
       "citations": []
     },
     {
+      "name": "Milestone Payment Gate",
       "id": "milestone-payment-gate",
       "layer": "obligation",
       "status": "full",
@@ -393,6 +435,7 @@
       "citations": []
     },
     {
+      "name": "Downselection Gate",
       "id": "downselection-gate",
       "layer": "obligation",
       "status": "full",
@@ -402,6 +445,7 @@
       "citations": []
     },
     {
+      "name": "Affected Population Decision-Making Participation Threshold",
       "id": "affected-population-decision-making-participation-threshold",
       "layer": "obligation",
       "status": "full",
@@ -411,6 +455,7 @@
       "citations": []
     },
     {
+      "name": "Round-Level Domain Restriction",
       "id": "round-level-domain-restriction",
       "layer": "obligation",
       "status": "full",
@@ -420,6 +465,7 @@
       "citations": []
     },
     {
+      "name": "Per-Recipient Allocation Bounds",
       "id": "per-recipient-allocation-bounds",
       "layer": "obligation",
       "status": "full",
@@ -429,6 +475,7 @@
       "citations": []
     },
     {
+      "name": "Retroactive Impact Window",
       "id": "retroactive-impact-window",
       "layer": "obligation",
       "status": "full",
@@ -438,6 +485,7 @@
       "citations": []
     },
     {
+      "name": "Intake Cadence",
       "id": "intake-cadence",
       "layer": "obligation",
       "status": "full",
@@ -447,6 +495,7 @@
       "citations": []
     },
     {
+      "name": "Round Operator Configuration Authority",
       "id": "round-operator-configuration-authority",
       "layer": "obligation",
       "status": "full",
@@ -456,6 +505,7 @@
       "citations": []
     },
     {
+      "name": "Allocation Rule",
       "id": "allocation-rule",
       "layer": "obligation",
       "status": "full",
@@ -465,6 +515,7 @@
       "citations": []
     },
     {
+      "name": "Post-Allocation Integrity Adjustment Stage",
       "id": "post-allocation-integrity-adjustment-stage",
       "layer": "obligation",
       "status": "full",
@@ -474,6 +525,7 @@
       "citations": []
     },
     {
+      "name": "Bundled Capacity Instrument",
       "id": "bundled-capacity-instrument",
       "layer": "obligation",
       "status": "full",
@@ -483,6 +535,7 @@
       "citations": []
     },
     {
+      "name": "Post-Award Dissemination Obligation",
       "id": "post-award-dissemination-obligation",
       "layer": "obligation",
       "status": "full",
@@ -492,6 +545,7 @@
       "citations": []
     },
     {
+      "name": "True-Cost Declaration Obligation",
       "id": "true-cost-declaration-obligation",
       "layer": "obligation",
       "status": "full",
@@ -501,6 +555,7 @@
       "citations": []
     },
     {
+      "name": "Grantee Participation Obligation in Funder-Commissioned Evaluations",
       "id": "grantee-participation-obligation-in-funder-commissioned-evaluations",
       "layer": "obligation",
       "status": "full",
@@ -510,6 +565,7 @@
       "citations": []
     },
     {
+      "name": "Federated Network Membership Standard",
       "id": "federated-network-membership-standard",
       "layer": "obligation",
       "status": "full",
@@ -519,6 +575,7 @@
       "citations": []
     },
     {
+      "name": "Campaign-Contingent Disbursement Cycle",
       "id": "campaign-contingent-disbursement-cycle",
       "layer": "obligation",
       "status": "full",
@@ -528,6 +585,7 @@
       "citations": []
     },
     {
+      "name": "Pre-Mint Fraction Allocation Declaration",
       "id": "pre-mint-fraction-allocation-declaration",
       "layer": "obligation",
       "status": "full",
@@ -537,6 +595,7 @@
       "citations": []
     },
     {
+      "name": "Post-Grant Access Commitment Survivorship and Funder-Reserved Deployment License",
       "id": "post-grant-access-commitment-survivorship-and-funder-reserved-deployment-license",
       "layer": "obligation",
       "status": "held-weak",
@@ -546,6 +605,7 @@
       "citations": []
     },
     {
+      "name": "Allocator Competency Declaration",
       "id": "allocator-competency-declaration",
       "layer": "obligation",
       "status": "held-weak",
@@ -555,6 +615,7 @@
       "citations": []
     },
     {
+      "name": "Allocator Conflict Disclosure",
       "id": "allocator-conflict-disclosure",
       "layer": "obligation",
       "status": "held-weak",
@@ -564,6 +625,7 @@
       "citations": []
     },
     {
+      "name": "Allocator Decision Record",
       "id": "allocator-decision-record",
       "layer": "obligation",
       "status": "held-weak",
@@ -573,6 +635,7 @@
       "citations": []
     },
     {
+      "name": "Affected-Population Validation of the Allocation",
       "id": "affected-population-validation-of-the-allocation",
       "layer": "obligation",
       "status": "held-weak",
@@ -582,6 +645,7 @@
       "citations": []
     },
     {
+      "name": "Financing Instrument Type",
       "id": "financing-instrument-type",
       "layer": "obligation",
       "status": "full",
@@ -591,6 +655,7 @@
       "citations": []
     },
     {
+      "name": "Multi-Funder Collaborative Decision Authority",
       "id": "multi-funder-collaborative-decision-authority",
       "layer": "obligation",
       "status": "full",
@@ -600,6 +665,7 @@
       "citations": []
     },
     {
+      "name": "Adoption Gate",
       "id": "adoption-gate",
       "layer": "obligation",
       "status": "held-weak",
@@ -609,6 +675,7 @@
       "citations": []
     },
     {
+      "name": "Income-Based Graduation with Structured Phase-Down",
       "id": "income-based-graduation-with-structured-phase-down",
       "layer": "obligation",
       "status": "held-weak",
@@ -618,6 +685,7 @@
       "citations": []
     },
     {
+      "name": "Allocation Authority Scope Declaration",
       "id": "allocation-authority-scope-declaration",
       "layer": "obligation",
       "status": "held-weak",
@@ -627,6 +695,7 @@
       "citations": []
     },
     {
+      "name": "Community Decision-Maker Support Obligation",
       "id": "community-decision-maker-support-obligation",
       "layer": "obligation",
       "status": "held-weak",
@@ -636,6 +705,7 @@
       "citations": []
     },
     {
+      "name": "Returns-Scaled Impact Justification Obligation",
       "id": "returns-scaled-impact-justification-obligation",
       "layer": "obligation",
       "status": "held-weak",
@@ -645,6 +715,7 @@
       "citations": []
     },
     {
+      "name": "Funder Exit Transition Obligation",
       "id": "funder-exit-transition-obligation",
       "layer": "obligation",
       "status": "held-weak",
@@ -654,6 +725,7 @@
       "citations": []
     },
     {
+      "name": "Fund-Holder Discretion Obligation",
       "id": "fund-holder-discretion-obligation",
       "layer": "obligation",
       "status": "held-weak",
@@ -663,6 +735,7 @@
       "citations": []
     },
     {
+      "name": "Fund Segregation Requirement",
       "id": "fund-segregation-requirement",
       "layer": "obligation",
       "status": "held-weak",
@@ -672,6 +745,7 @@
       "citations": []
     },
     {
+      "name": "Contingency Reserve with Dual Deployment Architecture",
       "id": "contingency-reserve-with-dual-deployment-architecture",
       "layer": "obligation",
       "status": "held-weak",
@@ -681,6 +755,7 @@
       "citations": []
     },
     {
+      "name": "Evidence Scope",
       "id": "evidence-scope",
       "layer": "evidence",
       "status": "full",
@@ -690,6 +765,7 @@
       "citations": []
     },
     {
+      "name": "Evidence Strength",
       "id": "evidence-strength",
       "layer": "evidence",
       "status": "full",
@@ -699,6 +775,7 @@
       "citations": []
     },
     {
+      "name": "Evidence Type",
       "id": "evidence-type",
       "layer": "evidence",
       "status": "full",
@@ -708,6 +785,7 @@
       "citations": []
     },
     {
+      "name": "Causality Stance",
       "id": "causality-stance",
       "layer": "evidence",
       "status": "full",
@@ -717,6 +795,7 @@
       "citations": []
     },
     {
+      "name": "Intended vs. Unintended Effects",
       "id": "intended-vs-unintended-effects",
       "layer": "evidence",
       "status": "full",
@@ -726,6 +805,7 @@
       "citations": []
     },
     {
+      "name": "Attestation Corpus",
       "id": "attestation-corpus",
       "layer": "evidence",
       "status": "full",
@@ -735,6 +815,7 @@
       "citations": []
     },
     {
+      "name": "Determination Body Separation",
       "id": "determination-body-separation",
       "layer": "evidence",
       "status": "full",
@@ -744,6 +825,7 @@
       "citations": []
     },
     {
+      "name": "Upward Assurance Package",
       "id": "upward-assurance-package",
       "layer": "evidence",
       "status": "full",
@@ -753,6 +835,7 @@
       "citations": []
     },
     {
+      "name": "Typed Evidence Schema",
       "id": "typed-evidence-schema",
       "layer": "evidence",
       "status": "full",
@@ -765,6 +848,7 @@
       ]
     },
     {
+      "name": "Attested Claim Record",
       "id": "attested-claim-record",
       "layer": "evidence",
       "status": "full",
@@ -776,6 +860,7 @@
       ]
     },
     {
+      "name": "Displacement Risk Declaration",
       "id": "displacement-risk-declaration",
       "layer": "evidence",
       "status": "full",
@@ -787,6 +872,7 @@
       ]
     },
     {
+      "name": "Qualitative Mechanism Inquiry Requirement",
       "id": "qualitative-mechanism-inquiry-requirement",
       "layer": "evidence",
       "status": "full",
@@ -798,6 +884,7 @@
       ]
     },
     {
+      "name": "Contested-Domain Outcome Measurement Problem",
       "id": "contested-domain-outcome-measurement-problem",
       "layer": "evidence",
       "status": "full",
@@ -807,6 +894,7 @@
       "citations": []
     },
     {
+      "name": "Attested Third-Party Verification Record",
       "id": "attested-third-party-verification-record",
       "layer": "evidence",
       "status": "held-weak",
@@ -816,6 +904,7 @@
       "citations": []
     },
     {
+      "name": "Multi-Actor Population Outcome Attribution Rule",
       "id": "multi-actor-population-outcome-attribution-rule",
       "layer": "evidence",
       "status": "held-weak",
@@ -825,6 +914,7 @@
       "citations": []
     },
     {
+      "name": "Locked Counterfactual Baseline",
       "id": "locked-counterfactual-baseline",
       "layer": "evidence",
       "status": "held-weak",
@@ -834,6 +924,7 @@
       "citations": []
     },
     {
+      "name": "Disaggregated Population Progress Obligation",
       "id": "disaggregated-population-progress-obligation",
       "layer": "evidence",
       "status": "held-weak",
@@ -843,6 +934,7 @@
       "citations": []
     },
     {
+      "name": "Applicant Identity Instrument Types",
       "id": "applicant-identity-instrument-types",
       "layer": "specification",
       "status": "full",
@@ -852,6 +944,7 @@
       "citations": []
     },
     {
+      "name": "Disaggregation Floor",
       "id": "disaggregation-floor",
       "layer": "specification",
       "status": "full",
@@ -861,6 +954,7 @@
       "citations": []
     },
     {
+      "name": "Cross-Cutting Objective Classification System",
       "id": "cross-cutting-objective-classification-system",
       "layer": "specification",
       "status": "full",
@@ -872,6 +966,7 @@
       ]
     },
     {
+      "name": "Criteria Transmission Ceiling",
       "id": "criteria-transmission-ceiling",
       "layer": "specification",
       "status": "full",
@@ -883,6 +978,7 @@
       ]
     },
     {
+      "name": "Outcome Description Completeness Schema",
       "id": "outcome-description-completeness-schema",
       "layer": "specification",
       "status": "full",
@@ -896,6 +992,7 @@
       ]
     },
     {
+      "name": "Evidence Volume Floor",
       "id": "evidence-volume-floor",
       "layer": "specification",
       "status": "held-weak",
@@ -905,6 +1002,7 @@
       "citations": []
     },
     {
+      "name": "Parallel Indicator Architecture",
       "id": "parallel-indicator-architecture",
       "layer": "specification",
       "status": "full",
@@ -916,6 +1014,7 @@
       ]
     },
     {
+      "name": "Immutable Outcome Specification Lock",
       "id": "immutable-outcome-specification-lock",
       "layer": "specification",
       "status": "held-weak",
@@ -927,6 +1026,7 @@
       ]
     },
     {
+      "name": "Tiered Threshold Certification Architecture",
       "id": "tiered-threshold-certification-architecture",
       "layer": "specification",
       "status": "held-weak",
@@ -938,6 +1038,7 @@
       ]
     },
     {
+      "name": "Population Underservice Level Specification",
       "id": "population-underservice-level-specification",
       "layer": "specification",
       "status": "held-weak",
@@ -949,6 +1050,7 @@
       ]
     },
     {
+      "name": "Data Development Agenda",
       "id": "data-development-agenda",
       "layer": "specification",
       "status": "held-weak",
@@ -958,6 +1060,7 @@
       "citations": []
     },
     {
+      "name": "Population-Authored Indicator Component",
       "id": "population-authored-indicator-component",
       "layer": "specification",
       "status": "held-weak",
@@ -967,6 +1070,7 @@
       "citations": []
     },
     {
+      "name": "Condition-Creation Indicator Set",
       "id": "condition-creation-indicator-set",
       "layer": "specification",
       "status": "held-weak",
@@ -978,6 +1082,7 @@
       ]
     },
     {
+      "name": "Confidential Rotating-Pool Nomination Architecture",
       "id": "confidential-rotating-pool-nomination-architecture",
       "layer": "specification",
       "status": "held-weak",
@@ -990,6 +1095,7 @@
       ]
     },
     {
+      "name": "Locked Measurement Population Commitment",
       "id": "locked-measurement-population-commitment",
       "layer": "specification",
       "status": "held-weak",
@@ -1001,6 +1107,7 @@
       ]
     },
     {
+      "name": "Data Quality Assessment Procedure",
       "id": "data-quality-assessment-procedure",
       "layer": "specification",
       "status": "held-weak",
@@ -1010,6 +1117,7 @@
       "citations": []
     },
     {
+      "name": "Theory of Change Hierarchy",
       "id": "theory-of-change-hierarchy",
       "layer": "causal-architecture",
       "status": "full",
@@ -1019,6 +1127,7 @@
       "citations": []
     },
     {
+      "name": "Specification Directionality",
       "id": "specification-directionality",
       "layer": "causal-architecture",
       "status": "full",
@@ -1028,6 +1137,7 @@
       "citations": []
     },
     {
+      "name": "Pathway",
       "id": "pathway",
       "layer": "causal-architecture",
       "status": "full",
@@ -1037,6 +1147,7 @@
       "citations": []
     },
     {
+      "name": "Sustainability Stance",
       "id": "sustainability-stance",
       "layer": "causal-architecture",
       "status": "full",
@@ -1046,6 +1157,7 @@
       "citations": []
     },
     {
+      "name": "Enabling Condition",
       "id": "enabling-condition",
       "layer": "causal-architecture",
       "status": "full",
@@ -1055,6 +1167,7 @@
       "citations": []
     },
     {
+      "name": "Network Formation Outcome",
       "id": "network-formation-outcome",
       "layer": "causal-architecture",
       "status": "full",
@@ -1067,6 +1180,7 @@
       ]
     },
     {
+      "name": "Pre-Specified Disconfirmation Threshold",
       "id": "pre-specified-disconfirmation-threshold",
       "layer": "causal-architecture",
       "status": "full",
@@ -1076,6 +1190,7 @@
       "citations": []
     },
     {
+      "name": "Work-Impact Temporal Separation",
       "id": "work-impact-temporal-separation",
       "layer": "causal-architecture",
       "status": "full",
@@ -1085,6 +1200,7 @@
       "citations": []
     },
     {
+      "name": "Pre-Identification Platform Investment",
       "id": "pre-identification-platform-investment",
       "layer": "causal-architecture",
       "status": "held-weak",
@@ -1094,6 +1210,7 @@
       "citations": []
     },
     {
+      "name": "Sustainability Exit Criterion",
       "id": "sustainability-exit-criterion",
       "layer": "causal-architecture",
       "status": "held-weak",
@@ -1105,6 +1222,7 @@
       ]
     },
     {
+      "name": "Projection Requirement with Documented Assumptions",
       "id": "projection-requirement-with-documented-assumptions",
       "layer": "causal-architecture",
       "status": "held-weak",
@@ -1116,6 +1234,7 @@
       ]
     },
     {
+      "name": "Portfolio Position",
       "id": "portfolio-position",
       "layer": "portfolio",
       "status": "full",
@@ -1125,6 +1244,7 @@
       "citations": []
     },
     {
+      "name": "Portfolio-level Continuation Benchmark",
       "id": "portfolio-level-continuation-benchmark",
       "layer": "portfolio",
       "status": "full",
@@ -1134,6 +1254,7 @@
       "citations": []
     },
     {
+      "name": "Program Learning Architecture",
       "id": "program-learning-architecture",
       "layer": "portfolio",
       "status": "full",
@@ -1143,6 +1264,7 @@
       "citations": []
     },
     {
+      "name": "Multi-cycle Retrospective Assessment",
       "id": "multi-cycle-retrospective-assessment",
       "layer": "portfolio",
       "status": "full",
@@ -1152,6 +1274,7 @@
       "citations": []
     },
     {
+      "name": "Portfolio Analysis Outputs",
       "id": "portfolio-analysis-outputs",
       "layer": "portfolio",
       "status": "full",
@@ -1161,6 +1284,7 @@
       "citations": []
     },
     {
+      "name": "Cohort Position",
       "id": "cohort-position",
       "layer": "portfolio",
       "status": "full",
@@ -1170,6 +1294,7 @@
       "citations": []
     },
     {
+      "name": "Portfolio Transfer Declaration",
       "id": "portfolio-transfer-declaration",
       "layer": "portfolio",
       "status": "full",
@@ -1181,6 +1306,7 @@
       ]
     },
     {
+      "name": "Lifetime Relationship Program Structure",
       "id": "lifetime-relationship-program-structure",
       "layer": "portfolio",
       "status": "full",
@@ -1193,6 +1319,7 @@
       ]
     },
     {
+      "name": "Portfolio Cluster Evaluation",
       "id": "portfolio-cluster-evaluation",
       "layer": "portfolio",
       "status": "full",
@@ -1204,6 +1331,7 @@
       ]
     },
     {
+      "name": "Shared Capital Pool with Multiple Grantmaking Program Types",
       "id": "shared-capital-pool-with-multiple-grantmaking-program-types",
       "layer": "portfolio",
       "status": "full",
@@ -1213,6 +1341,7 @@
       "citations": []
     },
     {
+      "name": "Allocation Model with Strategic Supplement Pool",
       "id": "allocation-model-with-strategic-supplement-pool",
       "layer": "portfolio",
       "status": "full",
@@ -1224,6 +1353,7 @@
       ]
     },
     {
+      "name": "Terminal Adoption",
       "id": "terminal-adoption",
       "layer": "portfolio",
       "status": "full",
@@ -1235,6 +1365,7 @@
       ]
     },
     {
+      "name": "Mixed-Instrument Portfolio Configuration",
       "id": "mixed-instrument-portfolio-configuration",
       "layer": "portfolio",
       "status": "full",
@@ -1247,6 +1378,7 @@
       ]
     },
     {
+      "name": "Funder Portfolio Allocation Floor Declaration",
       "id": "funder-portfolio-allocation-floor-declaration",
       "layer": "portfolio",
       "status": "held-weak",
@@ -1258,6 +1390,7 @@
       ]
     },
     {
+      "name": "Program Duration Declaration",
       "id": "program-duration-declaration",
       "layer": "portfolio",
       "status": "held-weak",
@@ -1270,6 +1403,7 @@
       ]
     },
     {
+      "name": "Funder-Operated Alumni Infrastructure",
       "id": "funder-operated-alumni-infrastructure",
       "layer": "portfolio",
       "status": "held-weak",
@@ -1281,6 +1415,7 @@
       ]
     },
     {
+      "name": "Dedicated Fund Isolation Architecture",
       "id": "dedicated-fund-isolation-architecture",
       "layer": "portfolio",
       "status": "held-weak",
@@ -1292,6 +1427,7 @@
       ]
     },
     {
+      "name": "Restricted Fund Isolation Architecture",
       "id": "restricted-fund-isolation-architecture",
       "layer": "portfolio",
       "status": "held-weak",
@@ -1303,6 +1439,7 @@
       ]
     },
     {
+      "name": "Constellation-Level Portfolio Assessment",
       "id": "constellation-level-portfolio-assessment",
       "layer": "portfolio",
       "status": "held-weak",
@@ -1314,6 +1451,7 @@
       ]
     },
     {
+      "name": "Hypothesis-Grounded Learning Obligation",
       "id": "hypothesis-grounded-learning-obligation",
       "layer": "portfolio",
       "status": "held-weak",
