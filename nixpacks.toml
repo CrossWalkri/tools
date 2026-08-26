@@ -1,0 +1,18 @@
+# Explicit build config so nixpacks/corepack do not negotiate the package manager.
+# Corepack 0.24.1 (nixpacks default) throws ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING
+# with modern pnpm, so we install pnpm directly via npm and skip corepack.
+
+[phases.setup]
+nixPkgs = ["nodejs_22"]
+
+[phases.install]
+cmds = [
+  "npm install -g pnpm@10",
+  "pnpm install --no-frozen-lockfile",
+]
+
+[phases.build]
+cmds = [
+  "pnpm build",
+  "pnpm bundle",
+]
