@@ -6,20 +6,35 @@ The standards are CC0 at [github.com/CrossWalkri](https://github.com/CrossWalkri
 
 ## Quick start
 
-Clone [the repository](https://github.com/CrossWalkri/tools) and point your MCP client at `server.mjs` in the root. It is a single bundled file, so there is no build step and no package manager.
+This server is hosted as a public HTTP endpoint, and is published to npm and JSR, so you can connect the hosted server with nothing to install or run it locally.
+
+Connect the hosted server:
 
 ```json
 {
   "mcpServers": {
     "evidence-integrity": {
-      "command": "node",
-      "args": ["/path/to/cross-walkri-tools/server.mjs"]
+      "type": "http",
+      "url": "https://proof-of-coordevidence-integrity-production.up.railway.app/mcp"
     }
   }
 }
 ```
 
-Claude Code reads this from `~/.claude/settings.json`; Cursor from `.cursor/mcp.json`. Any stdio-transport MCP client works. An HTTP transport is available at `server-http.mjs` for clients that need it.
+Or run it locally from npm, no clone:
+
+```json
+{
+  "mcpServers": {
+    "evidence-integrity": {
+      "command": "npx",
+      "args": ["-y", "@proof-of-coord/evidence-integrity"]
+    }
+  }
+}
+```
+
+Claude Code reads MCP config from `~/.claude.json`; Cursor from `.cursor/mcp.json`. The full reference for every method (hosted, npm, JSR, and a local clone, using the bundled `server.mjs`) is [Using the MCP servers](https://github.com/durgadasji/standards-index/blob/main/using-the-mcp-servers.md).
 
 ## The four standards
 

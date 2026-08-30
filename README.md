@@ -13,6 +13,39 @@ CROSS (Common Reporting Outcome Standards Schema) specifies the obligation archi
 
 ## Quick start
 
+The server is hosted as a public HTTP endpoint, and is also published to npm and JSR, so you can connect the hosted server with nothing to install or run it locally.
+
+Connect the hosted server:
+
+```json
+{
+  "mcpServers": {
+    "evidence-integrity": {
+      "type": "http",
+      "url": "https://proof-of-coordevidence-integrity-production.up.railway.app/mcp"
+    }
+  }
+}
+```
+
+Or run it locally from npm, no clone:
+
+```json
+{
+  "mcpServers": {
+    "evidence-integrity": {
+      "command": "npx",
+      "args": ["-y", "@proof-of-coord/evidence-integrity"]
+    }
+  }
+}
+```
+
+Claude Code reads MCP config from `~/.claude.json`; Cursor from `.cursor/mcp.json`. The full reference for every method (hosted, npm, JSR, and a local clone) is [Using the MCP servers](https://github.com/durgadasji/standards-index/blob/main/using-the-mcp-servers.md).
+
+<details>
+<summary>Run from a local clone</summary>
+
 Clone this repo and point your MCP client at `server.mjs` in the root. No build step, no package manager.
 
 ```json
@@ -26,29 +59,7 @@ Clone this repo and point your MCP client at `server.mjs` in the root. No build 
 }
 ```
 
-Claude Code reads this from `~/.claude/settings.json`; Cursor from `.cursor/mcp.json`. Any stdio-transport MCP client works.
-
-<details>
-<summary>Alternative: install from JSR</summary>
-
-Both packages are published on JSR at [jsr.io/@proof-of-coord](https://jsr.io/@proof-of-coord). The install names are compressed because the registry caps both halves of a package name at twenty characters; the full names appear throughout this document and in what the server reports.
-
-```bash
-npx jsr add @proof-of-coord/evidence-integrity
-```
-
-```json
-{
-  "mcpServers": {
-    "evidence-integrity": {
-      "command": "npx",
-      "args": ["jsr", "run", "@proof-of-coord/evidence-integrity"]
-    }
-  }
-}
-```
-
-For the core library alone: `npx jsr add @proof-of-coord/evidence-core`.
+The names on the registries are compressed because the registry caps each half of a package name at twenty characters; the full names appear throughout this document and in what the server reports. The core library alone is on npm as `@proof-of-coord/evidence-core` and on JSR as `jsr:@proof-of-coord/evidence-core`.
 
 </details>
 
@@ -119,7 +130,7 @@ For the core library alone: `npx jsr add @proof-of-coord/evidence-core`.
 
 **CROSS gate logic**: `getGateRequirements(gateType, obligationMode): string[]`, `validateRoundConfig(round: CrossRound): { valid: boolean; gaps: string[] }`, `classifyObligationMode(description: string): CrossObligationMode`
 
-**Primitives**: `PRIMITIVES` (typed const array of all 50), `getPrimitiveByName(name: string)`, `getPrimitivesByLayer(layer: PrimitiveLayer)`, `searchPrimitives(keyword: string)`
+**Primitives**: `PRIMITIVES` (typed const array of all 146), `getPrimitiveByName(name: string)`, `getPrimitivesByLayer(layer: PrimitiveLayer)`, `searchPrimitives(keyword: string)`
 
 **Lenses Framework**: `LENSES` (typed const array of the five lenses), `getLens(id)`, `getLensValue(lensId, valueId)`, `getAllLensIds()`
 
@@ -149,10 +160,10 @@ Both packages are dedicated to the public domain under Creative Commons Zero v1.
 
 ## Verification
 
-Every push runs typecheck, build and the test suite across Node 20, 22 and 24, and rebuilds the bundles to confirm they match source. Publishing is gated on the same checks plus a dry run: a tag alone does not publish.
+Every push runs typecheck, build and the test suite across Node 22 and 24, and rebuilds the bundles to confirm they match source. Publishing is gated on the same checks plus a dry run: a tag alone does not publish.
 
 ```bash
-pnpm test          # 43 tests
+pnpm test          # 47 tests
 pnpm typecheck
 pnpm bundle        # regenerate the zero-install entry points
 ```

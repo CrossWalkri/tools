@@ -16,12 +16,16 @@ Four published standards sit underneath it, all CC0 at [github.com/CrossWalkri](
 
 ## Install
 
-```bash
-deno add jsr:@proof-of-coord/evidence-core
-```
+This is a library, not an MCP server. Install it from npm:
 
 ```bash
-npx jsr add @proof-of-coord/evidence-core
+npm install @proof-of-coord/evidence-core
+```
+
+Or from JSR (Deno):
+
+```bash
+deno add jsr:@proof-of-coord/evidence-core
 ```
 
 ## What it exports
