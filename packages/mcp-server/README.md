@@ -34,7 +34,7 @@ Or run it locally from npm, no clone:
 }
 ```
 
-Claude Code reads MCP config from `~/.claude.json`; Cursor from `.cursor/mcp.json`. The full reference for every method (hosted, npm, JSR, and a local clone, using the bundled `server.mjs`) is [Using the MCP servers](https://github.com/durgadasji/standards-index/blob/main/using-the-mcp-servers.md).
+Claude Code reads MCP config from `~/.claude.json`; Cursor from `.cursor/mcp.json`. The four MCP servers are listed at [integritysuite.org/built](https://integritysuite.org/built), and the full reference for every method (hosted, npm, JSR, and a local clone, using the bundled `server.mjs`) is [Using the MCP servers](https://github.com/durgadasji/standards-index/blob/main/using-the-mcp-servers.md).
 
 ## The four standards
 
