@@ -10,7 +10,7 @@ RUN npm install -g pnpm@10
 
 # Install and build the workspace, then bundle the server.
 COPY . .
-RUN pnpm install --no-frozen-lockfile
+RUN pnpm install --frozen-lockfile
 RUN pnpm build && pnpm bundle
 
 # Railway provides PORT; the server reads it and serves /health and /mcp.
