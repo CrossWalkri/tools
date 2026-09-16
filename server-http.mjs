@@ -27743,9 +27743,7 @@ var httpServer = createHttpServer(async (req, res) => {
         res.end(JSON.stringify({ error: "Invalid JSON" }));
         return;
       }
-      const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => crypto.randomUUID()
-      });
+      const transport = new StreamableHTTPServerTransport({});
       const server = createMcpServer();
       await server.connect(transport);
       await transport.handleRequest(req, res, parsedBody);

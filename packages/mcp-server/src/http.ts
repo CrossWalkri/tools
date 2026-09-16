@@ -45,9 +45,14 @@ const httpServer = createHttpServer(async (req, res) => {
         return
       }
 
-      const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => crypto.randomUUID(),
-      })
+      // Stateless mode: omit sessionIdGenerator. Per the SDK, if it is not
+      // provided, session management is disabled (stateless). A fresh
+      // transport+server pair is created per request and discarded after, so
+      // there is no session to carry across requests. Providing a generator
+      // instead puts the transport into stateful mode, where every
+      // non-initialize request lands on a transport whose _initialized is false
+      // and is rejected with "Bad Request: Server not initialized".
+      const transport = new StreamableHTTPServerTransport({})
       const server = createMcpServer()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await server.connect(transport as any)
