@@ -140,6 +140,8 @@ The names on the registries are compressed because the registry caps each half o
 
 </details>
 
+**Machine-readable layer.** The CRAFT family also ships a machine-readable fetch surface (per-standard JSON Schema, register, and conformant and non-conformant examples, indexed by a family manifest) for a consumer that ingests the standards as data rather than calling these tools. It lives as one source in [Polymathie-Studio/tools](https://github.com/Polymathie-Studio/tools), under `machine-readable/craft/` (sources) and `schema/craft/` (generated schemas); start from the [CRAFT family manifest](https://raw.githubusercontent.com/Polymathie-Studio/tools/main/schema/craft/craft-manifest.json).
+
 ## The family
 
 These tools implement the grants standards: [CROSS](https://github.com/CrossWalkri/CROSS), [WALKRI](https://github.com/CrossWalkri/WALKRI), and [GRAIN](https://github.com/CrossWalkri/GRAIN), with [CRAFT](https://github.com/CrossWalkri/craft-meta-standard) and [ORE](https://github.com/CrossWalkri/ORE) beneath them as the evidence layer. A sibling repository serves the Coordination Structural Integrity Suite and the Frame Language vocabulary discipline as MCP servers of the same shape: [coordination-structural-integrity-suite/tools](https://github.com/coordination-structural-integrity-suite/tools). The standards' public home, with a working round configurator and prompt library, is [crosswalkri.com](https://crosswalkri.com).
