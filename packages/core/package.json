@@ -9,9 +9,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "pnpm generate && tsc",
-    "typecheck": "tsc --noEmit",
-    "generate": "node ../../scripts/generate-primitives.mjs"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
